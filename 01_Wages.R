@@ -1,12 +1,19 @@
 ### BAS: Building towards Artificial Societies
+# Model 1:
+#   no Fixed Capital
+#   X  Constraints on Labour Offer
+#   no Innovation
+###
 # renv::init()
 # renv::restore()
-renv::install("sfcr", prompt = FALSE)
-renv::install("tidyverse", prompt = FALSE)
-renv::install("networkD3", prompt = FALSE)
-renv::install("ggraph", prompt = FALSE)
-renv::snapshot()
-renv::status()
+# renv::install("sfcr", prompt = FALSE)
+# renv::install("devtools", prompt = FALSE)
+# devtools::install_github("TnTo/sfcr", ref = "sankey")
+# renv::install("tidyverse", prompt = FALSE)
+# renv::install("networkD3", prompt = FALSE)
+# renv::install("ggraph", prompt = FALSE)
+# renv::snapshot()
+# renv::status()
 library(sfcr)
 library(tidyverse)
 
