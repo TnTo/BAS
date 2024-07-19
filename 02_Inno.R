@@ -1,14 +1,23 @@
 ### BAS: Building towards Artificial Societies
+# Model 2:
+#   no Fixed Capital
+#   X  Constraints on Labour Offer
+#   X  Innovation
+###
 # renv::init()
 # renv::restore()
-renv::install("sfcr", prompt = FALSE)
-renv::install("tidyverse", prompt = FALSE)
-renv::install("networkD3", prompt = FALSE)
-renv::install("ggraph", prompt = FALSE)
+# renv::install("sfcr", prompt = FALSE)
+# renv::install("devtools", prompt = FALSE)
+# devtools::install_github("TnTo/sfcr", ref = "sankey")
+# renv::install("tidyverse", prompt = FALSE)
+# renv::install("networkD3", prompt = FALSE)
+# renv::install("ggraph", prompt = FALSE)
+# renv::install("ggpubr", prompt = FALSE)
 renv::snapshot()
 renv::status()
 library(sfcr)
 library(tidyverse)
+library(ggpubr)
 
 ## A modelCon Dream
 model_eqs <- sfcr_set(
@@ -31,7 +40,9 @@ model_eqs <- sfcr_set(
     T ~ tW * W + tP * P + tC * C,
     # p ~ (1 + mu) * W / (Y / p)
     p ~ (1 + mu) * W / (N * beta[-1]),
-    beta ~ beta[-1] * (1 + aBeta * N)
+    beta ~ beta[-1] * (1 + aBeta * N),
+    g ~ Y / Y[-1] - 1,
+    rg ~ (Y / p) / (Y[-1] / p[-1]) - 1
 )
 
 sfcr_dag_cycles_plot(model_eqs, size = 6)
@@ -65,7 +76,7 @@ model_ext <- sfcr_set(
     tP ~ 0.2,
     tC ~ 0.2,
     aW ~ 0.05,
-    aBeta ~ 0.1
+    aBeta ~ 0.05
 )
 
 model_init <- sfcr_set(
@@ -81,7 +92,7 @@ model <- sfcr_baseline(
     equations = model_eqs,
     external = model_ext,
     init = model_init,
-    periods = 1000,
+    periods = 100,
     tol = 1e-7,
     hidden = c("MG" = "VG"),
     hidden_tol = 1e-7,
@@ -94,26 +105,101 @@ sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
 
 sfcr_sankey(model_tfm, model, when = "end")
 
-model %>%
-    pivot_longer(cols = -period) %>%
-    filter(name %in% c("MH", "MF", "MG", "VH", "VF", "VG")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
+low_inno_shock <- sfcr_shock(
+    variables = sfcr_set(aBeta ~ 0.025),
+    start = 1,
+    end = 100
+)
 
-model %>%
-    pivot_longer(cols = -period) %>%
-    filter(name %in% c("C", "G", "Y", "W", "P")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
+high_inno_shock <- sfcr_shock(
+    variables = sfcr_set(aBeta ~ 0.075),
+    start = 1,
+    end = 100
+)
 
-model %>%
-    pivot_longer(cols = -period) %>%
-    filter(name %in% c("p", "N")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
+low_inno_model <- sfcr_scenario(
+    model,
+    low_inno_shock,
+    periods = 100
+)
 
-model %>%
-    pivot_longer(cols = -period) %>%
-    filter(name %in% c("N", "rY")) %>%
+high_inno_model <- sfcr_scenario(
+    model,
+    high_inno_shock,
+    periods = 100
+)
+
+data <- model %>%
+    full_join(low_inno_model, by = "period", suffix = c("", ".low")) %>%
+    full_join(high_inno_model, by = "period", suffix = c("", ".high")) %>%
+    pivot_longer(cols = -period)
+
+ggarrange(
+    data %>%
+        filter(name %in% c("MH", "MF", "MG", "VH", "VF", "VG")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("MH.low", "MF.low", "MG.low", "VH.low", "VF.low", "VG.low")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("MH.high", "MF.high", "MG.high", "VH.high", "VF.high", "VG.high")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    nrow = 3
+)
+
+ggarrange(
+    data %>%
+        filter(name %in% c("C", "G", "Y", "W", "P")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("C.low", "G.low", "Y.low", "W.low", "P.low")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("C.high", "G.high", "Y.high", "W.high", "P.high")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    nrow = 3
+)
+
+ggarrange(
+    data %>%
+        filter(name %in% c("p", "N")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("p.low", "N.low")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("p.high", "N.high")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    nrow = 3
+)
+
+ggarrange(
+    data %>%
+        filter(name %in% c("N", "rY")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("N.low", "rY.low")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("N.high", "rY.high")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    nrow = 3
+)
+
+data %>%
+    filter(name %in% c("g", "rg", "g.low", "rg.low", "g.high", "rg.high")) %>%
+    filter(period >= 3) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
