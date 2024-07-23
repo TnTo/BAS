@@ -88,43 +88,49 @@ model_init <- sfcr_set(
     beta ~ 1.1,
 )
 
-model <- sfcr_baseline(
+model_base <- sfcr_baseline(
     equations = model_eqs,
     external = model_ext,
     init = model_init,
-    periods = 100,
+    periods = 50,
     tol = 1e-7,
     hidden = c("MG" = "VG"),
     hidden_tol = 1e-7,
     method = "Broyden"
 )
 
-sfcr_validate(model_bs, model, "bs", tol = 1e-7, rtol = TRUE)
+sfcr_validate(model_bs, model_base, "bs", tol = 1e-7, rtol = TRUE)
 
-sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
+sfcr_validate(model_tfm, model_base, "tfm", tol = 1e-7, rtol = TRUE)
 
-sfcr_sankey(model_tfm, model, when = "end")
+sfcr_sankey(model_tfm, model_base, when = "end")
 
 low_inno_shock <- sfcr_shock(
     variables = sfcr_set(aBeta ~ 0.025),
-    start = 1,
+    start = 5,
     end = 100
 )
 
 high_inno_shock <- sfcr_shock(
     variables = sfcr_set(aBeta ~ 0.075),
-    start = 1,
+    start = 5,
     end = 100
 )
 
+model <- sfcr_scenario(
+    model_base,
+    NULL,
+    periods = 100
+)
+
 low_inno_model <- sfcr_scenario(
-    model,
+    model_base,
     low_inno_shock,
     periods = 100
 )
 
 high_inno_model <- sfcr_scenario(
-    model,
+    model_base,
     high_inno_shock,
     periods = 100
 )
@@ -200,6 +206,18 @@ ggarrange(
 
 data %>%
     filter(name %in% c("g", "rg", "g.low", "rg.low", "g.high", "rg.high")) %>%
-    filter(period >= 3) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+
+###
+# Same qualitative dynamics: costant growth rate
+#
+# Baseline: wage ~ productivity
+#
+# Low productivity growth shows highest nominal growth rate but very low real growth rate
+# Inflation as adjusting mechanism, full employment
+# Highest nominal GDP, Lowest real GDP (by a lot a lot)
+#
+# High productivity growth shows lowest nominal growth rate but higher real growth rate
+# Deflation as adjusting mechanism, low employment
+# Lowest nominal GDP (by a lot), Highest real GDP
