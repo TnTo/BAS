@@ -13,8 +13,8 @@
 # renv::install("networkD3", prompt = FALSE)
 # renv::install("ggraph", prompt = FALSE)
 # renv::install("ggpubr", prompt = FALSE)
-renv::snapshot()
-renv::status()
+# renv::snapshot()
+# renv::status()
 library(sfcr)
 library(tidyverse)
 library(ggpubr)
@@ -30,7 +30,8 @@ model_eqs <- sfcr_set(
     CT ~ ay * W[-1] + av * MH[-1],
     GT ~ d * (Y[-1]) + T[-1],
     YT ~ CT + GT,
-    W ~ W[-1] * (1 + aW * N[-1]),
+    W0 ~ W0[-1] * (1 + aW * N[-1]),
+    W ~ W0 * N,
     N ~ min(1, YT / (beta[-1] * p[-1])),
     Y ~ N * beta[-1] * p,
     C ~ CT * Y / YT,
@@ -84,7 +85,7 @@ model_init <- sfcr_set(
     VH ~ 1,
     MG ~ 1,
     VG ~ 1,
-    W ~ 1,
+    W0 ~ 1,
     beta ~ 1.1,
 )
 
@@ -213,11 +214,13 @@ data %>%
 # Same qualitative dynamics: costant growth rate
 #
 # Baseline: wage ~ productivity
+# High employment
+# Stable prices
 #
 # Low productivity growth shows highest nominal growth rate but very low real growth rate
 # Inflation as adjusting mechanism, full employment
 # Highest nominal GDP, Lowest real GDP (by a lot a lot)
 #
-# High productivity growth shows lowest nominal growth rate but higher real growth rate
-# Deflation as adjusting mechanism, low employment
-# Lowest nominal GDP (by a lot), Highest real GDP
+# High productivity growth shows the lowest nominal growth rate but the highest real growth rate
+# Deflation as adjusting mechanism, lower employment
+# Lowest nominal GDP, Highest output

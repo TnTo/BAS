@@ -28,7 +28,8 @@ model_eqs <- sfcr_set(
     CT ~ ay * W[-1] + av * MH[-1],
     GT ~ d * (Y[-1]) + T[-1],
     YT ~ CT + GT,
-    W ~ W[-1] * (1 + aW * N[-1]),
+    W0 ~ W0[-1] * (1 + aW * N[-1]),
+    W ~ W0 * N,
     N ~ min(1, YT / (beta * p[-1])),
     Y ~ N * beta * p,
     C ~ CT * Y / YT,
@@ -79,7 +80,7 @@ model_init <- sfcr_set(
     VH ~ 1,
     MG ~ 1,
     VG ~ 1,
-    W ~ 1
+    W0 ~ 1
 )
 
 model <- sfcr_baseline(
@@ -97,7 +98,7 @@ sfcr_validate(model_bs, model, "bs", tol = 1e-7, rtol = TRUE)
 
 sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
 
-sfcr_sankey(model_tfm, model)
+sfcr_sankey(model_tfm, model, "end")
 
 model %>%
     pivot_longer(cols = -period) %>%
