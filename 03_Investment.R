@@ -34,7 +34,7 @@ model_eqs <- sfcr_set(
     GT ~ (d * (Y[-1]) + T[-1]) / pC[-1],
     YT ~ CT + GT,
     IT ~ max(0, Ku[-1] * (1 / cuT - 1 / cu[-1]) + dK * K[-1]),
-    NCT ~ min(1, max(K[-1], YT / betaC[-1])),
+    NCT ~ min(1, K[-1], YT / betaC[-1]),
     NKT ~ min(1, IT / betaK[-1]),
     NT ~ NCT + NKT,
     N ~ min(1, NT),
@@ -236,7 +236,7 @@ ggarrange(
 
 data %>%
     filter(name %in% c("g", "rg", "g.C", "rg.C", "g.K", "rg.K")) %>%
-    filter(period > 6) %>%
+    filter(period > 15) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
 
