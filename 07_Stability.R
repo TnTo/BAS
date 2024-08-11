@@ -17,6 +17,7 @@ renv::snapshot()
 renv::status()
 library(sfcr)
 library(tidyverse)
+library(purrr)
 library(ggpubr)
 
 ## A modelCon Dream
@@ -39,7 +40,7 @@ model_eqs <- sfcr_set(
     IKT ~ max(0, KKu[-1] * (1 / cuT - 1 / cuK[-1]) + dK * KK[-1], na.rm = TRUE),
     YKT ~ IT + IKT,
     NCT ~ min(1, KC[-1], YT / betaC[-1]),
-    NKT ~ min(1, KK[-1], YKT / betaK[-1]),
+    NKT ~ min(1, KK[-1], YKT / betaK),
     NT ~ NCT + NKT,
     N ~ min(1, NT),
     NC ~ NCT * N / NT,
@@ -51,7 +52,7 @@ model_eqs <- sfcr_set(
     Y ~ NC * betaC[-1],
     C ~ CT * Y / YT,
     G ~ GT * Y / YT,
-    YK ~ NK * betaK[-1],
+    YK ~ NK * betaK,
     I ~ ifelse(IT > 0, IT * YK / YKT, 0),
     IK ~ ifelse(IKT > 0, IKT * YK / YKT, 0),
     P ~ PFC + PFK,
@@ -61,9 +62,8 @@ model_eqs <- sfcr_set(
     muC ~ muC[-1] * (1 + Thetha * (cuC[-1] - cuT) / cuT),
     muK ~ muK[-1] * (1 + Thetha * (cuK[-1] - cuT) / cuT),
     pC ~ (1 + muC) * W0 / betaC[-1],
-    pK ~ (1 + muK) * W0 / betaK[-1],
-    betaC ~ betaC[-1] * (1 + aBeta * N),
-    betaK ~ betaK[-1] * (1 + aBeta * N),
+    pK ~ (1 + muK) * W0 / betaK,
+    betaC ~ betaC[-1] * (1 + aBetaC * N),
     KCu ~ min(NC, KC[-1]),
     KKu ~ min(NK, KK[-1]),
     Ku ~ KCu + KKu,
@@ -111,7 +111,8 @@ model_ext <- sfcr_set(
     tP ~ 0.2,
     tC ~ 0.2,
     aW ~ 0.05,
-    aBeta ~ 0.05,
+    aBetaC ~ 0.05,
+    betaK ~ 1.0,
     cuT ~ 0.8,
     dK ~ 0.1,
     Thetha ~ 0.1
@@ -123,80 +124,149 @@ model_init <- sfcr_set(
     MG ~ 1,
     VG ~ 1,
     W0 ~ 1,
-    KC ~ 0.1,
-    KK ~ 0.1,
-    K ~ 0.2,
+    KC ~ 0.3,
+    KK ~ 0.3,
+    K ~ 0.6,
     betaC ~ 1.1,
-    betaK ~ 1.1,
     cuC ~ 1,
     cuK ~ 1,
     muC ~ 0.2,
     muK ~ 0.2
 )
 
-model <- sfcr_baseline(
+model_base <- sfcr_baseline(
     equations = model_eqs,
     external = model_ext,
     init = model_init,
-    periods = 250,
+    periods = 2,
     tol = 1e-7,
     hidden = c("V" = "pKK"),
     hidden_tol = 1e-7,
     method = "Broyden"
 )
 
-sfcr_validate(model_bs, model, "bs", tol = 1e-7, rtol = TRUE)
+sfcr_validate(model_bs, model_base, "bs", tol = 1e-7, rtol = TRUE)
 
-sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
+sfcr_validate(model_tfm, model_base, "tfm", tol = 1e-7, rtol = TRUE)
 
-sfcr_sankey(model_tfm, model, when = "end")
+L <- 200
 
-data <- model %>%
+m0 <- sfcr_scenario(
+    model_base,
+    NULL,
+    periods = L
+)
+
+sh1 <- sfcr_shock(
+    variables = sfcr_set(betaK ~ 1.1),
+    start = 1,
+    end = L
+)
+
+m1 <- sfcr_scenario(
+    model_base,
+    sh1,
+    periods = L
+)
+
+sh2 <- sfcr_shock(
+    variables = sfcr_set(betaK ~ 0.9),
+    start = 1,
+    end = L
+)
+
+m2 <- sfcr_scenario(
+    model_base,
+    sh2,
+    periods = L
+)
+
+data <- m0 %>%
+    full_join(m1, by = "period", suffix = c("", ".H")) %>%
+    full_join(m2, by = "period", suffix = c("", ".L")) %>%
     pivot_longer(cols = -period)
 
-data %>%
-    filter(name %in% c("MH", "MFC", "MFK", "MG", "VH", "VFC", "VFK", "VG")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
+suffixes <- c("", ".H", ".L")
+
+plot_vars_multi <- function(data, vars, suffixes = c(""), start = 1) {
+    ggarrange(
+        plotlist = map(
+            suffixes,
+            (\(s) {
+                data %>%
+                    filter(name %in% map(
+                        vars,
+                        (\(x) paste(x, s, sep = ""))
+                    )) %>%
+                    filter(period >= start) %>%
+                    ggplot(aes(x = period, y = value)) +
+                    geom_line(aes(linetype = name, color = name))
+            })
+        ),
+        nrow = length(suffixes)
+    )
+}
+
+plot_vars_multi(
+    data,
+    c("MH", "MFC", "MFK", "MG", "VH", "VFC", "VFK", "VG"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
+    c("MH", "MFC", "MFK", "MG"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
+    c("C", "G", "Y", "YK", "I", "IK", "W", "P", "GDP"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
+    c("C", "G", "Y", "YK", "I", "IK"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
+    c("pC", "pK", "muC", "muK"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
+    c("muC", "muK"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
+    c("PFC", "PFK"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
+    c("cu", "cuC", "cuK"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
+    c("g", "rg"),
+    suffixes,
+    start = 10
+)
+
+plot_vars_multi(
+    data,
+    c("N", "NC", "NK"),
+    suffixes
+)
 
 
-data %>%
-    filter(name %in% c("C", "G", "Y", "YK", "I", "IK", "W", "P", "GDP")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
-
-data %>%
-    filter(name %in% c("PFC", "PFK")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
-
-data %>%
-    filter(name %in% c("pC", "pK", "muC", "muK", "NC", "NK")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
-
-data %>%
-    filter(name %in% c("muC", "muK")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
-
-data %>%
-    filter(name %in% c("cu", "cuC", "cuK")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
-
-data %>%
-    filter(name %in% c("g", "rg")) %>%
-    filter(period > 6) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
-
-data %>%
-    filter(name %in% c("N", "NC", "NK")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
-
-data %>%
-    filter(name %in% c("I", "IK")) %>%
-    ggplot(aes(x = period, y = value)) +
-    geom_line(aes(linetype = name, color = name))
+###

@@ -186,15 +186,15 @@ data <- model %>%
 
 ggarrange(
     data %>%
-        filter(name %in% c("MH", "MF", "MG", "VH", "VF", "VG")) %>%
+        filter(name %in% c("MH", "MFC", "MFK", "MG", "VH", "VF", "VG")) %>%
         ggplot(aes(x = period, y = value)) +
         geom_line(aes(linetype = name, color = name)),
     data %>%
-        filter(name %in% c("MH.C", "MF.C", "MG.C", "VH.C", "VF.C", "VG.C")) %>%
+        filter(name %in% c("MH.C", "MFC.C", "MFK.C", "MG.C", "VH.C", "VF.C", "VG.C")) %>%
         ggplot(aes(x = period, y = value)) +
         geom_line(aes(linetype = name, color = name)),
     data %>%
-        filter(name %in% c("MH.K", "MF.K", "MG.K", "VH.K", "VF.K", "VG.K")) %>%
+        filter(name %in% c("MH.K", "MFC.K", "MFK.K", "MG.K", "VH.K", "VF.K", "VG.K")) %>%
         ggplot(aes(x = period, y = value)) +
         geom_line(aes(linetype = name, color = name)),
     nrow = 3
@@ -215,6 +215,27 @@ ggarrange(
         geom_line(aes(linetype = name, color = name)),
     nrow = 3
 )
+
+ggarrange(
+    data %>%
+        filter(name %in% c("PFC", "PFK")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("PFC.C", "PFK.C")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    data %>%
+        filter(name %in% c("PFC.K", "PFK.K")) %>%
+        ggplot(aes(x = period, y = value)) +
+        geom_line(aes(linetype = name, color = name)),
+    nrow = 3
+)
+
+data %>%
+    filter(name %in% c("I", "I.C", "I.K")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
 
 ggarrange(
     data %>%

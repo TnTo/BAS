@@ -229,6 +229,12 @@ plot_vars_multi(
 
 plot_vars_multi(
     data,
+    c("P", "PFC", "PFK"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
     c("pC", "pK", "muC", "muK", "NC", "NK"),
     suffixes
 )
@@ -278,5 +284,5 @@ ggarrange(
 )
 
 ###
-# No K innovation stabilize the employment share in FK sector
+# No K innovation stabilize the employment share in FK sector BUT create negative profits
 ###
