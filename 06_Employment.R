@@ -229,6 +229,12 @@ plot_vars_multi(
 
 plot_vars_multi(
     data,
+    c("I", "IK"),
+    suffixes
+)
+
+plot_vars_multi(
+    data,
     c("P", "PFC", "PFK"),
     suffixes
 )
