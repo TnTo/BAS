@@ -36,8 +36,8 @@ model_eqs <- sfcr_set(
     CT ~ (ay * W[-1] + av * MH[-1]) / pC[-1],
     GT ~ (d * (Y[-1]) + T[-1]) / pC[-1],
     YT ~ CT + GT,
-    IT ~ max(0, KCu[-1] * (1 / cuT - 1 / cuC[-1]) + dK * KC[-1], na.rm = TRUE),
-    IKT ~ max(0, KKu[-1] * (1 / cuT - 1 / cuK[-1]) + dK * KK[-1], na.rm = TRUE),
+    IT ~ max(0, KCu[-1] * ThetaI * (1 / cuT - 1 / cuC[-1]) + dK * KC[-1], na.rm = TRUE),
+    IKT ~ max(0, KKu[-1] * ThetaI * (1 / cuT - 1 / cuK[-1]) + dK * KK[-1], na.rm = TRUE),
     YKT ~ IT + IKT,
     NCT ~ min(1, KC[-1], YT / betaC[-1]),
     NKT ~ min(1, KK[-1], YKT / betaK),
@@ -59,10 +59,10 @@ model_eqs <- sfcr_set(
     PFC ~ pC * C + pC * G - WFC - pK * I,
     PFK ~ pK * I - WFK,
     T ~ tW * W + tP * P + tC * pC * C,
-    muC ~ muC[-1] * (1 + Thetha * (cuC[-1] - cuT) / cuT),
-    muK ~ muK[-1] * (1 + Thetha * (cuK[-1] - cuT) / cuT),
-    pC ~ (1 + muC) * W0 / betaC[-1],
-    pK ~ (1 + muK) * W0 / betaK,
+    muC ~ muC[-1] * (1 + ThetaMu * (cuC[-1] - cuT) / cuT),
+    muK ~ muK[-1] * (1 + ThetaMu * (cuK[-1] - cuT) / cuT),
+    pC ~ (1 + muC) * WFC / Y,
+    pK ~ (1 + muK) * WFK / I,
     betaC ~ betaC[-1] * (1 + aBetaC * N),
     KCu ~ min(NC, KC[-1]),
     KKu ~ min(NK, KK[-1]),
@@ -115,7 +115,8 @@ model_ext <- sfcr_set(
     betaK ~ 1.0,
     cuT ~ 0.8,
     dK ~ 0.1,
-    Thetha ~ 0.1
+    ThetaMu ~ 0.1,
+    ThetaI ~ 0.1
 )
 
 model_init <- sfcr_set(
@@ -181,12 +182,40 @@ m2 <- sfcr_scenario(
     periods = L
 )
 
+sh3 <- sfcr_shock(
+    variables = sfcr_set(betaK ~ 2.0),
+    start = 1,
+    end = L
+)
+
+m3 <- sfcr_scenario(
+    model_base,
+    sh3,
+    periods = L
+)
+
+sh4 <- sfcr_shock(
+    variables = sfcr_set(betaK ~ 0.5),
+    start = 1,
+    end = L
+)
+
+m4 <- sfcr_scenario(
+    model_base,
+    sh4,
+    periods = L
+)
+
+sfcr_sankey(model_tfm, m0, when = "end")
+
 data <- m0 %>%
     full_join(m1, by = "period", suffix = c("", ".H")) %>%
     full_join(m2, by = "period", suffix = c("", ".L")) %>%
+    full_join(m3, by = "period", suffix = c("", ".VH")) %>%
+    full_join(m4, by = "period", suffix = c("", ".VL")) %>%
     pivot_longer(cols = -period)
 
-suffixes <- c("", ".H", ".L")
+suffixes <- c("", ".H", ".L", ".VH", ".VL")
 
 plot_vars_multi <- function(data, vars, suffixes = c(""), start = 1) {
     ggarrange(
@@ -269,4 +298,8 @@ plot_vars_multi(
 )
 
 
+###
+# Higher betaK stabilize the model but it is also lowering NK
+# Markup of the capital sector still go to 0
+# (NOTE: increasing the depreciation rate stabilize K markup, but C markup explode and system goes to full unemployment)
 ###
