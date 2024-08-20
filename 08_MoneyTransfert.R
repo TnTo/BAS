@@ -142,7 +142,7 @@ model <- sfcr_baseline(
     equations = model_eqs,
     external = model_ext,
     init = model_init,
-    periods = 200,
+    periods = 500,
     tol = 1e-7,
     hidden = c("V" = "pKK"),
     hidden_tol = 1e-7,

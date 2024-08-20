@@ -33,7 +33,7 @@ model_eqs <- sfcr_set(
     VFC ~ MFC + pK * KFC,
     VFK ~ MFK + pK * KFK,
     VG ~ -MG,
-    CT ~ max(0, (ay * (1 - tW) * (W[-1] + M[-1]) + av * MH[-1]) / (1 + tC) * pC[-1]),
+    CT ~ max(0, (ay * (1 - tW) * (W[-1] + M[-1]) + av * MH[-1]) / ((1 + tC) * pC[-1])),
     GT ~ max(0, (d * (Y[-1]) + T[-1] - M[-1]) / pC[-1]),
     YT ~ CT + GT,
     IT ~ max(0, KFCu[-1] * ThetaI * (1 / cuT - 1 / cuC[-1]) + dK * KFC[-1], na.rm = TRUE),
@@ -153,7 +153,7 @@ model <- sfcr_baseline(
     equations = model_eqs,
     external = model_ext,
     init = model_init,
-    periods = 2,
+    periods = 500,
     tol = 1e-7,
     hidden = c("V" = "pKK"),
     hidden_tol = 1e-7,
@@ -161,13 +161,16 @@ model <- sfcr_baseline(
     method = "Broyden"
 )
 
+ggplot(model, aes(x = period, y = N)) +
+    geom_line()
+
 sfcr_validate(model_bs, model, "bs", tol = 1e-7, rtol = TRUE)
 
 sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
 
 sfcr_sankey(model_tfm, model, when = "end")
 
-L <- 500
+L <- 200
 
 m0 <- sfcr_scenario(
     model,
