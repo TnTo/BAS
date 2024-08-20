@@ -1,12 +1,7 @@
 # %%
 import numpy as np
 import warnings
-
-from black_it.calibrator import Calibrator
-from black_it.loss_functions.msm import MethodOfMomentsLoss
-from black_it.samplers.best_batch import BestBatchSampler
-from black_it.samplers.halton import HaltonSampler
-from black_it.samplers.random_forest import RandomForestSampler
+import seaborn as sns
 
 
 # %%
@@ -93,8 +88,7 @@ class MyModel:
                 self.ay * (1 - self.tW) * (self.W[t - 1] + self.M[t - 1])
                 + self.av * self.MH[t - 1]
             )
-            / (1 + self.tC)
-            * self.pC[t - 1],
+            / ((1 + self.tC) * self.pC[t - 1]),
         )
         self.GT[t] = np.fmax(
             0.0,
@@ -288,7 +282,7 @@ ext = {
     "phi": 0.7,
     "ThetaMu": 0.05,
     "ThetaI": 0.1,
-    "ay": 0.6,
+    "ay": 0.74,
     "av": 0.2,
     "aBetaC": 0.05,
     "aBetaK": 0.0,
@@ -325,101 +319,21 @@ m.set_init(**init)
 m.run()
 m.check()
 
-
 # %%
-class MyCalibrator:
-    def __init__(self, bounds, bounds_step, target, name, model):
-        self.model = model
-        self.name = name
-        self.bounds = bounds
-        self.bounds_step = bounds_step
-        self.target = target
-
-    def _load_or_init(self):
-        try:
-            self.calibrator = Calibrator.restore_from_checkpoint(
-                self.name, model=self.model
-            )
-        except FileNotFoundError:
-            self.calibrator = Calibrator(
-                samplers=[
-                    HaltonSampler(batch_size=8),
-                    RandomForestSampler(batch_size=8),
-                    BestBatchSampler(batch_size=8),
-                ],
-                real_data=self.target,
-                model=self.model,
-                parameters_bounds=self.bounds,
-                parameters_precision=self.bounds_step,
-                ensemble_size=1,
-                loss_function=MethodOfMomentsLoss(),
-                random_state=8686,
-                saving_folder=self.name,
-            )
-
-    def run(self, n=50):
-        self._load_or_init()
-        params, _ = self.calibrator.calibrate(n_batches=n)
-        self.best = params[0]
-        print(self.best)
-
-
-# %%
-T = 200
-bi = 20
-# ay av aBetaC
-bounds = [[0.0, 0.0, 0.0], [1.0, 1.0, 0.1]]
-bounds_step = [0.05, 0.05, 0.01]
-target = np.zeros((7, T - bi))
-target[:, :] = np.array(
-    [
-        [
-            0.03,  # growth rate
-            0.02,  # inflation rate
-            0.35,  # profit share
-            0.05,  # unemployment rate
-            0.50,  # Gvt spending to GDP ratio
-            0.80,  # APC out of income
-            0.50,  # APC out of wealth
-        ]
-    ]
-).T
-
-
-def model(p, n, seed):
-
-    m = MyModel(T)
-    m.set_ext(**ext)
-    m.set_ext(ay=p[0], av=p[1], aBetaC=p[2])
-    m.set_init(**init)
-
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=RuntimeWarning)
+N = 11
+ays = np.linspace(0.0, 1.0, N)
+avs = np.linspace(0.0, 1.0, N)
+emp = np.full((N, N), np.nan)
+for i in range(N):
+    for j in range(N):
+        m = MyModel(250)
+        m.set_ext(**ext)
+        m.set_ext(ay=ays[i], av=avs[j])
+        m.set_init(**init)
         m.run()
-
-    res = target = np.zeros((7, T - bi))
-    res[0, :] = (
-        (m.pC[bi:T] * m.Y[bi:T] + m.pK[bi:T] * m.I[bi:T])
-        / (
-            m.pC[bi - 1 : T - 1] * m.Y[bi - 1 : T - 1]
-            + m.pK[bi - 1 : T - 1] * m.I[bi - 1 : T - 1]
-        )
-    ) - 1
-    res[1, :] = (m.pC[bi:T] / m.pC[bi - 1 : T - 1]) - 1
-    res[2, :] = m.P[bi:T] / (m.P[bi:T] + m.W[bi:T])
-    res[3, :] = 1.0 - (m.NC[bi:T] + m.NK[bi:T])
-    res[4, :] = (
-        m.pC[bi:T] * m.G[bi:T] / (m.pC[bi:T] * m.Y[bi:T] + m.pK[bi:T] * m.I[bi:T])
-    )
-    res[5, :] = m.pC[bi:T] * m.C[bi:T] / (m.W[bi:T] + m.M[bi:T])
-    res[6, :] = m.pC[bi:T] * m.C[bi:T] / m.MH[bi:T]
-
-    return res
-
-
-cal = MyCalibrator(bounds, bounds_step, target, "3_vars", model)
-
+        emp[i, j] = m.N[-1]
+emp
 # %%
-cal.run(250)
+sns.heatmap(emp, xticklabels=avs, yticklabels=ays)
 
 # %%

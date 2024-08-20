@@ -1,0 +1,58 @@
+import numpy as np
+
+
+class model:
+    def __init__(self, T=500, NH=1000, NFC=100, NFK=20):
+        self.T = T
+        self.NH = NH
+        self.NFC = NFC
+        self.NFK = NFK
+        ###
+        self.MH = np.zeros((T, NH))
+        self.MFC = np.zeros((T, NFC))
+        self.MFK = np.zeros((T, NFK))
+        self.MG = np.zeros((T,))
+        self.KFC = np.zeros((T, NFC))
+        self.KFK = np.zeros((T, NFK))
+        self.K = np.zeros((T,))
+        self.VH = np.zeros((T, NH))
+        self.VFC = np.zeros((T, NFC))
+        self.VFK = np.zeros((T, NFK))
+        self.VG = np.zeros((T,))
+        self.CT = np.zeros((T, NH))
+        self.GT = np.zeros((T,))
+        self.YT = np.zeros((T,))
+        self.IT = np.zeros((T, NFC))
+        self.IKT = np.zeros((T, NFK))
+        self.YKT = np.zeros((T,))
+        self.NCT = np.zeros((T, NFC))
+        self.NKT = np.zeros((T, NFK))
+        self.NT = np.zeros((T,))
+        self.N = np.zeros((T,))
+        self.NC = np.zeros((T, NFC))
+        self.NK = np.zeros((T, NFK))
+        self.W0 = np.zeros((T,))
+        self.W = np.zeros((T, NH))
+        self.WFC = np.zeros((T, NFC))
+        self.WFK = np.zeros((T, NFK))
+        self.M = np.zeros((T, NH))
+        self.Y = np.zeros((T, NFC))
+        self.C = np.zeros((T, NH))
+        self.G = np.zeros((T,))
+        self.YK = np.zeros((T, NFK))
+        self.I = np.zeros((T, NFC))
+        self.IK = np.zeros((T, NFK))
+        self.P = np.zeros((T, NH))
+        self.PFC = np.zeros((T, NFC))
+        self.PFK = np.zeros((T, NFK))
+        self.T = np.zeros((T, NH))
+        self.muC = np.zeros((T, NFC))
+        self.muK = np.zeros((T, NFK))
+        self.pC = np.zeros((T, NFC))
+        self.pK = np.zeros((T, NFK))
+        self.betaC = np.zeros((T, NFC))
+        self.betaK = np.zeros((T, NFK))
+        self.KFCu = np.zeros((T, NFC))
+        self.KFKu = np.zeros((T, NFK))
+        self.cuC = np.zeros((T, NFC))
+        self.cuK = np.zeros((T, NFK))
