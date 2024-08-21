@@ -6,3 +6,6 @@
 renv.lock
 renv/
 .lintr
+
+# other subdirs
+*/*
