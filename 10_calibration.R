@@ -64,8 +64,8 @@ model_eqs <- sfcr_set(
     muK ~ muK[-1] * (1 + ThetaMu * (cuK[-1] - cuT) / cuT),
     pC ~ (1 + muC) * WFC / Y,
     pK ~ (1 + muK) * WFK / I,
-    betaC ~ betaC[-1] * (1 + aBetaC * N),
-    betaK ~ betaK[-1] * (1 + aBetaK * N),
+    betaC ~ betaC[-1] * (1 + aBetaC * NK),
+    betaK ~ betaK[-1] * (1 + aBetaK * NK),
     KFCu ~ min(NC, KFC[-1]),
     KFKu ~ min(NK, KFK[-1]),
     cuC ~ KFCu / KFC[-1],
@@ -119,7 +119,7 @@ model_ext <- sfcr_set(
     ThetaMu ~ 0.05,
     ThetaI ~ 0.1,
     ###
-    ay ~ 0.74,
+    ay ~ 0.6,
     av ~ 0.2,
     aBetaC ~ 0.05,
     aBetaK ~ 0
@@ -157,43 +157,36 @@ model <- sfcr_baseline(
     method = "Broyden"
 )
 
-N <- 11
-L <- 200
+N <- 21
+L <- 1000
+
 ays <- seq(from = 0.0, to = 1.0, length.out = N)
 avs <- seq(from = 0.0, to = 1.0, length.out = N)
-emp <- matrix(, nrow = N, ncol = N)
-for (i in 1:N) {
-    for (j in 1:N) {
-        m <- sfcr_scenario(
-            model,
-            sfcr_shock(
-                variables = sfcr_set(ay ~ ays[i], av ~ avs[j]),
-                start = 1,
-                end = L
-            ),
-            periods = L
-        )
-        emp[i, j] <- tail(m$N, n = 1)
-    }
-}
-
-emp
-
-ays <- seq(from = 0.7, to = 0.8, length.out = N)
-avs <- seq(from = 0.0, to = 1.0, length.out = N)
-emp <- matrix(, nrow = N, ncol = N)
-for (i in 1:N) {
-    for (j in 1:N) {
-        m <- sfcr_scenario(
-            model,
-            sfcr_shock(
-                variables = sfcr_set(ay ~ ays[i], av ~ avs[j]),
-                start = 1,
-                end = L
-            ),
-            periods = L
-        )
-        emp[i, j] <- tail(m$N, n = 1)
+bCs <- seq(from = 0.0, to = 1.0, length.out = N)
+bKs <- seq(from = 0.0, to = 1.0, length.out = N)
+aWs <- seq(from = 0.0, to = 1.0, length.out = N)
+emp <- matrix(, nrow = N**6, ncol = 8)
+n <- 1
+for (ay in ays) {
+    for (av in avs) {
+        for (bC in bCs) {
+            for (bK in bKs) {
+                for (aW in aWs) {
+                    print(n)
+                    m <- sfcr_scenario(
+                        model,
+                        sfcr_shock(
+                            variables = sfcr_set(ay ~ ay, av ~ av, aBetaC ~ bC, aBetaK ~ bK, aW ~ aW),
+                            start = 1,
+                            end = L
+                        ),
+                        periods = L
+                    )
+                    emp[n, ] <- c(ay, av, bC, bK, aW, tail(m$N, n = 1), tail(m$NC, n = 1), tail(m$NK, n = 1))
+                    n <- n + 1
+                }
+            }
+        }
     }
 }
 

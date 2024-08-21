@@ -64,8 +64,8 @@ model_eqs <- sfcr_set(
     muK ~ muK[-1] * (1 + ThetaMu * (cuK[-1] - cuT) / cuT),
     pC ~ (1 + muC) * WFC / Y,
     pK ~ (1 + muK) * WFK / I,
-    betaC ~ betaC[-1] * (1 + aBetaC * N),
-    betaK ~ betaK[-1] * (1 + aBetaK * N),
+    betaC ~ betaC[-1] * (1 + aBetaC * NK),
+    betaK ~ betaK[-1] * (1 + aBetaK * NK),
     KFCu ~ min(NC, KFC[-1]),
     KFKu ~ min(NK, KFK[-1]),
     cuC ~ KFCu / KFC[-1],
@@ -123,10 +123,10 @@ model_ext <- sfcr_set(
     ThetaMu ~ 0.05,
     ThetaI ~ 0.1,
     ###
-    ay ~ 0.74,
-    av ~ 0.2,
-    aBetaC ~ 0.05,
-    aBetaK ~ 0
+    ay ~ 0.6,
+    av ~ 0.4,
+    aBetaC ~ 0.8,
+    aBetaK ~ 0.1
 )
 
 model_init <- sfcr_set(
