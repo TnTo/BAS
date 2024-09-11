@@ -246,8 +246,8 @@ def model(p, n, seed):
 
     res = np.zeros((T - bi, tgts))
     res[:, 0] = m.C[bi:T] / m.W[bi:T]
-    res[:, 2] = m.C[bi:T] / m.MH[bi:T]
-    res[:, 0] = m.N[bi:T]
+    res[:, 1] = m.C[bi:T] / m.MH[bi:T]
+    res[:, 2] = m.N[bi:T]
 
     return res
 
@@ -255,13 +255,13 @@ def model(p, n, seed):
 cal = MyCalibrator(bounds, bounds_step, target, "cals/01_3p_3t", model)
 
 # %%
-cal.run(200)
+cal.run(20)
 
 # %%
 p = cal.best
 
 print(f"BEST PARAMETERS: {p}")
-# BEST PARAMETERS: [0.5527 0.3054 0.994 ]
+# BEST PARAMETERS: [0.5531 0.3207 1.1699]
 
 m = MyModel(T)
 m.set_ext(ay=p[0], av=p[1], beta=p[2])
