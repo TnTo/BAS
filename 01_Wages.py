@@ -87,7 +87,7 @@ class MyModel:
             self.VG[t] = -self.MG[t]
             self.CT[t] = (
                 self.ay * (1 - self.tW) * self.W[t - 1] + self.av * self.MH[t - 1]
-            )
+            ) / (1 + self.tC)
             self.GT[t] = self.d * self.Y[t - 1] + self.T[t - 1]
             self.YT[t] = self.CT[t] + self.GT[t]
             self.W0[t] = self.W0[t - 1] * (1 + self.aW * self.N[t - 1])
@@ -133,23 +133,21 @@ class MyModel:
 
     def check(self):
         # hidden eq
-        hec = np.allclose(0.0, self.VH + self.VF + self.VG, rtol=1e-02, atol=1e-03)
+        hec = np.allclose(0.0, self.VH + self.VF + self.VG)
         print(f"Hidden equation check: {hec}")
         bs = self._bs()
         bsc = np.all(
             [
-                np.allclose(
-                    bs[:, :, -1], bs[:, :, 0:-1].sum(axis=2), rtol=1e-02, atol=1e-03
-                ),
-                np.allclose(0.0, bs.sum(axis=1), rtol=1e-02, atol=1e-03),
+                np.allclose(bs[:, :, -1], bs[:, :, 0:-1].sum(axis=2)),
+                np.allclose(0.0, bs.sum(axis=1)),
             ]
         )
         print(f"Balance sheet check: {bsc}")
         tfm = self._tfm()
         tfmc = np.all(
             [
-                np.allclose(0.0, tfm.sum(axis=1), rtol=1e-02, atol=1e-03),
-                np.allclose(0.0, tfm.sum(axis=2), rtol=1e-02, atol=1e-03),
+                np.allclose(0.0, tfm.sum(axis=1)),
+                np.allclose(0.0, tfm.sum(axis=2)),
             ]
         )
         print(f"Transaction-Flow matrix check: {tfmc}")
@@ -215,7 +213,7 @@ T = 1000
 bi = 200
 tgts = 3
 # ay av beta
-bounds = [[0.5, 0.1, 0.8], [1.0, 0.5, 1.2]]
+bounds = [[0.0, 0.0, 0.5], [1.0, 1.0, 1.5]]
 bounds_step = [0.0001] * 3
 # target = np.atleast_2d(np.full((T - bi,), 0.85)).T
 target = np.zeros((T - bi, tgts))
@@ -245,8 +243,8 @@ def model(p, n, seed):
         m.run()
 
     res = np.zeros((T - bi, tgts))
-    res[:, 0] = m.C[bi:T] / m.W[bi:T]
-    res[:, 1] = m.C[bi:T] / m.MH[bi:T]
+    res[:, 0] = (m.C[bi:T] * (1 + m.tC)) / (m.W[bi:T] * (1 - m.tW))
+    res[:, 1] = (m.C[bi:T] * (1 + m.tC)) / m.MH[bi:T]
     res[:, 2] = m.N[bi:T]
 
     return res
@@ -255,13 +253,13 @@ def model(p, n, seed):
 cal = MyCalibrator(bounds, bounds_step, target, "cals/01_3p_3t", model)
 
 # %%
-cal.run(20)
+cal.run(50)
 
 # %%
 p = cal.best
 
 print(f"BEST PARAMETERS: {p}")
-# BEST PARAMETERS: [0.5531 0.3207 1.1699]
+# BEST PARAMETERS: [0.6688 0.2192 0.6495]
 
 m = MyModel(T)
 m.set_ext(ay=p[0], av=p[1], beta=p[2])
@@ -270,11 +268,11 @@ m.check()
 
 # %%
 
-plt.plot(m.C / m.W)
+plt.plot((m.C * (1 + m.tC)) / (m.W * (1 - m.tW)))
 plt.title("APC - Income")
 plt.show()
 
-plt.plot(m.C / m.MH)
+plt.plot((m.C * (1 + m.tC)) / m.MH)
 plt.title("APC - Wealth")
 plt.show()
 

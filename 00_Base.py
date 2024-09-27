@@ -77,7 +77,7 @@ class MyModel:
             self.VG[t] = -self.MG[t]
             self.C[t] = (
                 self.ay * (1 - self.tW) * self.W[t - 1] + self.av * self.MH[t - 1]
-            )
+            ) / (1 + self.tC)
             self.G[t] = self.d * self.Y[t - 1] + self.T[t - 1]
             self.Y[t] = self.C[t] + self.G[t]
             self.W[t] = self.W0 * self.N[t]
@@ -147,7 +147,12 @@ m.run()
 m.check()
 
 plt.plot(m.N)
+plt.show()
 
 plt.plot(m.MG / m.Y)
+plt.show()
 
 plt.plot(m.G / m.Y)
+plt.show()
+
+# %%

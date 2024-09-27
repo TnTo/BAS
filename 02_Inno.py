@@ -40,8 +40,8 @@ class MyModel:
         self.p = np.full((TMAX,), np.nan)
         self.beta = np.full((TMAX,), np.nan)
         ###
-        self.ay = 0.55
-        self.av = 0.3
+        self.ay = 0.6
+        self.av = 0.25
         self.d = 0.03
         self.aW = 0.05
         self.aBeta = 0.05
@@ -89,7 +89,7 @@ class MyModel:
             self.VG[t] = -self.MG[t]
             self.CT[t] = (
                 self.ay * (1 - self.tW) * self.W[t - 1] + self.av * self.MH[t - 1]
-            )
+            ) / (1 + self.tC)
             self.GT[t] = self.d * self.Y[t - 1] + self.T[t - 1]
             self.YT[t] = self.CT[t] + self.GT[t]
             self.W0[t] = self.W0[t - 1] * (1 + self.aW * self.N[t - 1])
@@ -216,7 +216,7 @@ T = 1000
 bi = 200
 tgts = 4
 # ay av beta
-bounds = [[0.5, 0.1, 0.0], [1.0, 0.5, 0.1]]
+bounds = [[0.0, 0.0, 0.0], [1.0, 1.0, 0.2]]
 bounds_step = [0.0001] * 3
 # target = np.atleast_2d(np.full((T - bi,), 0.85)).T
 target = np.zeros((T - bi, tgts))
@@ -246,8 +246,8 @@ def model(p, n, seed):
 
     res = np.zeros((T - bi, tgts))
     res[:, 0] = m.Y[bi:T] / m.Y[(bi - 1) : (T - 1)] - 1
-    res[:, 1] = m.C[bi:T] / m.W[bi:T]
-    res[:, 2] = m.C[bi:T] / m.MH[bi:T]
+    res[:, 1] = (m.C[bi:T] * (1 + m.tC)) / (m.W[bi:T] * (1 - m.tW))
+    res[:, 2] = (m.C[bi:T] * (1 + m.tC)) / m.MH[bi:T]
     res[:, 3] = m.N[bi:T]
 
     return res
@@ -262,7 +262,7 @@ cal.run(50)
 p = cal.best
 
 print(f"BEST PARAMETERS: {p}")
-# BEST PARAMETERS: [0.7636 0.1605 0.711 0.0036 ]
+# BEST PARAMETERS: [0.4351 0.4005 0.0 ]
 
 m = MyModel(T)
 m.set_ext(ay=p[0], av=p[1], aBeta=p[2])
@@ -271,11 +271,11 @@ m.check()
 
 # %%
 
-plt.plot((m.C / m.W)[50:-1])
+plt.plot(((m.C * (1 + m.tC)) / (m.W * (1 - m.tW)))[50:-1])
 plt.title("APC - Income")
 plt.show()
 
-plt.plot((m.C / m.MH)[50:-1])
+plt.plot((m.C * (1 + m.tC) / m.MH)[50:-1])
 plt.title("APC - Wealth")
 plt.show()
 
@@ -283,13 +283,21 @@ plt.plot(m.N[50:-1])
 plt.title("Employment share")
 plt.show()
 
-plt.plot(m.Y[50:-1])
-plt.title("GDP")
-plt.show()
-
 plt.plot((m.Y[1:-1] / m.Y[0:-2] - 1)[50:-1])
 plt.title("Growth rate")
 plt.show()
 
+plt.plot(m.Y[50:-1])
+plt.plot(m.C[50:-1])
+plt.plot(m.G[50:-1])
+plt.title("GDP")
+plt.legend(["Y", "C", "G"])
+plt.show()
+
+plt.plot(m.MH[10:-1])
+plt.plot(m.W[10:-1])
+plt.title("Households S&F")
+plt.legend(["M", "W"])
+plt.show()
 
 # %%

@@ -47,24 +47,21 @@ class MyModel:
         self.WFC = np.full((TMAX,), np.nan)
         self.WFK = np.full((TMAX,), np.nan)
         self.W = np.full((TMAX,), np.nan)
-        self.W0 = np.full((TMAX,), np.nan)
         self.PFC = np.full((TMAX,), np.nan)
         self.PFK = np.full((TMAX,), np.nan)
         self.P = np.full((TMAX,), np.nan)
         self.T = np.full((TMAX,), np.nan)
         self.pC = np.full((TMAX,), np.nan)
         self.pK = np.full((TMAX,), np.nan)
-        self.betaC = np.full((TMAX,), np.nan)
-        self.betaK = np.full((TMAX,), np.nan)
         self.Ku = np.full((TMAX,), np.nan)
         self.cu = np.full((TMAX,), np.nan)
         ###
         self.ay = 0.55
         self.av = 0.3
         self.d = 0.03
-        self.aW = 0.05
-        self.aBetaC = 1.0
-        self.aBetaK = 0.0
+        self.W0 = 1.0
+        self.betaC = 1.0
+        self.betaK = 1.0
         self.mu = 0.2
         self.tW = 0.35
         self.tP = 0.2
@@ -82,14 +79,11 @@ class MyModel:
         self.VFK[0] = 0.0
         self.VG[0] = -1.0
         self.W[0] = 0.0
-        self.W0[0] = 1.0
         self.Y[0] = 0.0
         self.T[0] = 0.0
         self.N[0] = 0.0
         self.pC[0] = 0.1
         self.pK[0] = 1.0
-        self.betaC[0] = 1.1
-        self.betaK[0] = 1.1
         self.Ku[0] = 0.0
         self.cu[0] = 0.0
 
@@ -136,17 +130,16 @@ class MyModel:
                 self.Ku[t - 1] * (1 / self.cuT - 1 / self.cu[t - 1])
                 + self.dK * self.K[t - 1],
             )
-            self.NCT[t] = fmin(1, fmin(self.K[t - 1], self.YT[t] / self.betaC[t - 1]))
-            self.NKT[t] = fmin(1, self.IT[t] / self.betaK[t - 1])
+            self.NCT[t] = fmin(1, fmin(self.K[t - 1], self.YT[t] / self.betaC))
+            self.NKT[t] = fmin(1, self.IT[t] / self.betaK)
             self.NT[t] = self.NCT[t] + self.NKT[t]
             self.N[t] = fmin(1, self.NT[t])
             self.NC[t] = fmax(0, self.NCT[t] * self.N[t] / self.NT[t])
             self.NK[t] = fmax(0, self.NKT[t] * self.N[t] / self.NT[t])
-            self.W0[t] = self.W0[t - 1] * (1 + self.aW * self.N[t - 1])
-            self.WFC[t] = self.W0[t] * self.NC[t]
-            self.WFK[t] = self.W0[t] * self.NK[t]
+            self.WFC[t] = self.W0 * self.NC[t]
+            self.WFK[t] = self.W0 * self.NK[t]
             self.W[t] = self.WFC[t] + self.WFK[t]
-            self.Y[t] = self.NC[t] * self.betaC[t - 1]
+            self.Y[t] = self.NC[t] * self.betaC
             # self.C[t] = fmin(
             #     self.CT[t] * self.Y[t] / self.YT[t],
             #     (self.W[t] * (1 - self.tW) + self.MH[t - 1])
@@ -154,7 +147,7 @@ class MyModel:
             # )
             self.C[t] = self.CT[t] * self.Y[t] / self.YT[t]
             self.G[t] = self.Y[t] - self.C[t]
-            self.I[t] = self.NK[t] * self.betaK[t - 1]
+            self.I[t] = self.NK[t] * self.betaK
             self.PFC[t] = (
                 self.pC[t] * (self.C[t] + self.G[t])
                 - self.WFC[t]
@@ -163,12 +156,8 @@ class MyModel:
             self.PFK[t] = self.pK[t] * self.I[t] - self.WFK[t]
             self.P[t] = self.PFC[t] + self.PFK[t]
             self.T[t] = self.tW * self.W[t] + self.tP * self.P[t] + self.tC * self.C[t]
-            self.pK[t] = (1 + self.mu) * self.W0[t] / self.betaK[t - 1]
-            self.pC[t] = (
-                (1 + self.mu) * (self.W0[t] + self.pK[t] * self.dK) / self.betaC[t - 1]
-            )
-            self.betaC[t] = self.betaC[t - 1] * (1 + self.aBetaC * self.NK[t])
-            self.betaK[t] = self.betaK[t - 1] * (1 + self.aBetaK * self.NK[t])
+            self.pK[t] = (1 + self.mu) * self.W0 / self.betaK
+            self.pC[t] = (1 + self.mu) * (self.W0 + self.pK[t] * self.dK) / self.betaC
             self.Ku[t] = fmin(self.NC[t], self.K[t - 1])
             self.cu[t] = self.Ku[t] / self.K[t - 1]
 
@@ -290,25 +279,25 @@ class MyCalibrator:
 
 
 # %%
-T = 500
+T = 1000
 bi = 200
 tgts = 4
-# ay av betaC betaK
-bounds = [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 5.0, 5.0, 1.0, 1.0]]
-bounds_step = [0.0001] * 6
+# ay av betaC betaK mu
+bounds = [[0.5, 0.0, 0.0, 0.0, 0.0], [1.0, 0.5, 10.0, 10.0, 1.0]]
+bounds_step = [0.00001] * 5
 # target = np.atleast_2d(np.full((T - bi,), 0.85)).T
 target = np.zeros((T - bi, tgts))
 target[:, :] = np.array(
     [
         [
-            0.03,  # growth rate
-            0.02,  # inflation rate
-            # 0.35,  # profit share
-            # 0.50,  # Gvt spending to GDP ratio
+            # 0.03,  # growth rate
+            # 0.02,  # inflation rate
             0.85,  # N
             0.15,  # NK
-            # 0.80,  # APC out of income
-            # 0.50,  # APC out of wealth
+            0.80,  # APC out of income
+            0.50,  # APC out of wealth
+            # 0.35,  # profit share
+            # 0.50,  # Gvt spending to GDP ratio
         ]
     ]
 )
@@ -317,28 +306,32 @@ target[:, :] = np.array(
 def model(p, n, seed):
 
     m = MyModel(T)
-    m.set_ext(ay=p[0], av=p[1], aBetaC=p[2], aBetaK=p[3], mu=p[4], aW=p[5])
+    m.set_ext(ay=p[0], av=p[1], betaC=p[2], betaK=p[3], mu=p[4])
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
         m.run()
 
     res = np.zeros((T - bi, tgts))
-    res[:, 0] = m.Y[bi:T] / m.Y[(bi - 1) : (T - 1)] - 1
-    res[:, 1] = m.pC[bi:T] / m.pC[(bi - 1) : (T - 1)] - 1
-    res[:, 2] = m.N[bi:T]
-    res[:, 3] = m.NK[bi:T]
-    # res[:, 2] = (m.C[bi:T] * (1 + m.tC)) / (m.W[bi:T] * (1 - m.tW))
-    # res[:, 3] = (m.C[bi:T] * (1 + m.tC)) / m.MH[bi:T]
+    # res[:, 0] = m.Y[bi:T] / m.Y[(bi - 1) : (T - 1)] - 1
+    # res[:, 1] = m.pC[bi:T] / m.pC[(bi - 1) : (T - 1)] - 1
+    res[:, 0] = m.N[bi:T]
+    res[:, 1] = m.NK[bi:T]
+    res[:, 2] = (m.C[bi:T] * (1 + m.tC)) / (m.W[bi:T] * (1 - m.tW))
+    res[:, 3] = (m.C[bi:T] * (1 + m.tC)) / m.MH[bi:T]
+    # res[:, 4] = (m.P[bi:T] * (1 - m.tP)) / (
+    #    (m.P[bi:T] * (1 - m.tP)) + (m.W[bi:T] * (1 - m.tW))
+    # )
+    # res[:, 5] = m.pC[bi:T] * m.G[bi:T] / (m.pC[bi:T] * m.Y[bi:T])
 
     return np.nan_to_num(res, nan=-1e10)
     # return res
 
 
-cal = MyCalibrator(bounds, bounds_step, target, "cals/03_6p_4t_t", model)
+cal = MyCalibrator(bounds, bounds_step, target, "cals/03b_5p_4t", model)
 
 # %%
-cal.run(200)
+cal.run(300)
 
 # %%
 p = cal.best
@@ -347,7 +340,7 @@ print(f"BEST PARAMETERS: {p}")
 # [0.9596 0.3698 0.4895 0.2904]
 
 m = MyModel(500)
-m.set_ext(ay=p[0], av=p[1], aBetaC=p[2], aBetaK=p[3], mu=p[4], aW=p[5])
+m.set_ext(ay=p[0], av=p[1], betaC=p[2], betaK=p[3], mu=p[4])
 m.run()
 m.check()
 
@@ -385,12 +378,6 @@ plt.show()
 plt.plot(m.pC[10:-1])
 plt.plot(m.pK[10:-1])
 plt.title("Prices")
-plt.legend(["C", "K"])
-plt.show()
-
-plt.plot(m.betaC[10:-1])
-plt.plot(m.betaK[10:-1])
-plt.title("Productivity")
 plt.legend(["C", "K"])
 plt.show()
 
