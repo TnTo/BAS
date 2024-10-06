@@ -4,8 +4,8 @@
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 ###
-# Scenario Eq:
-# Flat initial wealth
+# Scenario Lib:
+# Concentrated initial wealth
 # Flat profit distribution
 ###
 # renv::init()
@@ -39,7 +39,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 250
+        TMAX <- 500
         NH <- 1000
         NF <- 50
     }
@@ -47,7 +47,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     ## Constants
     {
         W0 <- 1 # Wage level
-        ay <- 0.5 # Desired share of consumption out of income
+        ay <- 0.4 # Desired share of consumption out of income ## !!!
         av <- 0.1 # Desired share of consumptio out of wealth
         beta <- 1.0 # Output per worker in units of goods
         mu <- 0.2 # Firms' mark-up
@@ -89,7 +89,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     # Initiaal values
     {
-        MH[1, ] <- 1 # Initialize with flat wealth distribution
+        MH[1, ] <- rexp(NH)
         MF[1, ] <- 0
         M[1] <- sum(MH[1, ])
         DI[1, ] <- 0
@@ -194,7 +194,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             GDP[t] <- sum(p[t, ] * Y[t, ])
             PI[t] <- weighted.mean(p[t, ], Y[t, ]) # Price index
             CPI[t] <- (1 + tC) * PI[t] # Consumers price index
-
+            
             pb$tick()
         }
     }

@@ -6,7 +6,7 @@
 ###
 # Scenario Eq:
 # Flat initial wealth
-# Flat profit distribution
+# Proportional profit distribution
 ###
 # renv::init()
 # renv::restore()
@@ -47,8 +47,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     ## Constants
     {
         W0 <- 1 # Wage level
-        ay <- 0.5 # Desired share of consumption out of income
-        av <- 0.1 # Desired share of consumptio out of wealth
+        ay <- 0.375 # Desired share of consumption out of income
+        av <- 0.75 # Desired share of consumptio out of wealth
         beta <- 1.0 # Output per worker in units of goods
         mu <- 0.2 # Firms' mark-up
         d <- 0.03 # Target Gvt deficit
@@ -182,7 +182,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             G[t, ] <- Y[t, ] - colSums(C[t, , ]) # Gvt Consumption, in units of goods
 
-            P[t, , ] <- t(array((p[t, ] * Y[t, ] - colSums(W[t, , ])) / NH, c(NF, NH))) # Firms' Profits (all distributed) -- each H get the same share
+            P[t, , ] <- sweep(t(array((p[t, ] * Y[t, ] - colSums(W[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ]) # Firms' Profits (all distributed) -- proportional to MH
             T[t, ] <- tW * rowSums(W[t, , ]) + tP * rowSums(P[t, , ]) + tC * rowSums(sweep(C[t, , ], 2, p[t, ], "*")) # Taxes
             MH[t, ] <- MH[t - 1, ] + rowSums(P[t, , ]) + rowSums(W[t, , ]) + UB[t, ] - rowSums(sweep(C[t, , ], 2, p[t, ], "*")) - T[t, ] # Households' Money
             MF[t, ] <- MF[t - 1, ] + p[t, ] * Y[t, ] - colSums(W[t, , ]) - colSums(P[t, , ]) # Firms' Money
