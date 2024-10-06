@@ -30,8 +30,8 @@ model_eqs <- sfcr_set(
     MFC ~ MFC[-1] + pC * Y - pK * IC - WFC - PFC - rL * LFC + (LFC - LFC[-1]),
     MFK ~ MFK[-1] + pK * IC - WFK - PFK - rL * LFK + (LFK - LFK[-1]),
     M ~ MH + MFC + MFK, # Bank's Money
-    LFC ~ LFC[-1] + max(0, WFC + pK * IC - pC * (C + G) - MFC[-1]), # FCs' Loans stock
-    LFK ~ LFK[-1] + max(0, WFK - pK * IC - MFK[-1]), # FKs' Loans stock (!!!)
+    LFC ~ LFC[-1] + max(0, WFC + pK * IC - MFC[-1] - pC * (C + G)), # FCs' Loans stock
+    LFK ~ LFK[-1] + max(0, WFK - MFK[-1] - pK * IC), # FKs' Loans stock (!!!)
     L ~ LFC + LFK, # Bank's Loans stock
     B ~ (B[-1] - (T - pC * G - UB)) / (1 - rB), # Gvt Bonds
     KC ~ (1 - dK) * KC[-1] + IC,
@@ -160,7 +160,7 @@ model_init <- sfcr_set(
     pC ~ 1,
     pK ~ 1,
     muC ~ 0.2,
-    muK ~ 1.0
+    muK ~ 0.5
 )
 
 model <- sfcr_baseline(
