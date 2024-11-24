@@ -2,6 +2,8 @@
 .vscode/
 
 # R
+.RData
+.Rhistory
 .Rprofile
 renv.lock
 renv/

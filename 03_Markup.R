@@ -6,17 +6,6 @@
 #   In this form is completely a-cyclical
 #   Profit inflation, without catastropheses at t=5000
 ###
-# renv::init()
-# renv::restore()
-# renv::install("sfcr", prompt = FALSE)
-# renv::install("devtools", prompt = FALSE)
-# devtools::install_github("TnTo/sfcr", ref = "sankey")
-# renv::install("tidyverse", prompt = FALSE)
-# renv::install("networkD3", prompt = FALSE)
-# renv::install("ggraph", prompt = FALSE)
-# renv::install("ggpubr", prompt = FALSE)
-# renv::snapshot()
-# renv::status()
 
 install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
 devtools::install_github("TnTo/sfcr", ref = "sankey")
