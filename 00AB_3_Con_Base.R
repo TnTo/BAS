@@ -27,7 +27,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 250
+        TMAX <- 500
         NH <- 1000
         NF <- 50
     }
@@ -35,7 +35,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     ## Constants
     {
         W0 <- 1 # Wage level
-        ay <- 0.4 # Desired share of consumption out of income
+        ay <- 0.5 # Desired share of consumption out of income
         av <- 0.1 # Desired share of consumptio out of wealth
         beta <- 1.0 # Output per worker in units of goods
         mu <- 0.2 # Firms' mark-up
@@ -67,15 +67,13 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         G <- array(NA, c(TMAX, NF))
         P <- array(NA, c(TMAX, NH, NF))
         T <- array(NA, c(TMAX, NH))
-        p <- array(NA, c(TMAX, NF))
-        Hp <- array(NA, c(TMAX, NF))
+        p <- array(NA, c(TMAX))
+        Hp <- array(NA, c(TMAX))
         V <- array(NA, c(TMAX))
         GDP <- array(NA, c(TMAX))
-        PI <- array(NA, c(TMAX))
-        CPI <- array(NA, c(TMAX))
     }
 
-    # Initiaal values
+    # Initial values
     {
         MH[1, ] <- rexp(NH)
         MF[1, ] <- 0
@@ -84,9 +82,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         UB[1, ] <- 0
         T[1, ] <- 0
         GDP[1] <- 0
-        p[1, ] <- 1
-        PI[1] <- 1
-        CPI[1] <- 1 * (1 + tC)
+        p[1] <- (1 + mu) * W0 / beta
+        Hp[1] <- (1 + tC) * p[1]
         N[1, , ] <- 0
         C[1, , ] <- 0
     }
@@ -96,8 +93,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         pb <- progress_bar$new(total = TMAX)
         pb$tick()
         for (t in 2:TMAX) {
-            CT[t, ] <- max(0, (ay * DI[t - 1, ] + av * MH[t - 1, ]) / CPI[t - 1]) # Desired Demand for Hs, in units of goods
-            GT[t] <- max(0, (d * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / PI[t - 1]) # Desired Demand for Gvt, in units of goods
+            CT[t, ] <- pmax(0, (ay * DI[t - 1, ] + av * MH[t - 1, ]) / Hp[t - 1]) # Desired Demand for Hs, in units of goods
+            GT[t] <- max(0, (d * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / p[t - 1]) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
 
             # Job market
@@ -124,9 +121,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             UB[t, which(rowSums(N[t, , ]) == 0)] <- phi * W0 # Unemployment benefits
             NetW[t, ] <- (1 - tW) * rowSums(W[t, , ]) # Net Wages
             DI[t, ] <- NetW[t, ] + UB[t, ] # Disposable Income for Hs
-            p[t, ] <- (1 + mu) * colSums(W[t, , ]) / Y[t, ] # price
-            p[t, which(is.na(p[t, ]))] <- p[t - 1, which(is.na(p[t, ]))]
-            Hp[t, ] <- (1 + tC) * p[t, ] # price after VAT (Hs price)
+            p[t] <- (1 + mu) * W0 / beta # price
+            Hp[t] <- (1 + tC) * p[t] # price after VAT (Hs price)
 
             # Consumption Goods market
             # Since there is no innovation, no wage dynamics and homogeneus mark-up the prices are uniform among Firms
@@ -170,18 +166,16 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             G[t, ] <- Y[t, ] - colSums(C[t, , ]) # Gvt Consumption, in units of goods
 
-            P[t, , ] <- sweep(t(array((p[t, ] * Y[t, ] - colSums(W[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ]) # Firms' Profits (all distributed) -- proportional to MH
-            T[t, ] <- tW * rowSums(W[t, , ]) + tP * rowSums(P[t, , ]) + tC * rowSums(sweep(C[t, , ], 2, p[t, ], "*")) # Taxes
-            MH[t, ] <- MH[t - 1, ] + rowSums(P[t, , ]) + rowSums(W[t, , ]) + UB[t, ] - rowSums(sweep(C[t, , ], 2, p[t, ], "*")) - T[t, ] # Households' Money
-            MF[t, ] <- MF[t - 1, ] + p[t, ] * Y[t, ] - colSums(W[t, , ]) - colSums(P[t, , ]) # Firms' Money
-            M[t] <- M[t - 1] - (sum(T[t, ]) - sum(p[t, ] * G[t, ]) - sum(UB[t, ])) # Gvt's Money
+            P[t, , ] <- sweep(t(array((p[t] * Y[t, ] - colSums(W[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ]) # Firms' Profits (all distributed) -- proportional to MH
+            T[t, ] <- tW * rowSums(W[t, , ]) + tP * rowSums(P[t, , ]) + tC * rowSums(sweep(C[t, , ], 2, p[t], "*")) # Taxes
+            MH[t, ] <- MH[t - 1, ] + rowSums(P[t, , ]) + rowSums(W[t, , ]) + UB[t, ] - rowSums(sweep(C[t, , ], 2, p[t], "*")) - T[t, ] # Households' Money
+            MF[t, ] <- MF[t - 1, ] + p[t] * Y[t, ] - colSums(W[t, , ]) - colSums(P[t, , ]) # Firms' Money
+            M[t] <- M[t - 1] - (sum(T[t, ]) - sum(p[t] * G[t, ]) - sum(UB[t, ])) # Gvt's Money
             VH[t, ] <- MH[t, ] # Households' Net Wealth
             VF[t, ] <- MF[t, ] # Firms' Net Wealth
             VG[t] <- -M[t] # Gvt' Net Wealth
             V[t] <- sum(VH[t, ]) + sum(VF[t, ]) + VG[t] # System Total Wealth
-            GDP[t] <- sum(p[t, ] * Y[t, ])
-            PI[t] <- weighted.mean(p[t, ], Y[t, ]) # Price index
-            CPI[t] <- (1 + tC) * PI[t] # Consumers price index
+            GDP[t] <- sum(p[t] * Y[t, ])
 
             pb$tick()
         }
@@ -207,7 +201,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     {
         if (any(
-            -rowSums(sweep(C[2:TMAX, , ], c(1, 3), p[2:TMAX, ], "*"), dims = 2)
+            -rowSums(sweep(C[2:TMAX, , ], 1, p[2:TMAX], "*"), dims = 2)
             + UB[2:TMAX, ]
                 + rowSums(W[2:TMAX, , ], dims = 2)
                 + rowSums(P[2:TMAX, , ], dims = 2)
@@ -218,8 +212,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             print("H column in TFM not consistent (checked ad agent level)")
         }
         if (any(
-            p[2:TMAX, ] * rowSums(aperm(C[2:TMAX, , ], c(1, 3, 2)), dims = 2)
-                + p[2:TMAX, ] * G[2:TMAX, ]
+            sweep(rowSums(aperm(C[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, p[2:TMAX], "*")
+            + sweep(G[2:TMAX, ], 1, p[2:TMAX], "*")
                 - rowSums(aperm(W[2:TMAX, , ], c(1, 3, 2)), dims = 2)
                 - rowSums(aperm(P[2:TMAX, , ], c(1, 3, 2)), dims = 2)
                 - (MF[2:TMAX, ] - MF[1:TMAX - 1, ])
@@ -228,7 +222,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             print("F column in TFM not consistent (checked ad agent level)")
         }
         if (any(
-            -rowSums(p[2:TMAX, ] * G[2:TMAX, ])
+            -rowSums(sweep(G[2:TMAX, ], 1, p[2:TMAX], "*"))
             - rowSums(UB[2:TMAX, ])
                 + rowSums(T[2:TMAX, ])
                 + (M[2:TMAX] - M[1:TMAX - 1])
@@ -251,8 +245,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
 {
     par(mfrow = c(2, 3))
-    plot(rowSums(p * rowSums(aperm(C, c(1, 3, 2)), dims = 2)), type = "l", main = "C")
-    plot(rowSums(p * G), type = "l", main = "G")
+    plot(rowSums(sweep(rowSums(aperm(C, c(1, 3, 2)), dims = 2), 1, p, "*")), type = "l", main = "C")
+    plot(rowSums(sweep(G, 1, p, "*")), type = "l", main = "G")
     plot(rowSums(UB), type = "l", main = "UB")
     plot(rowSums(W), type = "l", main = "W")
     plot(rowSums(P), type = "l", main = "P")
@@ -261,7 +255,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
 {
     par(mfrow = c(1, 2))
-    plot(PI, type = "l", main = "PI")
+    plot(p, type = "l", main = "p")
     plot(rowSums(N) / NH, type = "l", main = "N")
 }
 
@@ -289,4 +283,11 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     boxplot(rowSums(W[TMAX, , ]), main = "WH")
     boxplot(rowSums(C[TMAX, , ]), main = "CH")
     boxplot(rowSums(P[TMAX, , ]), main = "PH")
+}
+
+{
+    par(mfrow = c(3, 1))
+    hist(MH[1, ], main = "MH T=1")
+    hist(MH[100, ], main = "MH T=100")
+    hist(MH[TMAX, ], main = "MH T=TMAX")
 }}
