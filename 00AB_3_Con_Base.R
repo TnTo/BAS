@@ -8,19 +8,7 @@
 # Concentrated initial wealth
 # Proportional profit distribution
 ###
-# renv::init()
-# renv::restore()
-# renv::install("sfcr", prompt = FALSE)
-# renv::install("devtools", prompt = FALSE)
-devtools::install_github("TnTo/sfcr", ref = "sankey")
-renv::install("tidyverse", prompt = FALSE)
-# renv::install("networkD3", prompt = FALSE)
-# renv::install("ggraph", prompt = FALSE)
-renv::install("moments", prompt = FALSE)
-renv::install("progress", prompt = FALSE)
-# renv::install("profvis", prompt = FALSE)
-renv::snapshot()
-renv::status()
+install.packages(c("devtools", "tidyverse", "moments", "progress", "profvis"))
 
 library(tidyverse)
 library(moments)
