@@ -8,7 +8,7 @@
 # Flat initial wealth
 # Proportional profit distribution
 ###
-install.packages(c("devtools", "tidyverse", "moments", "progress", "profvis"))
+install.packages(c("tidyverse", "moments", "progress", "profvis"))
 
 library(tidyverse)
 library(moments)

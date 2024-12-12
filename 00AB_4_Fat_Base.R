@@ -9,7 +9,7 @@
 # Superlinear profit distribution
 # Both are necessary to get the one rich get all dynamic and the consequent instability instability
 ###
-install.packages(c("devtools", "tidyverse", "moments", "progress", "profvis"))
+install.packages(c("tidyverse", "moments", "progress", "profvis"))
 
 library(tidyverse)
 library(moments)
