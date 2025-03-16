@@ -161,3 +161,21 @@ model %>%
     filter(name %in% c("I", "IT")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("cu", "cuT")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("C", "G", "Y", "CT", "GT", "YT")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("DI", "GDP", "MH")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
