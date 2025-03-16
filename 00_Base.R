@@ -85,7 +85,7 @@ model <- sfcr_baseline(
     equations = model_eqs,
     external = model_ext,
     init = model_init,
-    periods = 500,
+    periods = 1500,
     max_iter = 1000,
     tol = 1e-7,
     hidden = c("V" = 0),
@@ -108,6 +108,7 @@ model %>%
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("C", "G", "Y", "W", "P")) %>%
+    filter(period > 5) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
 
@@ -126,5 +127,12 @@ model %>%
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("Y", "YT")) %>%
+    filter(period > 10) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("Y", "G")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
