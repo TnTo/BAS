@@ -1,6 +1,6 @@
 ### BAS: Building towards Artificial Societies
-# Model 0:
-#   no Fixed Capital
+# Model 1:
+#   Fixed Capital only in consumption firms
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 ###

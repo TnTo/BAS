@@ -4,7 +4,7 @@
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 ###
-# Scenario Eq:
+# Scenario Con:
 # Concentrated initial wealth
 # Proportional profit distribution
 ###

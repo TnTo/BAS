@@ -4,7 +4,7 @@
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 ###
-# Scenario Eq:
+# Scenario Fat:
 # Very Concentrated initial wealth
 # Superlinear profit distribution
 # Both are necessary to get the one rich get all dynamic and the consequent instability instability
