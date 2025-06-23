@@ -116,10 +116,10 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         HpC <- array(NA, c(TMAX))
         V <- array(NA, c(TMAX))
         GDP <- array(NA, c(TMAX))
-        CKu <- array(NA, c(TMAX, NFC))
-        Ccu <- array(NA, c(TMAX, NFC))
+        KCu <- array(NA, c(TMAX, NFC))
+        cuC <- array(NA, c(TMAX, NFC))
         KKu <- array(NA, c(TMAX, NFK))
-        Kcu <- array(NA, c(TMAX, NFK))
+        cuC <- array(NA, c(TMAX, NFK))
         Ku <- array(NA, c(TMAX))
         cu <- array(NA, c(TMAX))
     }
@@ -135,7 +135,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         KK[1, ] <- 10
         I[1, , ] <- 0
         Ku[1, ] <- 0
-        cu[1, ] <- cuT
+        cuC[1, ] <- cuT
+        cuK[1, ] <- cuT
         UB[1, ] <- 0
         T[1, ] <- 0
         GDP[1] <- 0
@@ -156,22 +157,25 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / HpC[t - 1], 0) # Desired Demand for Hs, in units of goods
             GT[t] <- max((d * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / pC[t - 1], 0) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
-            IT[t, ] <- ceiling(pmax(Ku[t - 1, ] * pmax(1 / cuT - 1 / cu[t - 1, ], 0, na.rm = TRUE) + dK * K[t - 1, ], 0)) # Desired investments in units of capital goods
+            ICT[t, ] <- ceiling(pmax(KCu[t - 1, ] * pmax(1 / cuT - 1 / cuC[t - 1, ], 0, na.rm = TRUE) + dK * KC[t - 1, ], 0)) # Desired investments in units of capital goods for C Firms
+            IKT[t, ] <- ceiling(pmax(KKu[t - 1, ] * pmax(1 / cuT - 1 / cuK[t - 1, ], 0, na.rm = TRUE) + dK * KK[t - 1, ], 0)) # Desired investments in units of capital goods for K Firms
+            IT[t] <- sum(ICT[t, ]) + sum(IKT[t, ])
 
-            # Capital Goods Orders
+            ### To normalize by expected production
+            # Capital Goods Orders K->C
             Ip[t, , ] <- I[t - 1, , ] # Promised investment
             # Over ordered
-            while (any(rowSums(Ip[t, , ]) > IT[t, ])) {
-                FCids <- which(rowSums(Ip[t, , ]) > IT[t, ])
+            while (any(rowSums(Ip[t, , ]) > ICT[t, ])) {
+                FCids <- which(rowSums(Ip[t, , ]) > ICT[t, ])
                 for (FCid in FCids) {
                     FKid <- sample.vec(which(Ip[t, FCid, ] > 0), 1)
-                    d <- min(Ip[t, FCid, FKid], sum(Ip[t, FCid, ]) - IT[t, FCid])
+                    d <- min(Ip[t, FCid, FKid], sum(Ip[t, FCid, ]) - ICT[t, FCid])
                     Ip[t, FCid, FKid] <- Ip[t, FCid, FKid] - d
                 }
             }
             # Under ordered
-            while (any(rowSums(Ip[t, , ]) < IT[t, ])) {
-                FCids <- which(rowSums(Ip[t, , ]) < IT[t, ])
+            while (any(rowSums(Ip[t, , ]) < ICT[t, ])) {
+                FCids <- which(rowSums(Ip[t, , ]) < ICT[t, ])
                 for (FCid in FCids) {
                     FKid <- sample.int(NFK)
                     Ip[t, FCid, FKid] <- Ip[t, FCid, FKid] + 1
@@ -181,7 +185,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Job market
             # Demand
             NCT[t, ] <- pmin(K[t - 1, ], ceiling((1 + rhoC) * S[t - 1, ]))
-            NKT[t, ] <- ceiling(colSums(Ip[t, , ] / betaK))
+            NKT[t, ] <- ceiling((colSums(Ip[t, , ]) + IKT[t, ]) / betaK)
 
             NC[t, , ] <- NC[t - 1, , ]
             NK[t, , ] <- NK[t - 1, , ]
@@ -231,7 +235,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             NetW[t, ] <- (1 - tW) * W[t, ] # Net Wages
             DI[t, ] <- NetW[t, ] + UB[t, ] # Disposable Income for Hs
             pC[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaC # price
-            pK[t] <- (1 + mu) * W0 / betaK # price
+            pK[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaK # price
             HpC[t] <- (1 + tC) * pC[t] # price after VAT (Hs price)
 
             # Consumption Goods market
@@ -282,6 +286,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             S[t, ] <- S[t, ] + G[t, ]
             # Residual production is lost
 
+
+            ### DA RISCRIVERE
             # Capital Goods Market
             I[t, , ] <- I[t - 1, , ]
             # Over-selling over production
@@ -314,31 +320,40 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
                 FCid <- sample.vec(which(IT[t] - rowSums(I[t, , ]) > 0), 1)
                 I[t, FCid, FKid] <- I[t, FCid, FKid] + 1
             }
+            ### K Has to be retained
             # Remaining produced K is lost
+
             # Profits
             # Firms' Profits (all distributed) -- each H get the same share
-            PFK[t, , ] <- t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH)))
-            PFC[t, , ] <- t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])) / NH, c(NFC, NH)))
+            PFK[t, , ] <- t(array((pK[t] * colSums(IC[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH)))
+            PFC[t, , ] <- t(array((pC[t] * S[t, ] - pK[t] * rowSums(IC[t, , ]) - colSums(WFC[t, , ])) / NH, c(NFC, NH)))
             P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ])
 
             T[t, ] <- tW * W[t, ] + tP * P[t, ] + tC * rowSums(sweep(C[t, , ], 2, pC[t], "*")) # Taxes
             MH[t, ] <- MH[t - 1, ] + P[t, ] + W[t, ] + UB[t, ] - rowSums(sweep(C[t, , ], 2, pC[t], "*")) - T[t, ] # Households' Money
-            MFK[t, ] <- MFK[t - 1, ] + pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ]) - colSums(PFK[t, , ]) # Capital Firms' Money
-            MFC[t, ] <- MFC[t - 1, ] + pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ]) - colSums(PFC[t, , ]) # Consumption Firms' Money
+            MFK[t, ] <- MFK[t - 1, ] + pK[t] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - colSums(PFK[t, , ]) # Capital Firms' Money
+            MFC[t, ] <- MFC[t - 1, ] + pC[t] * S[t, ] - pK[t] * rowSums(IC[t, , ]) - colSums(WFC[t, , ]) - colSums(PFC[t, , ]) # Consumption Firms' Money
             M[t] <- M[t - 1] - (sum(T[t, ]) - sum(pC[t] * G[t, ]) - sum(UB[t, ])) # Gvt's Money
 
 
             # Update Variables for next cycle
-            K[t, ] <- floor(K[t - 1, ] * (1 - dK)) + rowSums(I[t, , ])
-            Ku[t, ] <- pmin(K[t - 1, ], colSums(NC[t, , ]))
-            cu[t, ] <- Ku[t, ] / K[t - 1, ]
+            ### CHECK
+            KC[t, ] <- floor(KC[t - 1, ] * (1 - dK)) + rowSums(IC[t, , ])
+            KK[t, ] <- floor(KK[t - 1, ] * (1 - dK)) + IK[t, ]
+            K[t] <- sum(KC[t, ]) + sum(KK[t, ])
+            KCu[t, ] <- pmin(KC[t - 1, ], colSums(NC[t, , ]))
+            KKu[t, ] <- pmin(KK[t - 1, ], colSums(NK[t, , ]))
+            Ku[t] <- pmin(K[t - 1], sum(NC[t, , ]) + sum(NK[t, , ]))
+            cuC[t, ] <- KCu[t, ] / KC[t - 1, ]
+            cuK[t, ] <- KKu[t, ] / KK[t - 1, ]
+            cu[t] <- Ku[t] / K[t - 1]
 
             VH[t, ] <- MH[t, ] # Households' Net Wealth
-            VFC[t, ] <- MFC[t, ] + pK[t] * K[t, ] # Capital Firms' Net Wealth
-            VFK[t, ] <- MFK[t, ] # Consumption Firms' Net Wealth
+            VFC[t, ] <- MFC[t, ] + pK[t] * KC[t, ] # Capital Firms' Net Wealth
+            VFK[t, ] <- MFK[t, ] + pK[t] * KK[t, ] # Consumption Firms' Net Wealth
             VG[t] <- -M[t] # Gvt' Net Wealth
             V[t] <- sum(VH[t, ]) + sum(VFK[t, ]) + sum(VFC[t, ]) + VG[t] # System Total Wealth
-            GDP[t] <- sum(pC[t] * S[t, ] + pK[t] * sum(I[t, , ]))
+            GDP[t] <- sum(pC[t] * S[t, ] + pK[t] * sum(IC[t, , ]))
 
             pb$tick()
         }
@@ -348,22 +363,25 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 {{        if (any(rowSums(MH[2:TMAX, ]) + rowSums(MFC[2:TMAX, ]) + rowSums(MFK[2:TMAX, ]) - M[2:TMAX] > tol)) {
     print("M row in BS not consistent")
 }
+if (any(sweep(KC[2:TMAX, ], 1, pK[2:TMAX], "*") + sweep(KK[2:TMAX, ], 1, pK[2:TMAX], "*") - K[2:TMAX] * pK[2:TMAX] > tol)) {
+    print("K row in BS not consistent")
+}
 if (any(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VG[2:TMAX] - V[2:TMAX] > tol)) {
     print("V row in BS not consistent")
 }
 if (any(MH[2:TMAX, ] - VH[2:TMAX, ] > tol)) {
     print("H column in BS not consistent (checked at agent level)")
 }
-if (any(MFC[2:TMAX, ] + sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*") - VFC[2:TMAX, ] > tol)) {
+if (any(MFC[2:TMAX, ] + sweep(KC[2:TMAX, ], 1, pK[2:TMAX], "*") - VFC[2:TMAX, ] > tol)) {
     print("FC column in BS not consistent (checked at agent level)")
 }
-if (any(MFK[2:TMAX, ] - VFK[2:TMAX, ] > tol)) {
+if (any(MFK[2:TMAX, ] + sweep(KK[2:TMAX, ], 1, pK[2:TMAX], "*") - VFK[2:TMAX, ] > tol)) {
     print("FK column in BS not consistent (checked at agent level)")
 }
 if (any(-M[2:TMAX] - VG[2:TMAX] > tol)) {
     print("G column in BS not consistent")
 }
-if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
+if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     print("Total column in BS not consistent")
 }    }
 
@@ -382,7 +400,7 @@ if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
     if (any(
         sweep(rowSums(aperm(C[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, pC[2:TMAX], "*")
         + sweep(G[2:TMAX, ], 1, pC[2:TMAX], "*")
-            - rowSums(sweep(I[2:TMAX, , ], 1, pK[2:TMAX], "*"), dims = 2)
+            - rowSums(sweep(IC[2:TMAX, , ], 1, pK[2:TMAX], "*"), dims = 2)
             - rowSums(aperm(WFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFC[2:TMAX, ] - MFC[1:TMAX - 1, ])
@@ -391,7 +409,7 @@ if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
         print("FC column in TFM not consistent (checked ad agent level)")
     }
     if (any(
-        sweep(rowSums(aperm(I[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, pK[2:TMAX], "*")
+        sweep(rowSums(aperm(IC[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, pK[2:TMAX], "*")
         - rowSums(aperm(WFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFK[2:TMAX, ] - MFK[1:TMAX - 1, ])
