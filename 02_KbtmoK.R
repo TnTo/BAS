@@ -19,7 +19,7 @@ model_eqs <- sfcr_set(
     M ~ M[-1] - (T - pC * G - UB),
     KC ~ (1 - dK) * KC[-1] + IC, # FCs' fixed capital
     KK ~ (1 - dK) * KK[-1] + IK, # FKs' fixed capital
-    K ~ KC + KK, # Totalò fixed capital
+    K ~ KC + KK, # Total fixed capital
     VH ~ MH,
     VFC ~ MFC + pK * KC,
     VFK ~ MFK + pK * KK,
