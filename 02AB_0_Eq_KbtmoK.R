@@ -47,7 +47,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     {
         TMAX <- 50
         NH <- 100
-        NFC <- 5
+        NFC <- 10
         NFK <- 5
     }
 
@@ -104,7 +104,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         G <- array(NA, c(TMAX, NFC))
         S <- array(NA, c(TMAX, NFC))
         YK <- array(NA, c(TMAX, NFK))
-        I <- array(NA, c(TMAX, NFK))
+        I <- array(NA, c(TMAX))
         IC <- array(NA, c(TMAX, NFC, NFK))
         IK <- array(NA, c(TMAX, NFK))
         PFC <- array(NA, c(TMAX, NH, NFC))
@@ -119,7 +119,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         KCu <- array(NA, c(TMAX, NFC))
         cuC <- array(NA, c(TMAX, NFC))
         KKu <- array(NA, c(TMAX, NFK))
-        cuC <- array(NA, c(TMAX, NFK))
+        cuK <- array(NA, c(TMAX, NFK))
         Ku <- array(NA, c(TMAX))
         cu <- array(NA, c(TMAX))
     }
@@ -133,8 +133,9 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         DI[1, ] <- 0
         KC[1, ] <- 10
         KK[1, ] <- 10
-        I[1, , ] <- 0
-        Ku[1, ] <- 0
+        IC[1, , ] <- 0
+        KCu[1, ] <- 0
+        KKu[1, ] <- 0
         cuC[1, ] <- cuT
         cuK[1, ] <- cuT
         UB[1, ] <- 0
@@ -154,6 +155,9 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         pb <- progress_bar$new(total = TMAX)
         pb$tick()
         for (t in 2:TMAX) {
+            if (t > 40) {
+                a <- 0
+            }
             CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / HpC[t - 1], 0) # Desired Demand for Hs, in units of goods
             GT[t] <- max((d * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / pC[t - 1], 0) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
@@ -163,7 +167,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             ### To normalize by expected production
             # Capital Goods Orders K->C
-            Ip[t, , ] <- I[t - 1, , ] # Promised investment
+            Ip[t, , ] <- IC[t - 1, , ] # Promised investment
             # Over ordered
             while (any(rowSums(Ip[t, , ]) > ICT[t, ])) {
                 FCids <- which(rowSums(Ip[t, , ]) > ICT[t, ])
@@ -173,19 +177,29 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
                     Ip[t, FCid, FKid] <- Ip[t, FCid, FKid] - d
                 }
             }
+            # Over promised
+            while (any(colSums(Ip[t, , ]) > KK[t - 1, ] * betaK)) {
+                FKids <- which(colSums(Ip[t, , ]) > KK[t - 1, ] * betaK)
+                for (FKid in FKids) {
+                    FCid <- sample.vec(which(Ip[t, , FKid] > 0), 1)
+                    d <- min(Ip[t, FCid, FKid], sum(Ip[t, , FKid]) - KK[t - 1, FKid] * betaK)
+                    Ip[t, FCid, FKid] <- Ip[t, FCid, FKid] - d
+                }
+            }
+
             # Under ordered
             while (any(rowSums(Ip[t, , ]) < ICT[t, ])) {
                 FCids <- which(rowSums(Ip[t, , ]) < ICT[t, ])
                 for (FCid in FCids) {
-                    FKid <- sample.int(NFK)
+                    FKid <- sample.vec(which(colSums(Ip[t, , ]) < KK[t - 1, ] * betaK), 1)
                     Ip[t, FCid, FKid] <- Ip[t, FCid, FKid] + 1
                 }
             }
 
             # Job market
             # Demand
-            NCT[t, ] <- pmin(K[t - 1, ], ceiling((1 + rhoC) * S[t - 1, ]))
-            NKT[t, ] <- ceiling((colSums(Ip[t, , ]) + IKT[t, ]) / betaK)
+            NCT[t, ] <- pmin(KC[t - 1, ], ceiling((1 + rhoC) * S[t - 1, ]))
+            NKT[t, ] <- pmin(KK[t - 1, ], ceiling((colSums(Ip[t, , ]) + IKT[t, ]) / betaK))
 
             NC[t, , ] <- NC[t - 1, , ]
             NK[t, , ] <- NK[t - 1, , ]
@@ -225,8 +239,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
                 }
             }
 
-            Y[t, ] <- betaC * pmin(colSums(NC[t, , ]), K[t - 1, ]) # Consumption Goods output in units of goods
-            YK[t, ] <- floor(betaK * colSums(NK[t, , ])) # Capital Goods output in units of goods
+            Y[t, ] <- betaC * pmin(colSums(NC[t, , ]), KC[t - 1, ]) # Consumption Goods output in units of goods
+            YK[t, ] <- floor(betaK * pmin(colSums(NK[t, , ]), KK[t - 1, ])) # Capital Goods output in units of goods
             WFC[t, , ] <- W0 * NC[t, , ] # Wages
             WFK[t, , ] <- W0 * NK[t, , ] # Wages
             W[t, ] <- rowSums(WFC[t, , ]) + rowSums(WFK[t, , ])
@@ -289,39 +303,17 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             ### DA RISCRIVERE
             # Capital Goods Market
-            I[t, , ] <- I[t - 1, , ]
-            # Over-selling over production
-            FKids <- which(colSums(I[t, , ]) - YK[t, ] > 0)
-            if (length(FKids) > 0) {
-                for (FKid in FKids) {
-                    while (sum(I[t, , FKid] - YK[t, FKid] > 0)) {
-                        FCid <- sample.vec(which(I[t, , FKid] > 0), 1)
-                        d <- min(I[t, FCid, FKid], sum(I[t, , FKid]) - YK[t, FKid])
-                        I[t, FCid, FKid] <- I[t, FCid, FKid] - d
-                    }
-                }
+            IC[t, , ] <- floor(Ip[t, , ] * (YK[t, ] / (colSums(Ip[t, , ]) + IKT[t, ])))
+            IK[t, ] <- YK[t, ] - colSums(IC[t, , ])
+
+            while (any(IK[t, ] > IKT[t, ]) && any(rowSums(IC[t, , ]) < ICT[t, ])) {
+                FCid <- sample.vec(which(rowSums(IC[t, , ]) < ICT[t, ]), 1)
+                FKid <- sample.vec(which(IK[t, ] > IKT[t, ]), 1)
+                IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
+                IK[t, FKid] <- IK[t, FKid] - 1
             }
-            # Over-buying over orders
-            I[t, , ] <- I[t, , ] - pmax(I[t, , ] - Ip[t, , ], 0)
-            # Satisfay orders
-            repeat {
-                FKids <- which((colSums(pmax(Ip[t, , ] - I[t, , ], 0)) > 0) & (YK[t, ] - colSums(I[t, , ]) > 0))
-                if (length(FKids > 0)) {
-                    FKid <- sample.vec(FKids, 1)
-                    FCid <- sample.vec(which(Ip[t, , FKid] - I[t, , FKid] > 0), 1)
-                    I[t, FCid, FKid] <- I[t, FCid, FKid] + 1
-                } else {
-                    break
-                }
-            }
-            # Selling remaing K
-            while (any(YK[t, ] - colSums(I[t, , ]) > 0)) {
-                FKid <- sample.vec(which(YK[t, ] - colSums(I[t, , ]) > 0), 1)
-                FCid <- sample.vec(which(IT[t] - rowSums(I[t, , ]) > 0), 1)
-                I[t, FCid, FKid] <- I[t, FCid, FKid] + 1
-            }
-            ### K Has to be retained
-            # Remaining produced K is lost
+
+            I[t] <- sum(IC[t, , ]) + sum(IK[t, ])
 
             # Profits
             # Firms' Profits (all distributed) -- each H get the same share
