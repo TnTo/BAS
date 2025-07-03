@@ -470,4 +470,12 @@ if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
     hist(MH[1, ], main = "MH T=1")
     hist(MH[100, ], main = "MH T=100")
     hist(MH[TMAX, ], main = "MH T=TMAX")
+}
+
+{
+    par(mfrow = c(4, 1))
+    plot(apply(VH, 1, function(x) any(x < 0)), main = "any VH < 0")
+    plot(apply(VFC, 1, function(x) any(x < 0)), main = "any VFC < 0")
+    plot(apply(VFK, 1, function(x) any(x < 0)), main = "any VFK < 0")
+    plot(VG > 0, main = " VG > 0")
 }}
