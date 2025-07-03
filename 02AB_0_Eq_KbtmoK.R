@@ -355,7 +355,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 {{        if (any(rowSums(MH[2:TMAX, ]) + rowSums(MFC[2:TMAX, ]) + rowSums(MFK[2:TMAX, ]) - M[2:TMAX] > tol)) {
     print("M row in BS not consistent")
 }
-if (any(sweep(KC[2:TMAX, ], 1, pK[2:TMAX], "*") + sweep(KK[2:TMAX, ], 1, pK[2:TMAX], "*") - K[2:TMAX] * pK[2:TMAX] > tol)) {
+if (any(rowSums(KC[2:TMAX, ]) * pK[2:TMAX] + rowSums(KK[2:TMAX, ]) * pK[2:TMAX] - K[2:TMAX] * pK[2:TMAX] > tol)) {
     print("K row in BS not consistent")
 }
 if (any(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VG[2:TMAX] - V[2:TMAX] > tol)) {
@@ -436,8 +436,8 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     par(mfrow = c(2, 4))
     plot(rowSums(sweep(rowSums(aperm(C, c(1, 3, 2)), dims = 2), 1, pC, "*")), type = "l", main = "C")
     plot(rowSums(sweep(G, 1, pC, "*")), type = "l", main = "G")
-    plot(rowSums(sweep(rowSums(aperm(I, c(1, 3, 2)), dims = 2), 1, pK, "*")), type = "l", main = "I")
-    plot(rowSums(sweep(K, 1, pK, "*")), type = "l", main = "K")
+    plot(rowSums(sweep(rowSums(aperm(IC, c(1, 3, 2)), dims = 2), 1, pK, "*")), type = "l", main = "IC")
+    plot(rowSums(sweep(KC, 1, pK, "*")), type = "l", main = "KC")
     plot(rowSums(UB), type = "l", main = "UB")
     plot(rowSums(W), type = "l", main = "W")
     plot(rowSums(P), type = "l", main = "P")
@@ -453,7 +453,7 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     lines(rowSums(NKT) / NH, lty = "dashed")
     plot(pC, type = "l", main = "pC")
     plot(pK, type = "l", main = "pK")
-    plot(pmin(rowSums(K)[1:TMAX - 1], rowSums(NC)[2:TMAX]) / rowSums(K)[1:TMAX - 1], type = "l", main = "cu", ylim = c(0, 1))
+    plot(pmin(rowSums(KC)[1:TMAX - 1], rowSums(NC)[2:TMAX]) / rowSums(KC)[1:TMAX - 1], type = "l", main = "cu", ylim = c(0, 1))
 }
 
 {
@@ -464,10 +464,10 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     lines(GT, lty = "dashed")
     plot(rowSums(Y), type = "l", main = "Y", ylim = c(0, max(YT, na.rm = TRUE)))
     lines(YT, lty = "dashed")
-    plot(rowSums(I), type = "l", main = "I", ylim = c(0, max(rowSums(IT), na.rm = TRUE)))
-    lines(rowSums(IT), lty = "dashed")
+    plot(rowSums(IC), type = "l", main = "IC", ylim = c(0, max(rowSums(ICT), na.rm = TRUE)))
+    lines(rowSums(ICT), lty = "dashed")
     plot(rowSums(YK), type = "l", main = "YK")
-    plot(rowSums(S), type = "l", main = "YK")
+    plot(rowSums(S), type = "l", main = "S")
 }
 
 {
@@ -489,6 +489,6 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
 {
     par(mfrow = c(3, 1))
     hist(MH[1, ], main = "MH T=1")
-    hist(MH[100, ], main = "MH T=100")
+    hist(MH[floor(TMAX / 10), ], main = "MH T=100")
     hist(MH[TMAX, ], main = "MH T=TMAX")
 }}
