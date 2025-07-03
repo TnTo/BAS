@@ -45,9 +45,9 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 50
-        NH <- 100
-        NFC <- 10
+        TMAX <- 500
+        NH <- 1000
+        NFC <- 50
         NFK <- 5
     }
 
@@ -188,12 +188,10 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             }
 
             # Under ordered
-            while (any(rowSums(Ip[t, , ]) < ICT[t, ])) {
-                FCids <- which(rowSums(Ip[t, , ]) < ICT[t, ])
-                for (FCid in FCids) {
-                    FKid <- sample.vec(which(colSums(Ip[t, , ]) < KK[t - 1, ] * betaK), 1)
-                    Ip[t, FCid, FKid] <- Ip[t, FCid, FKid] + 1
-                }
+            while (any(rowSums(Ip[t, , ]) < ICT[t, ]) && any(colSums(Ip[t, , ]) < KK[t - 1, ] * betaK)) {
+                FCid <- sample.vec(which(rowSums(Ip[t, , ]) < ICT[t, ]), 1)
+                FKid <- sample.vec(which(colSums(Ip[t, , ]) < KK[t - 1, ] * betaK), 1)
+                Ip[t, FCid, FKid] <- Ip[t, FCid, FKid] + 1
             }
 
             # Job market
@@ -491,4 +489,12 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     hist(MH[1, ], main = "MH T=1")
     hist(MH[floor(TMAX / 10), ], main = "MH T=100")
     hist(MH[TMAX, ], main = "MH T=TMAX")
+}
+
+{
+    par(mfrow = c(4, 1))
+    plot(apply(VH, 1, function(x) any(x < 0)), main = "any VH < 0")
+    plot(apply(VFC, 1, function(x) any(x < 0)), main = "any VFC < 0")
+    plot(apply(VFK, 1, function(x) any(x < 0)), main = "any VFK < 0")
+    plot(VG > 0, main = " VG > 0")
 }}
