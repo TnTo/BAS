@@ -4,7 +4,7 @@
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 ###
-# Scenario Lib:
+# Scenario Hist:
 # Concentrated initial wealth
 # Flat profit distribution
 ###
