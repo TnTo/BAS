@@ -1,8 +1,8 @@
 ### BAS: Building towards Artificial Societies
-# Model 1:
-#   Fixed Capital only in consumption firms
+# Model 2:
+#   Fixed Capital in both consumption and capital firms
 #   It appears to need to be a full-employment model
-#   In this form is completely a-cyclical
+#   In this form is substantially a-cyclical
 ###
 # Scenario Eq:
 # Flat initial wealth
@@ -155,9 +155,6 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         pb <- progress_bar$new(total = TMAX)
         pb$tick()
         for (t in 2:TMAX) {
-            if (t > 40) {
-                a <- 0
-            }
             CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / HpC[t - 1], 0) # Desired Demand for Hs, in units of goods
             GT[t] <- max((d * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / pC[t - 1], 0) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
