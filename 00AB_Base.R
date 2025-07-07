@@ -23,6 +23,23 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     {
         tol <- 1e-2
         set.seed(8686)
+
+        # SET SCENARIO
+        scenario <- "Eq" # "Hist" "Lib" "Con" "Fat"
+        M0 <- switch(scenario,
+            "Eq" = "Flat",
+            "Hist" = "Exp",
+            "Lib" = "Flat",
+            "Con" = "Exp",
+            "Fat" = "LN"
+        )
+        PDist <- switch(scenario,
+            "Eq" = "Flat",
+            "Hist" = "Flat",
+            "Lib" = "Prop",
+            "Con" = "Prop",
+            "Fat" = "Prop"
+        )
     }
 
     ## Size
@@ -39,7 +56,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         av <- 0.1 # Desired share of consumptio out of wealth
         beta <- 1.0 # Output per worker in units of goods
         mu <- 0.2 # Firms' mark-up
-        d <- 0.03 # Target Gvt deficit
+        dG <- 0.03 # Target Gvt deficit
         tW <- 0.35 # Tax rate on wages
         tP <- 0.2 # Tax rate on profits
         tC <- 0.2 # Tax rate on Hs consumption
@@ -75,7 +92,11 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     # Initial values
     {
-        MH[1, ] <- 1 # Initialize with flat wealth distribution
+        MH[1, ] <- switch(M0,
+            "Flat" = 1,
+            "Exp" = rexp(NH),
+            "LN" = rlnorm(NH)
+        )
         MF[1, ] <- 0
         M[1] <- sum(MH[1, ])
         DI[1, ] <- 0
@@ -94,7 +115,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         pb$tick()
         for (t in 2:TMAX) {
             CT[t, ] <- pmax(0, (ay * DI[t - 1, ] + av * MH[t - 1, ]) / Hp[t - 1]) # Desired Demand for Hs, in units of goods
-            GT[t] <- max(0, (d * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / p[t - 1]) # Desired Demand for Gvt, in units of goods
+            GT[t] <- max(0, (dG * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / p[t - 1]) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
 
             # Job market
@@ -168,7 +189,10 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             G[t, ] <- Y[t, ] - colSums(C[t, , ]) # Gvt Consumption, in units of goods
 
-            P[t, , ] <- t(array((p[t] * Y[t, ] - colSums(W[t, , ])) / NH, c(NF, NH))) # Firms' Profits (all distributed) -- each H get the same share
+            P[t, , ] <- switch(PDist,
+                "Flat" = t(array((p[t] * Y[t, ] - colSums(W[t, , ])) / NH, c(NF, NH))),
+                "Prop" = sweep(t(array((p[t] * Y[t, ] - colSums(W[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+            )
             T[t, ] <- tW * rowSums(W[t, , ]) + tP * rowSums(P[t, , ]) + tC * rowSums(sweep(C[t, , ], 2, p[t], "*")) # Taxes
             MH[t, ] <- MH[t - 1, ] + rowSums(P[t, , ]) + rowSums(W[t, , ]) + UB[t, ] - rowSums(sweep(C[t, , ], 2, p[t], "*")) - T[t, ] # Households' Money
             MF[t, ] <- MF[t - 1, ] + p[t] * Y[t, ] - colSums(W[t, , ]) - colSums(P[t, , ]) # Firms' Money

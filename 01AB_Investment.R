@@ -4,9 +4,9 @@
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 ###
-# Scenario Lib:
+# Scenario Eq:
 # Flat initial wealth
-# Proportional profit distribution
+# Flat profit distribution
 ###
 # install.packages(c("devtools", "tidyverse", "moments", "progress", "profvis"))
 
@@ -41,6 +41,23 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     {
         tol <- 1e-2
         set.seed(8686)
+
+        # SET SCENARIO
+        scenario <- "Eq" # "Hist" "Lib" "Con" "Fat"
+        M0 <- switch(scenario,
+            "Eq" = "Flat",
+            "Hist" = "Exp",
+            "Lib" = "Flat",
+            "Con" = "Exp",
+            "Fat" = "LN"
+        )
+        PDist <- switch(scenario,
+            "Eq" = "Flat",
+            "Hist" = "Flat",
+            "Lib" = "Prop",
+            "Con" = "Prop",
+            "Fat" = "Prop"
+        )
     }
 
     ## Size
@@ -59,7 +76,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         betaC <- 2.0 # Output per worker in units of goods in Consumption Goods Firms
         betaK <- 1.0 # Output per worker in units of goods in Capital Goods Firms
         mu <- 0.2 # Firms' mark-up
-        d <- 0.03 # Target Gvt deficit
+        dG <- 0.03 # Target Gvt deficit
         tW <- 0.35 # Tax rate on wages
         tP <- 0.2 # Tax rate on profits
         tC <- 0.2 # Tax rate on Hs consumption
@@ -116,7 +133,11 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     # Initial values
     {
-        MH[1, ] <- 1 # Initialize with flat wealth distribution
+        MH[1, ] <- switch(M0,
+            "Flat" = 1,
+            "Exp" = rexp(NH),
+            "LN" = rlnorm(NH)
+        )
         MFC[1, ] <- 0
         MFK[1, ] <- 0
         M[1] <- sum(MH[1, ])
@@ -143,7 +164,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         pb$tick()
         for (t in 2:TMAX) {
             CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / HpC[t - 1], 0) # Desired Demand for Hs, in units of goods
-            GT[t] <- max((d * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / pC[t - 1], 0) # Desired Demand for Gvt, in units of goods
+            GT[t] <- max((dG * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / pC[t - 1], 0) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
             IT[t, ] <- ceiling(pmax(Ku[t - 1, ] * pmax(1 / cuT - 1 / cu[t - 1, ], 0, na.rm = TRUE) + dK * K[t - 1, ], 0)) # Desired investments in units of capital goods
 
@@ -305,9 +326,15 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             }
             # Remaining produced K is lost
             # Profits
-            # Firms' Profits (all distributed) -- proportional to MH
-            PFK[t, , ] <- sweep(t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
-            PFC[t, , ] <- sweep(t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+            # Firms' Profits (all distributed) -- each H get the same share
+            PFK[t, , ] <- switch(PDist,
+                "Flat" = t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])) / NH, c(NF, NH))),
+                "Prop" = sweep(t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+            )
+            PFC[t, , ] <- switch(PDist,
+                "Flat" = t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])) / NH, c(NF, NH))),
+                "Prop" = sweep(t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+            )
             P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ])
 
             T[t, ] <- tW * W[t, ] + tP * P[t, ] + tC * rowSums(sweep(C[t, , ], 2, pC[t], "*")) # Taxes
@@ -470,4 +497,12 @@ if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
     hist(MH[1, ], main = "MH T=1")
     hist(MH[100, ], main = "MH T=100")
     hist(MH[TMAX, ], main = "MH T=TMAX")
+}
+
+{
+    par(mfrow = c(4, 1))
+    plot(apply(VH, 1, function(x) any(x < 0)), main = "any VH < 0")
+    plot(apply(VFC, 1, function(x) any(x < 0)), main = "any VFC < 0")
+    plot(apply(VFK, 1, function(x) any(x < 0)), main = "any VFK < 0")
+    plot(VG > 0, main = " VG > 0")
 }}
