@@ -4,10 +4,6 @@
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 ###
-# Scenario Eq:
-# Flat initial wealth
-# Flat profit distribution
-###
 # install.packages(c("devtools", "tidyverse", "moments", "progress", "profvis"))
 
 library(tidyverse)
@@ -328,12 +324,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Profits
             # Firms' Profits (all distributed) -- each H get the same share
             PFK[t, , ] <- switch(PDist,
-                "Flat" = t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])) / NH, c(NF, NH))),
-                "Prop" = sweep(t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH))),
+                "Prop" = sweep(t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             PFC[t, , ] <- switch(PDist,
-                "Flat" = t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])) / NH, c(NF, NH))),
-                "Prop" = sweep(t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])) / NH, c(NFC, NH))),
+                "Prop" = sweep(t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ])
 
