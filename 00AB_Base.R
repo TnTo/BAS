@@ -4,11 +4,7 @@
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 ###
-# Scenario Eq:
-# Flat initial wealth
-# Flat profit distribution
-###
-install.packages(c("tidyverse", "moments", "progress", "profvis"))
+# install.packages(c("tidyverse", "moments", "progress", "profvis"))
 
 library(tidyverse)
 library(moments)
@@ -25,7 +21,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         set.seed(8686)
 
         # SET SCENARIO
-        scenario <- "Eq" # "Hist" "Lib" "Con" "Fat"
+        scenario <- "Eq" # "Eq" "Hist" "Lib" "Con" "Fat"
         M0 <- switch(scenario,
             "Eq" = "Flat",
             "Hist" = "Exp",
