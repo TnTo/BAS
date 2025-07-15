@@ -7,8 +7,8 @@
 #   Profit inflation, without catastropheses at t=5000
 ###
 
-install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
-devtools::install_github("TnTo/sfcr", ref = "sankey")
+# install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
+# devtools::install_github("TnTo/sfcr", ref = "sankey")
 
 library(sfcr)
 library(tidyverse)
