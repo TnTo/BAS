@@ -210,7 +210,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             # Job market
             # Demand
-            NCT[t, ] <- pmin(KC[t - 1, ], ceiling((1 + rhoC) * S[t - 1, ]))
+            NCT[t, ] <- pmin(KC[t - 1, ], ceiling((1 + rhoC) * S[t - 1, ] / betaC))
             NKT[t, ] <- pmin(KK[t - 1, ], ceiling((colSums(Ip[t, , ]) + IKT[t, ]) / betaK))
 
             NC[t, , ] <- NC[t - 1, , ]
