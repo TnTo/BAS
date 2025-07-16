@@ -182,9 +182,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         for (t in 2:TMAX) {
             muC[t, ] <- muC[t - 1, ] * (1 + theta * (cuC[t - 1, ] - cuT) / cuT)
             muK[t, ] <- muK[t - 1, ] * (1 + theta * (cuK[t - 1, ] - cuT) / cuT)
-            pK[t, ] <- (1 + muK[t, ]) * (colSums(WFK[t - 1, , ]) + dK * pK[t - 1, ] * KKu[t - 1]) / colSums(IC[t - 1, , ]) # price
-            pK[t, ] <- ifelse(is.na(pK[t, ]), pK[t - 1, ], pK[t, ])
-            pC[t, ] <- (1 + muC[t, ]) * (colSums(WFC[t - 1, , ]) + dK * pKC[t - 1, ] * KCu[t - 1]) / S[t - 1, ] # price
+            pC[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaC # price
+            pK[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaK # price
             pC[t, ] <- ifelse(is.na(pC[t, ]), pC[t - 1, ], pC[t, ])
             HpC[t, ] <- (1 + tC) * pC[t, ] # price after VAT (Hs price)
 
