@@ -182,8 +182,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         for (t in 2:TMAX) {
             muC[t, ] <- muC[t - 1, ] * (1 + theta * (cuC[t - 1, ] - cuT) / cuT)
             muK[t, ] <- muK[t - 1, ] * (1 + theta * (cuK[t - 1, ] - cuT) / cuT)
-            pC[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaC # price
-            pK[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaK # price
+            pC[t] <- (1 + muC[t, ]) * (W0 + pKC[t - 1] * dK) / betaC # price
+            pK[t] <- (1 + muK[t, ]) * (W0 + pK[t - 1] * dK) / betaK # price
             pC[t, ] <- ifelse(is.na(pC[t, ]), pC[t - 1, ], pC[t, ])
             HpC[t, ] <- (1 + tC) * pC[t, ] # price after VAT (Hs price)
 
@@ -393,7 +393,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             cuC[t, ] <- replace_na(KCu[t, ] / KC[t - 1, ], 0)
             cuK[t, ] <- replace_na(KKu[t, ] / KK[t - 1, ], 0) # but are dead firms if KK == 0...
             cu[t] <- Ku[t] / K[t - 1]
-            pKC[t, ] <- rowSums(sweep(IC[t, , ], 2, pK[t - 1, ], "*")) / rowSums(IC[t, , ])
+            pKC[t, ] <- rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) / rowSums(IC[t, , ])
             pKC[t, ] <- ifelse(is.na(pKC[t, ]), pKC[t - 1, ], pKC[t, ])
 
             VH[t, ] <- MH[t, ] # Households' Net Wealth
