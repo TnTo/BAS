@@ -40,7 +40,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         set.seed(8686)
 
         # SET SCENARIO
-        scenario <- "Eq" # "Hist" "Lib" "Con" "Fat"
+        scenario <- "Eq" # "Eq" "Hist" "Lib" "Con" "Fat"
         M0 <- switch(scenario,
             "Eq" = "Flat",
             "Hist" = "Exp",
@@ -59,7 +59,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 100 # 500
+        TMAX <- 250
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -190,6 +190,10 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / (rowSums(C[t - 1, , ] * HpC[t, ]) / rowSums(C[t - 1, , ])), 0) # Desired Demand for Hs, in units of goods
             GT[t] <- max((dG * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / ifelse(sum(G[t - 1, ]) == 0, mean(pC[t, ]), sum(G[t - 1, ] * pC[t, ]) / sum(G[t - 1, ])), 0) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
+            # ICT[t, ] <- pmin(
+            #     ceiling(pmax(KCu[t - 1, ] * pmax(1 / cuT - 1 / cuC[t - 1, ], 0, na.rm = TRUE) + dK * KCu[t - 1, ], 0)),
+            #     floor(pmax(((1 + rhoC) * pC[t - 1, ] * S[t - 1, ] - colSums(WFC[t - 1, , ])) / pKC[t - 1, ], 0, na.rm = TRUE))
+            # ) # Desired investments in units of capital goods for C Firms
             ICT[t, ] <- ceiling(pmax(KCu[t - 1, ] * pmax(1 / cuT - 1 / cuC[t - 1, ], 0, na.rm = TRUE) + dK * KCu[t - 1, ], 0)) # Desired investments in units of capital goods for C Firms
             IKT[t, ] <- ceiling(pmax(KKu[t - 1, ] * pmax(1 / cuT - 1 / cuK[t - 1, ], 0, na.rm = TRUE) + dK * KKu[t - 1, ], 0)) # Desired investments in units of capital goods for K Firms
             IT[t] <- sum(ICT[t, ]) + sum(IKT[t, ])
@@ -339,24 +343,28 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             }
 
             # unable to pay
-            while (any(((MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) < -tol) & (rowSums(IC[t, , ]) > 0))) {
-                FCid <- sample.vec(which(((MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) < -tol) & (rowSums(IC[t, , ]) > 0)), 1)
-                FKid <- sample.vec(which(IC[t, FCid, ] > 0), 1)
-                IC[t, FCid, FKid] <- IC[t, FCid, FKid] - 1
-            }
+            # while (any(((MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) < -tol) & (rowSums(IC[t, , ]) > 0))) {
+            #    FCid <- sample.vec(which(((MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) < -tol) & (rowSums(IC[t, , ]) > 0)), 1)
+            #    FKid <- sample.vec(which(IC[t, FCid, ] > 0), 1)
+            #    IC[t, FCid, FKid] <- IC[t, FCid, FKid] - 1
+            # }
 
             IK[t, ] <- YK[t, ] - colSums(IC[t, , ])
 
             # sell remaining
             repeat {
                 FKids <- which(IK[t, ] > IKT[t, ])
-                FCids <- which((rowSums(IC[t, , ]) < ICT[t, ]) & ((MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) > pmin(pK[t, FKids])))
-                if (length(FCids > 0) && length(FKids > 0)) {
-                    FCid <- sample.vec(FCids, 1)
-                    avm <- MFC[t - 1, FCid] + pC[t, FCid] * S[t, FCid] - sum(IC[t, FCid, ] * pK[t, ]) - sum(WFC[t, , FCid])
-                    FKid <- sample.vec(FKids[pK[t, FKids] < avm], 1)
-                    IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
-                    IK[t, FKid] <- IK[t, FKid] - 1
+                if (length(FKids > 0)) {
+                    FCids <- which((rowSums(IC[t, , ]) < ICT[t, ]) & ((MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) > min(pK[t, FKids])))
+                    if (length(FCids > 0)) {
+                        FCid <- sample.vec(FCids, 1)
+                        avm <- MFC[t - 1, FCid] + pC[t, FCid] * S[t, FCid] - sum(IC[t, FCid, ] * pK[t, ]) - sum(WFC[t, , FCid])
+                        FKid <- sample.vec(FKids[pK[t, FKids] < avm], 1)
+                        IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
+                        IK[t, FKid] <- IK[t, FKid] - 1
+                    } else {
+                        break
+                    }
                 } else {
                     break
                 }
@@ -365,21 +373,20 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             I[t] <- sum(IC[t, , ]) + sum(IK[t, ])
 
             # Profits
-            # Firms' Profits (all distributed) -- each H get the same share
             PFK[t, , ] <- switch(PDist,
-                "Flat" = t(array(pmax(pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]), 0) / NH, c(NFK, NH))),
-                "Prop" = sweep(t(array(pmax(pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]), 0), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH))),
+                "Prop" = sweep(t(array(pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             PFC[t, , ] <- switch(PDist,
-                "Flat" = t(array(pmax(pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]), 0) / NH, c(NFC, NH))),
-                "Prop" = sweep(t(array(pmax(pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]), 0), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) / NH, c(NFC, NH))),
+                "Prop" = sweep(t(array(pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ])
 
             T[t, ] <- tW * W[t, ] + tP * P[t, ] + tC * rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) # Taxes
             MH[t, ] <- MH[t - 1, ] + P[t, ] + W[t, ] + UB[t, ] - rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) - T[t, ] # Households' Money
             MFK[t, ] <- MFK[t - 1, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - colSums(PFK[t, , ]) # Capital Firms' Money
-            MFC[t, ] <- MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - colSums(PFC[t, , ]) # Consumption Firms' Money
+            MFC[t, ] <- MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(IC[t, , ] * pK[t, ]) - colSums(WFC[t, , ]) - colSums(PFC[t, , ]) # Consumption Firms' Money
             M[t] <- M[t - 1] - (sum(T[t, ]) - sum(pC[t, ] * G[t, ]) - sum(UB[t, ])) # Gvt's Money
 
 
@@ -411,31 +418,31 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 {{        if (any(rowSums(MH[2:TMAX, ]) + rowSums(MFC[2:TMAX, ]) + rowSums(MFK[2:TMAX, ]) - M[2:TMAX] > tol)) {
     print("M row in BS not consistent")
 }
-if (any(rowSums(KC[2:TMAX, ]) * pK[2:TMAX] + rowSums(KK[2:TMAX, ]) * pK[2:TMAX] - K[2:TMAX] * pK[2:TMAX] > tol)) {
+if (any(rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]) + rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) - (rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ])) > tol)) {
     print("K row in BS not consistent")
-}
+} # Tautology, but keeping track of the value of each K Good is not suitable in this setting
 if (any(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VG[2:TMAX] - V[2:TMAX] > tol)) {
     print("V row in BS not consistent")
 }
 if (any(MH[2:TMAX, ] - VH[2:TMAX, ] > tol)) {
     print("H column in BS not consistent (checked at agent level)")
 }
-if (any(MFC[2:TMAX, ] + sweep(KC[2:TMAX, ], 1, pK[2:TMAX], "*") - VFC[2:TMAX, ] > tol)) {
+if (any(MFC[2:TMAX, ] + sweep(KC[2:TMAX, ], 1, pKC[2:TMAX, ], "*") - VFC[2:TMAX, ] > tol)) {
     print("FC column in BS not consistent (checked at agent level)")
 }
-if (any(MFK[2:TMAX, ] + sweep(KK[2:TMAX, ], 1, pK[2:TMAX], "*") - VFK[2:TMAX, ] > tol)) {
+if (any(MFK[2:TMAX, ] + sweep(KK[2:TMAX, ], 1, pK[2:TMAX, ], "*") - VFK[2:TMAX, ] > tol)) {
     print("FK column in BS not consistent (checked at agent level)")
 }
 if (any(-M[2:TMAX] - VG[2:TMAX] > tol)) {
     print("G column in BS not consistent")
 }
-if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
+if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]) - V[2:TMAX] > tol)) {
     print("Total column in BS not consistent")
 }    }
 
 {
     if (any(
-        -rowSums(sweep(C[2:TMAX, , ], 1, pC[2:TMAX], "*"), dims = 2)
+        -rowSums(sweep(C[2:TMAX, , ], c(1, 3), pC[2:TMAX, ], "*"), dims = 2)
         + UB[2:TMAX, ]
             + W[2:TMAX, ]
             + P[2:TMAX, ]
@@ -446,9 +453,9 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
         print("H column in TFM not consistent (checked ad agent level)")
     }
     if (any(
-        sweep(rowSums(aperm(C[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, pC[2:TMAX], "*")
-        + sweep(G[2:TMAX, ], 1, pC[2:TMAX], "*")
-            - rowSums(sweep(IC[2:TMAX, , ], 1, pK[2:TMAX], "*"), dims = 2)
+        (rowSums(aperm(C[2:TMAX, , ], c(1, 3, 2)), dim = 2) * pC[2:TMAX, ])
+        + (G[2:TMAX, ] * pC[2:TMAX, ])
+            - rowSums(sweep(IC[2:TMAX, , ], c(1, 3), pK[2:TMAX, ], "*"), dims = 2)
             - rowSums(aperm(WFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFC[2:TMAX, ] - MFC[1:TMAX - 1, ])
@@ -457,8 +464,8 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
         print("FC column in TFM not consistent (checked ad agent level)")
     }
     if (any(
-        sweep(rowSums(aperm(IC[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, pK[2:TMAX], "*")
-        - rowSums(aperm(WFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
+        rowSums(aperm(IC[2:TMAX, , ], c(1, 3, 2)), dims = 2) * pK[2:TMAX, ]
+            - rowSums(aperm(WFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFK[2:TMAX, ] - MFK[1:TMAX - 1, ])
         > tol
@@ -466,7 +473,7 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
         print("FK column in TFM not consistent (checked ad agent level)")
     }
     if (any(
-        -rowSums(sweep(G[2:TMAX, ], 1, pC[2:TMAX], "*"))
+        -rowSums(G[2:TMAX, ] * pC[2:TMAX, ])
         - rowSums(UB[2:TMAX, ])
             + rowSums(T[2:TMAX, ])
             + (M[2:TMAX] - M[1:TMAX - 1])
@@ -490,10 +497,10 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
 
 {
     par(mfrow = c(2, 4))
-    plot(rowSums(sweep(rowSums(aperm(C, c(1, 3, 2)), dims = 2), 1, pC, "*")), type = "l", main = "C")
-    plot(rowSums(sweep(G, 1, pC, "*")), type = "l", main = "G")
-    plot(rowSums(sweep(rowSums(aperm(IC, c(1, 3, 2)), dims = 2), 1, pK, "*")), type = "l", main = "IC")
-    plot(rowSums(sweep(KC, 1, pK, "*")), type = "l", main = "KC")
+    plot(rowSums(rowSums(aperm(C, c(1, 3, 2)), dims = 2) * pC), type = "l", main = "C")
+    plot(rowSums(G * pC), type = "l", main = "G")
+    plot(rowSums(rowSums(aperm(IC, c(1, 3, 2)), dims = 2) * pK), type = "l", main = "IC")
+    plot(rowSums(KC * pKC), type = "l", main = "KC")
     plot(rowSums(UB), type = "l", main = "UB")
     plot(rowSums(W), type = "l", main = "W")
     plot(rowSums(P), type = "l", main = "P")
@@ -507,8 +514,8 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     lines(rowSums(NCT) / NH, lty = "dashed")
     plot(rowSums(NK) / NH, type = "l", main = "NK", ylim = c(0, 1))
     lines(rowSums(NKT) / NH, lty = "dashed")
-    plot(pC, type = "l", main = "pC")
-    plot(pK, type = "l", main = "pK")
+    plot(apply(pC, 1, mean), type = "l", main = "pC")
+    plot(apply(pK, 1, mean), type = "l", main = "pK")
     plot(pmin(rowSums(KC)[1:TMAX - 1], rowSums(NC)[2:TMAX]) / rowSums(KC)[1:TMAX - 1], type = "l", main = "cu", ylim = c(0, 1))
 }
 
@@ -522,8 +529,21 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     lines(YT, lty = "dashed")
     plot(rowSums(IC), type = "l", main = "IC", ylim = c(0, max(rowSums(ICT), na.rm = TRUE)))
     lines(rowSums(ICT), lty = "dashed")
+    plot(rowSums(IK), type = "l", main = "IK", ylim = c(0, max(rowSums(IKT), rowSums(IK), na.rm = TRUE)))
+    lines(rowSums(IKT), lty = "dashed")
     plot(rowSums(YK), type = "l", main = "YK")
+}
+
+{
+    par(mfrow = c(2, 4))
     plot(rowSums(S), type = "l", main = "S")
+    plot(rowSums(IC), type = "l", main = "IC")
+    plot(GDP, type = "l", main = "GDP")
+    plot(-VG, type = "l", main = "Public Debt")
+    plot(apply(pC, 1, mean), type = "l", main = "pC")
+    plot(apply(pK, 1, mean), type = "l", main = "pK")
+    plot(rowSums(W), type = "l", main = "W")
+    plot(rowSums(P), type = "l", main = "P")
 }
 
 {
@@ -545,7 +565,7 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
 {
     par(mfrow = c(3, 1))
     hist(MH[1, ], main = "MH T=1")
-    hist(MH[floor(TMAX / 10), ], main = "MH T=100")
+    hist(MH[floor(TMAX / 10), ], main = "MH T=TMAX/10")
     hist(MH[TMAX, ], main = "MH T=TMAX")
 }
 
@@ -555,15 +575,4 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     plot(apply(VFC, 1, function(x) any(x < 0)), main = "any VFC < 0")
     plot(apply(VFK, 1, function(x) any(x < 0)), main = "any VFK < 0")
     plot(VG > 0, main = " VG > 0")
-}
-
-{
-    par(mfrow = c(2, 4))
-    plot(rowSums(G), type = "l", main = "G")
-    plot(GT, type = "l", main = "GT")
-    plot(GDP, type = "l", main = "GDP")
-    plot(rowSums(T), type = "l", main = "T")
-    plot(rowSums(UB), type = "l", main = "UB")
-    plot(pC, type = "l", main = "pC")
-    plot((d * GDP + rowSums(T) - rowSums(UB)) / pC, type = "l")
 }}
