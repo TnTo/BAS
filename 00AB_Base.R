@@ -48,8 +48,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     ## Constants
     {
         W0 <- 1 # Wage level
-        ay <- 0.5 # Desired share of consumption out of income
-        av <- 0.1 # Desired share of consumptio out of wealth
+        ay <- 0.6 # Desired share of consumption out of income
+        av <- 0.2 # Desired share of consumptio out of wealth
         beta <- 1.0 # Output per worker in units of goods
         mu <- 0.2 # Firms' mark-up
         dG <- 0.03 # Target Gvt deficit
