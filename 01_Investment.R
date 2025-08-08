@@ -88,8 +88,8 @@ model_tfm <- sfcr_matrix(
 sfcr_matrix_display(model_tfm, "tfm")
 
 model_ext <- sfcr_set(
-    ay ~ 0.6,
-    av ~ 0.2,
+    ay ~ 0.5,
+    av ~ 0.1,
     mu ~ 0.2,
     d ~ 0.03,
     tW ~ 0.35,

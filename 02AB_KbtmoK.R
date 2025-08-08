@@ -260,8 +260,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             UB[t, which(W[t, ] == 0)] <- phi * W0 # Unemployment benefits
             NetW[t, ] <- (1 - tW) * W[t, ] # Net Wages
             DI[t, ] <- NetW[t, ] + UB[t, ] # Disposable Income for Hs
-            pC[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaC # price
-            pK[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaK # price
+            pC[t] <- (1 + mu) * W0 / betaC # price
+            pK[t] <- (1 + mu) * W0 / betaK # price
             HpC[t] <- (1 + tC) * pC[t] # price after VAT (Hs price)
 
             # Consumption Goods market

@@ -186,7 +186,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             # Job market
             # Demand
-            NCT[t, ] <- pmin(K[t - 1, ], ceiling((1 + rhoC) * S[t - 1, ] / betaC))
+            NCT[t, ] <- pmin(K[t - 1, ], ceiling((1 + rhoC) * S[t - 1, ] / betaC)) ### AB
             NKT[t, ] <- ceiling(colSums(Ip[t, , ] / betaK))
 
             NC[t, , ] <- NC[t - 1, , ]
@@ -236,7 +236,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             UB[t, which(W[t, ] == 0)] <- phi * W0 # Unemployment benefits
             NetW[t, ] <- (1 - tW) * W[t, ] # Net Wages
             DI[t, ] <- NetW[t, ] + UB[t, ] # Disposable Income for Hs
-            pC[t] <- (1 + mu) * (W0 + pK[t - 1] * dK) / betaC # price
+            pC[t] <- (1 + mu) * W0 / betaC # price
             pK[t] <- (1 + mu) * W0 / betaK # price
             HpC[t] <- (1 + tC) * pC[t] # price after VAT (Hs price)
 
