@@ -1,5 +1,5 @@
 ### BAS: Building towards Artificial Societies
-# Model 2:
+# Model 3:
 #   Fixed Capital in both consumption and capital firms
 #   It appears to need to be a full-employment model
 #   In this form is substantially a-cyclical
@@ -40,7 +40,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         set.seed(8686)
 
         # SET SCENARIO
-        scenario <- "Eq" # "Eq" "Hist" "Lib" "Con" "Fat"
+        scenario <- "Lib" # "Eq" "Hist" "Lib" "Con" "Fat"
         M0 <- switch(scenario,
             "Eq" = "Flat",
             "Hist" = "Exp",
@@ -59,7 +59,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 1000
+        TMAX <- 200
         NH <- 1000
         NFC <- 50
         NFK <- 5
