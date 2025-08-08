@@ -60,7 +60,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 1000
+        TMAX <- 500
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -69,8 +69,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     ## Constants
     {
         W0 <- 1 # Wage level
-        ay <- 0.5 # Desired share of consumption out of income
-        av <- 0.1 # Desired share of consumptio out of wealth
+        ay <- 0.6 # Desired share of consumption out of income
+        av <- 0.2 # Desired share of consumptio out of wealth
         betaC <- 2.0 # Output per worker in units of goods in Consumption Goods Firms
         betaK <- 1.0 # Output per worker in units of goods in Capital Goods Firms
         dG <- 0.03 # Target Gvt deficit
@@ -81,7 +81,11 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         dK <- 0.1 # Capital depreciation/decay ratio
         rhoC <- 0.05 # Target production increase for Consumption firms
         cuT <- 0.8 # Target capacity utilization
-        theta <- 0.1 # markup update rate
+        uT <- 0.05 # target unemployment rate
+        iT <- 0.02 # target inflation rate
+        thetaMu <- 0.1 # markup update rate
+        DrL <- 0.05 # Bank premium on loans
+        crT <- 0.08 # target capital rate
     }
 
     ## Initialization
@@ -93,7 +97,15 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         VH <- array(NA, c(TMAX, NH))
         VFC <- array(NA, c(TMAX, NFC))
         VFK <- array(NA, c(TMAX, NFK))
+        VB <- array(NA, c(TMAX))
         VG <- array(NA, c(TMAX))
+        LFC <- array(NA, c(TMAX, NFC))
+        LFK <- array(NA, c(TMAX, NFK))
+        L <- array(NA, c(TMAX))
+        DLFC <- array(NA, c(TMAX, NFC))
+        DLFK <- array(NA, c(TMAX, NFK))
+        DL <- array(NA, c(TMAX))
+        B <- array(NA, c(TMAX))
         KC <- array(NA, c(TMAX, NFC))
         KK <- array(NA, c(TMAX, NFK))
         K <- array(NA, c(TMAX))
@@ -124,6 +136,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         IK <- array(NA, c(TMAX, NFK))
         PFC <- array(NA, c(TMAX, NH, NFC))
         PFK <- array(NA, c(TMAX, NH, NFK))
+        PB <- array(NA, c(TMAX, NH))
         P <- array(NA, c(TMAX, NH))
         T <- array(NA, c(TMAX, NH))
         pC <- array(NA, c(TMAX, NFC))
@@ -140,6 +153,11 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         cuK <- array(NA, c(TMAX, NFK))
         Ku <- array(NA, c(TMAX))
         cu <- array(NA, c(TMAX))
+        i <- array(NA, c(TMAX))
+        u <- array(NA, c(TMAX))
+        rB <- array(NA, c(TMAX))
+        rL <- array(NA, c(TMAX))
+        cr <- array(NA, c(TMAX))
     }
 
     # Initial values
@@ -152,9 +170,15 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         MFC[1, ] <- 0
         MFK[1, ] <- 0
         M[1] <- sum(MH[1, ])
+        LFC[1, ] <- 0
+        LFK[1, ] <- 0
+        L[1] <- 0
+        B[1] <- 0
+        VB[1] <- 0
         DI[1, ] <- 0
         KC[1, ] <- 10
         KK[1, ] <- 10
+        K[1] <- sum(KC[1, ]) + sum(KK[1, ])
         IC[1, , ] <- 0
         KCu[1, ] <- 0
         KKu[1, ] <- 0
@@ -164,16 +188,19 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         T[1, ] <- 0
         GDP[1] <- 0
         S[1, ] <- 0.01 * NH / NFC
-        muC[1, ] <- 0.2
-        muK[1, ] <- 1.0
+        muC[1, ] <- 0.5
+        muK[1, ] <- 0.5
         pC[1, ] <- (1 + muC[1, ]) * W0 / betaC
         HpC[1, ] <- (1 + tC) * pC[1, ]
         pK[1, ] <- (1 + muK[1, ]) * W0 / betaK
-        pKC[1, ] <- (1 + 0.2) * W0 / betaK
+        pKC[1, ] <- (1 + muK[1, ]) * W0 / betaK
         NC[1, , ] <- 0
         NK[1, , ] <- 0
         C[1, , ] <- 0.01
         G[1, ] <- 0.01
+        i[1] <- iT
+        cu[1] <- cuT
+        u[1] <- uT
     }
 
     ## A model
@@ -181,14 +208,17 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         pb <- progress_bar$new(total = TMAX)
         pb$tick()
         for (t in 2:TMAX) {
-            muC[t, ] <- muC[t - 1, ] * (1 + theta * (cuC[t - 1, ] - cuT) / cuT)
-            muK[t, ] <- muK[t - 1, ] * (1 + theta * (cuK[t - 1, ] - cuT) / cuT)
-            pC[t, ] <- (1 + muC[t, ]) * (W0 + pKC[t - 1] * dK) / betaC # price
-            pK[t, ] <- (1 + muK[t, ]) * (W0 + pK[t - 1] * dK) / betaK # price
+            muC[t, ] <- muC[t - 1, ] * (1 + thetaMu * (cuC[t - 1, ] - cuT) / cuT)
+            muK[t, ] <- muK[t - 1, ] * (1 + thetaMu * (cuK[t - 1, ] - cuT) / cuT)
+            pC[t, ] <- (1 + muC[t, ]) * W0 / betaC # price
+            pK[t, ] <- (1 + muK[t, ]) * W0 / betaK # price
             pC[t, ] <- ifelse(is.na(pC[t, ]), pC[t - 1, ], pC[t, ])
             HpC[t, ] <- (1 + tC) * pC[t, ] # price after VAT (Hs price)
 
-            CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / (rowSums(C[t - 1, , ] * HpC[t, ]) / rowSums(C[t - 1, , ])), 0) # Desired Demand for Hs, in units of goods
+            rB[t] <- max(0, i[t - 1] + 0.5 * (i[t - 1] - iT) + 0.25 * (cu[t - 1] - cuT) - 0.25 * (u[t - 1] - uT)) # Gvt Bonds' interest rate
+            rL[t] <- max(0, rB[t] + DrL) # Loans' interest rate
+
+            CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / replace_na(rowSums(C[t - 1, , ] * HpC[t, ]) / rowSums(C[t - 1, , ]), mean(HpC[t, ])), 0) # Desired Demand for Hs, in units of goods
             GT[t] <- max((dG * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / ifelse(sum(G[t - 1, ]) == 0, mean(pC[t, ]), sum(G[t - 1, ] * pC[t, ]) / sum(G[t - 1, ])), 0) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
             ICT[t, ] <- ceiling(pmax(KCu[t - 1, ] * pmax(1 / cuT - 1 / cuC[t - 1, ], 0, na.rm = TRUE) + dK * KCu[t - 1, ], 0)) # Desired investments in units of capital goods for C Firms
@@ -351,17 +381,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # sell remaining
             repeat {
                 FKids <- which(IK[t, ] > IKT[t, ])
-                if (length(FKids > 0)) {
-                    FCids <- which((rowSums(IC[t, , ]) < ICT[t, ]) & ((MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) > min(pK[t, FKids])))
-                    if (length(FCids > 0)) {
-                        FCid <- sample.vec(FCids, 1)
-                        avm <- MFC[t - 1, FCid] + pC[t, FCid] * S[t, FCid] - sum(IC[t, FCid, ] * pK[t, ]) - sum(WFC[t, , FCid])
-                        FKid <- sample.vec(FKids[pK[t, FKids] < avm], 1)
-                        IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
-                        IK[t, FKid] <- IK[t, FKid] - 1
-                    } else {
-                        break
-                    }
+                FCids <- which(rowSums(IC[t, , ]) < ICT[t, ])
+                if (length(FKids > 0) && length(FCids > 0)) {
+                    FCid <- sample.vec(FCids, 1)
+                    FKid <- sample.vec(FKids, 1)
+                    IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
+                    IK[t, FKid] <- IK[t, FKid] - 1
                 } else {
                     break
                 }
@@ -369,22 +394,36 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             I[t] <- sum(IC[t, , ]) + sum(IK[t, ])
 
+            DLFC[t, ] <- rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) + colSums(WFC[t, , ])
+            DLFK[t, ] <- colSums(WFK[t, , ])
+            DL[t] <- sum(DLFC[t, ]) + sum(DLFK[t, ])
+
+            LFC[t, ] <- pmax(0, LFC[t - 1, ] + DLFC[t, ] - MFC[t - 1, ] - pC[t, ] * S[t, ])
+            LFK[t, ] <- pmax(0, LFK[t - 1, ] + DLFK[t, ] - MFK[t - 1, ] - colSums(sweep(IC[t, , ], 2, pK[t, ], "*")))
+            L[t] <- sum(LFC[t, ]) + sum(LFK[t, ])
+
             # Profits
             PFK[t, , ] <- switch(PDist,
-                "Flat" = t(array((pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH))),
-                "Prop" = sweep(t(array(pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array(pmax(0, pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ])) / NH, c(NFK, NH))),
+                "Prop" = sweep(t(array(pmax(0, pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ])), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             PFC[t, , ] <- switch(PDist,
-                "Flat" = t(array((pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) / NH, c(NFC, NH))),
-                "Prop" = sweep(t(array(pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array(pmax(0, pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ])) / NH, c(NFC, NH))),
+                "Prop" = sweep(t(array(pmax(0, pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ])), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
-            P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ])
+            PB[t, ] <- switch(PDist,
+                "Flat" = array(max(0, (1 - rB[t]) / (1 - rB[t] - rB[t] * tP) * (VB[t - 1] + rL[t] * (DL[t] + L[t - 1]) - crT * L[t] + rB[t] / (1 - rB[t]) * (B[t - 1] + sum(pC[t, ] * G[t, ]) + sum(UB[t, ]) - (tW * sum(W[t, ]) + tP * (sum(PFC[t, , ]) + sum(PFK[t, , ])) + tC * sum(sweep(C[t, , ], 2, pC[t, ], "*")))))) / NH, c(NH)),
+                "Prop" = array(max(0, (1 - rB[t]) / (1 - rB[t] - rB[t] * tP) * (VB[t - 1] + rL[t] * (DL[t] + L[t - 1]) - crT * L[t] + rB[t] / (1 - rB[t]) * (B[t - 1] + sum(pC[t, ] * G[t, ]) + sum(UB[t, ]) - (tW * sum(W[t, ]) + tP * (sum(PFC[t, , ]) + sum(PFK[t, , ])) + tC * sum(sweep(C[t, , ], 2, pC[t, ], "*")))))) * MH[t - 1, ] / sum(MH[t - 1, ]), c(NH))
+            )
+            P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ]) + PB[t, ]
 
             T[t, ] <- tW * W[t, ] + tP * P[t, ] + tC * rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) # Taxes
             MH[t, ] <- MH[t - 1, ] + P[t, ] + W[t, ] + UB[t, ] - rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) - T[t, ] # Households' Money
-            MFK[t, ] <- MFK[t - 1, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - colSums(PFK[t, , ]) # Capital Firms' Money
-            MFC[t, ] <- MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - colSums(PFC[t, , ]) # Consumption Firms' Money
-            M[t] <- M[t - 1] - (sum(T[t, ]) - sum(pC[t, ] * G[t, ]) - sum(UB[t, ])) # Gvt's Money
+            MFK[t, ] <- MFK[t - 1, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - colSums(PFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ]) + (LFK[t, ] - LFK[t - 1, ]) # Capital Firms' Money
+            MFC[t, ] <- MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - colSums(PFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ]) + (LFC[t, ] - LFC[t - 1, ]) # Consumption Firms' Money
+            M[t] <- sum(MH[t, ]) + sum(MFC[t, ]) + sum(MFK[t, ]) # Bank's Money
+
+            B[t] <- (B[t - 1] - (sum(T[t, ]) - sum(pC[t, ] * G[t, ]) - sum(UB[t, ]))) / (1 - rB[t]) # Gvt Bonds
 
 
             # Update Variables for next cycle
@@ -400,11 +439,16 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             pKC[t, ] <- rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) / rowSums(IC[t, , ])
             pKC[t, ] <- ifelse(is.na(pKC[t, ]), pKC[t - 1, ], pKC[t, ])
 
+            u[t] <- 1 - ((sum(NC[t, , ]) + sum(NK[t, , ])) / NH)
+            i[t] <- (sum(pC[t, ] * S[t, ]) / sum(S[t, ])) / (sum(pC[t - 1, ] * S[t - 1, ]) / sum(S[t - 1, ])) - 1
+            cr[t] <- ifelse(L[t] == 0, crT, VB[t] / L[t])
+
             VH[t, ] <- MH[t, ] # Households' Net Wealth
             VFC[t, ] <- MFC[t, ] + pKC[t, ] * KC[t, ] # Capital Firms' Net Wealth
             VFK[t, ] <- MFK[t, ] + pK[t, ] * KK[t, ] # Consumption Firms' Net Wealth
-            VG[t] <- -M[t] # Gvt' Net Wealth
-            V[t] <- sum(VH[t, ]) + sum(VFK[t, ]) + sum(VFC[t, ]) + VG[t] # System Total Wealth
+            VB[t] <- -M[t] + L[t] + B[t]
+            VG[t] <- -B[t] # Gvt' Net Wealth
+            V[t] <- sum(VH[t, ]) + sum(VFK[t, ]) + sum(VFC[t, ]) + VB[t] + VG[t] # System Total Wealth
             GDP[t] <- sum(pC[t] * S[t, ]) + sum(pK[t, ] * colSums(IC[t, , ]))
 
             pb$tick()
@@ -418,19 +462,25 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 if (any(rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]) + rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) - (rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ])) > tol)) {
     print("K row in BS not consistent")
 } # Tautology, but keeping track of the value of each K Good is not suitable in this setting
-if (any(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VG[2:TMAX] - V[2:TMAX] > tol)) {
+if (any(B[2:TMAX] - B[2:TMAX] > tol)) {
+    print("B row in BS not consistent")
+} # Ops, Tautology again
+if (any(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VB[2:TMAX] + VG[2:TMAX] - V[2:TMAX] > tol)) {
     print("V row in BS not consistent")
 }
 if (any(MH[2:TMAX, ] - VH[2:TMAX, ] > tol)) {
     print("H column in BS not consistent (checked at agent level)")
 }
-if (any(MFC[2:TMAX, ] + (KC[2:TMAX, ] * pKC[2:TMAX, ]) - VFC[2:TMAX, ] > tol)) {
+if (any(MFC[2:TMAX, ] + (KC[2:TMAX, ] * pKC[2:TMAX, ]) - LFC[2:TMAX, ] - VFC[2:TMAX, ] > tol)) {
     print("FC column in BS not consistent (checked at agent level)")
 }
-if (any(MFK[2:TMAX, ] + (KK[2:TMAX, ] * pK[2:TMAX, ]) - VFK[2:TMAX, ] > tol)) {
+if (any(MFK[2:TMAX, ] + (KK[2:TMAX, ] * pK[2:TMAX, ]) - LFK[2:TMAX, ] - VFK[2:TMAX, ] > tol)) {
     print("FK column in BS not consistent (checked at agent level)")
 }
-if (any(-M[2:TMAX] - VG[2:TMAX] > tol)) {
+if (any(-M[2:TMAX] + L[2:TMAX] + B[2:TMAX] - VB[2:TMAX] > tol)) {
+    print("B column in BS not consistent")
+}
+if (any(-B[2:TMAX] - VG[2:TMAX] > tol)) {
     print("G column in BS not consistent")
 }
 if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]) - V[2:TMAX] > tol)) {
@@ -455,7 +505,9 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
             - rowSums(sweep(IC[2:TMAX, , ], c(1, 3), pK[2:TMAX, ], "*"), dims = 2)
             - rowSums(aperm(WFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
+            - sweep(DLFC[2:TMAX, ] + LFC[1:TMAX - 1, ], 1, rL[2:TMAX], "*")
             - (MFC[2:TMAX, ] - MFC[1:TMAX - 1, ])
+            + (LFC[2:TMAX, ] - LFC[1:TMAX - 1, ])
         > tol
     )) {
         print("FC column in TFM not consistent (checked ad agent level)")
@@ -464,16 +516,30 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
         rowSums(aperm(IC[2:TMAX, , ], c(1, 3, 2)), dims = 2) * pK[2:TMAX, ]
             - rowSums(aperm(WFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
+            - sweep(DLFK[2:TMAX, ] + LFK[1:TMAX - 1, ], 1, rL[2:TMAX], "*")
             - (MFK[2:TMAX, ] - MFK[1:TMAX - 1, ])
+            + (LFK[2:TMAX, ] - LFK[1:TMAX - 1, ])
         > tol
     )) {
         print("FK column in TFM not consistent (checked ad agent level)")
     }
     if (any(
+        -rowSums(PB[2:TMAX, ])
+        + rL[2:TMAX] * (DL[2:TMAX] + L[1:TMAX - 1])
+            + rB[2:TMAX] * B[2:TMAX]
+            + (M[2:TMAX] - M[1:TMAX - 1])
+            - (L[2:TMAX] - L[1:TMAX - 1])
+            - (B[2:TMAX] - B[1:TMAX - 1])
+        > tol
+    )) {
+        print("B column in TFM not consistent")
+    }
+    if (any(
         -rowSums(G[2:TMAX, ] * pC[2:TMAX, ])
         - rowSums(UB[2:TMAX, ])
             + rowSums(T[2:TMAX, ])
-            + (M[2:TMAX] - M[1:TMAX - 1])
+            - rB[2:TMAX] * B[2:TMAX]
+            + (B[2:TMAX] - B[1:TMAX - 1])
         > tol
     )) {
         print("G column in TFM not consistent")
@@ -481,14 +547,16 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
 }}
 
 {{
-    par(mfrow = c(2, 4))
+    par(mfrow = c(2, 5))
     plot(rowSums(MH), type = "l", main = "MH")
     plot(rowSums(MFC), type = "l", main = "MFC")
     plot(rowSums(MFK), type = "l", main = "MFK")
-    plot(M, type = "l", main = "MG")
+    plot(M, type = "l", main = "MB")
+    plot(B, type = "l", main = "B")
     plot(rowSums(VH), type = "l", main = "VH")
     plot(rowSums(VFC), type = "l", main = "VFC")
     plot(rowSums(VFK), type = "l", main = "VFK")
+    plot(VB, type = "l", main = "VB")
     plot(VG, type = "l", main = "VG")
 }
 
@@ -505,24 +573,26 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
 }
 
 {
-    par(mfrow = c(2, 3))
+    par(mfrow = c(2, 4))
     plot((rowSums(NC) + rowSums(NK)) / NH, type = "l", main = "N", ylim = c(0, 1))
     plot(rowSums(NC) / NH, type = "l", main = "NC", ylim = c(0, 1))
     lines(rowSums(NCT) / NH, lty = "dashed")
     plot(rowSums(NK) / NH, type = "l", main = "NK", ylim = c(0, 1))
     lines(rowSums(NKT) / NH, lty = "dashed")
+    plot(pmin(rowSums(KC)[1:TMAX - 1], rowSums(NC)[2:TMAX]) / rowSums(KC)[1:TMAX - 1], type = "l", main = "cu", ylim = c(0, 1))
     plot(apply(pC, 1, mean), type = "l", main = "pC")
     plot(apply(pK, 1, mean), type = "l", main = "pK")
-    plot(pmin(rowSums(KC)[1:TMAX - 1], rowSums(NC)[2:TMAX]) / rowSums(KC)[1:TMAX - 1], type = "l", main = "cu", ylim = c(0, 1))
+    plot(apply(muC, 1, mean), type = "l", main = "muC")
+    plot(apply(muK, 1, mean), type = "l", main = "muK")
 }
 
 {
     par(mfrow = c(2, 3))
-    plot(rowSums(C), type = "l", main = "C", ylim = c(0, max(rowSums(CT), na.rm = TRUE)))
+    plot(rowSums(C), type = "l", main = "C", ylim = c(0, max(rowSums(CT), rowSums(C), na.rm = TRUE)))
     lines(rowSums(CT), lty = "dashed")
-    plot(rowSums(G), type = "l", main = "G", ylim = c(0, max(GT, na.rm = TRUE)))
+    plot(rowSums(G), type = "l", main = "G", ylim = c(0, max(GT, rowSums(G), na.rm = TRUE)))
     lines(GT, lty = "dashed")
-    plot(rowSums(Y), type = "l", main = "Y", ylim = c(0, max(YT, na.rm = TRUE)))
+    plot(rowSums(Y), type = "l", main = "Y", ylim = c(0, max(YT, rowSums(Y), na.rm = TRUE)))
     lines(YT, lty = "dashed")
     plot(rowSums(IC), type = "l", main = "IC", ylim = c(0, max(rowSums(ICT), na.rm = TRUE)))
     lines(rowSums(ICT), lty = "dashed")
@@ -541,6 +611,53 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
     plot(apply(pK, 1, mean), type = "l", main = "pK")
     plot(rowSums(W), type = "l", main = "W")
     plot(rowSums(P), type = "l", main = "P")
+}
+
+{
+    par(mfrow = c(2, 4))
+    plot(L, type = "l", main = "L")
+    plot(DL, type = "l", main = "DL")
+    plot(M, type = "l", main = "M")
+    plot(B, type = "l", main = "B")
+    plot(rowSums(LFC), type = "l", main = "LFC")
+    plot(rowSums(DLFC), type = "l", main = "DLFC")
+    plot(rowSums(LFK), type = "l", main = "LFK")
+    plot(rowSums(DLFK), type = "l", main = "DLFK")
+}
+
+{
+    par(mfrow = c(4, 3))
+    plot(rowSums(PFC), type = "l", main = "PFC")
+    plot(rowSums(PFK), type = "l", main = "PFK")
+    plot(rowSums(PB), type = "l", main = "PB")
+    plot(rowSums(MFC), type = "l", main = "MFC")
+    plot(rowSums(MFK), type = "l", main = "MFK")
+    plot(M, type = "l", main = "M")
+    plot(rowSums(LFC), type = "l", main = "LFC")
+    plot(rowSums(LFK), type = "l", main = "LFK")
+    plot(rL, type = "l", main = "rL")
+    plot(rowSums(VFC), type = "l", main = "VFC")
+    plot(rowSums(VFK), type = "l", main = "VFK")
+    plot(VB, type = "l", main = "VB")
+}
+
+{
+    par(mfrow = c(2, 3))
+    plot(u, type = "l", main = "u")
+    plot(i, type = "l", main = "i")
+    plot(cu, type = "l", main = "cu")
+    plot(rB, type = "l", main = "rB")
+    plot(rL, type = "l", main = "rL")
+}
+
+{
+    par(mfrow = c(2, 3))
+    plot(apply(pC, 1, mean), type = "l", main = "pC")
+    plot(apply(muC, 1, mean), type = "l", main = "muC")
+    plot(apply(cuC, 1, mean), type = "l", main = "cuC")
+    plot(apply(pK, 1, mean), type = "l", main = "pK")
+    plot(apply(muK, 1, mean), type = "l", main = "muK")
+    plot(apply(cuK, 1, mean), type = "l", main = "cuK")
 }
 
 {
