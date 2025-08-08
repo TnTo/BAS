@@ -55,15 +55,21 @@ model_eqs <- sfcr_set(
     PFK ~ pK * IC - WFK,
     T ~ tW * W + tP * P + tC * pC * C,
     HpC ~ (1 + tC) * pC,
-    pC ~ (1 + mu) * (Y / WFC),
-    pK ~ ifelse(NK == 0, pK[-1], (1 + mu) * I / WFK),
+    pC ~ (1 + mu) * (WFC / Y),
+    pK ~ ifelse(NK == 0, pK[-1], (1 + mu) * WFK / I),
     KCu ~ min(NC, KC[-1]), # FCs' used capital
     KKu ~ min(NK, KK[-1]), # FKs' used capital
     Ku ~ KCu + KKu,
     cuC ~ KCu / KC[-1], # FCs' capital utilization
     cuK ~ KKu / KK[-1], # FKs' capital utilization
     cu ~ Ku / K[-1],
-    GDP ~ Y * pC + I * pK
+    GDP ~ Y * pC + I * pK,
+    deficit ~ (pC * G + UB - T) / GDP,
+    debt ~ M / GDP,
+    wshare ~ W / (W + P),
+    pshare ~ P / (W + P),
+    ayR ~ HpC * C / DI,
+    avR ~ HpC * C / MH
 )
 
 sfcr_dag_cycles_plot(model_eqs, size = 6)
@@ -116,8 +122,6 @@ model_init <- sfcr_set(
     KC ~ 0.1,
     KK ~ 0.1,
     K ~ 0.2,
-    betaC ~ 2.0,
-    betaK ~ 1.0,
     cuC ~ 1,
     cuK ~ 1,
     HpC ~ 1.2,
@@ -156,7 +160,7 @@ model %>%
 
 model %>%
     pivot_longer(cols = -period) %>%
-    filter(name %in% c("pC", "pK")) %>%
+    filter(name %in% c("pC", "pK", "W0")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
 
@@ -181,5 +185,41 @@ model %>%
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("KC", "KK", "IC", "IK")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("cu", "cuT")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("C", "G", "Y", "CT", "GT", "YT")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("deficit")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("debt")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("wshare", "pshare")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("avR", "ayR")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))

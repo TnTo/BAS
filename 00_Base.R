@@ -35,7 +35,13 @@ model_eqs <- sfcr_set(
     T ~ tW * W + tP * P + tC * p * C, # Taxes
     p ~ (1 + mu) * W / Y, # price
     Hp ~ (1 + tC) * p, # price after VAT (Hs price)
-    GDP ~ p * Y
+    GDP ~ p * Y,
+    deficit ~ (p * G + UB - T) / GDP,
+    debt ~ M / GDP,
+    wshare ~ W / (W + P),
+    pshare ~ P / (W + P),
+    ayR ~ Hp * C / DI,
+    avR ~ Hp * C / MH
 )
 
 sfcr_dag_cycles_plot(model_eqs, size = 6)
@@ -114,7 +120,7 @@ model %>%
 
 model %>%
     pivot_longer(cols = -period) %>%
-    filter(name %in% c("p")) %>%
+    filter(name %in% c("p", "W0")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
 
@@ -133,6 +139,30 @@ model %>%
 
 model %>%
     pivot_longer(cols = -period) %>%
-    filter(name %in% c("Y", "G")) %>%
+    filter(name %in% c("Y", "G", "GT")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("deficit")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("debt")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("wshare", "pshare")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("avR", "ayR")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))

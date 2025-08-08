@@ -1,10 +1,11 @@
 ### BAS: Building towards Artificial Societies
-# Model 4:
+# Model 5:
 #   Fixed Capital only in C sector
 #   Endogenous mark-up
 #   It appears to need to be a full-employment model
 #   In this form is completely a-cyclical
 #   Profit inflation, without catastropheses at t=5000
+#   Wages now grow with employment
 ###
 
 # install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
@@ -19,8 +20,8 @@ model_eqs <- sfcr_set(
     MFC ~ MFC[-1] + pC * Y - pK * IC - WFC - PFC - rL * (DLFC + LFC[-1]) + (LFC - LFC[-1]),
     MFK ~ MFK[-1] + pK * IC - WFK - PFK - rL * (DLFK + LFK[-1]) + (LFK - LFK[-1]),
     M ~ MH + MFC + MFK, # Bank's Money
-    LFC ~ max(0, (LFC[-1] + WFC + pK * IC) - MFC[-1] - pC * (C + G)), # FCs' Loans stock
-    LFK ~ max(0, (LFK[-1] + WFK) - MFK[-1] - pK * IC), # FKs' Loans stock (!!!)
+    LFC ~ max(0, LFC[-1] + WFC + pK * IC - MFC[-1] - pC * (C + G)), # FCs' Loans stock
+    LFK ~ max(0, LFK[-1] + WFK - MFK[-1] - pK * IC), # FKs' Loans stock (!!!)
     L ~ LFC + LFK, # Bank's Loans stock
     DLFC ~ WFC + pK * IC,
     DLFK ~ WFK,
@@ -50,6 +51,7 @@ model_eqs <- sfcr_set(
     N ~ min(1, NT),
     NC ~ NCT * N / NT,
     NK ~ NKT * N / NT,
+    W0 ~ W0[-1] * (1 + ThetaW * (N[-1] - (1 - uT)) / (1 - uT)),
     W ~ WFC + WFK,
     WFC ~ W0 * NC,
     WFK ~ W0 * NK,
@@ -63,14 +65,14 @@ model_eqs <- sfcr_set(
     P ~ PFC + PFK + PB,
     PFC ~ max(0, pC * C + pC * G - WFC - pK * IC - rL * (DLFC + LFC[-1])),
     PFK ~ max(0, pK * IC - WFK - rL * (DLFK + LFK[-1])),
-    # PB ~ max(0, (1 - crT) * L[-1] + B[-1] - M[-1]), # Bank's Profits (!!!)  <- this but written in the period a-cyclical
+    # PB ~ max(0, (1 - crT) * L[-1] + B[-1] - M[-1]), # Bank's Profits (!!!) <- this but written in the period a-cyclical
     PB ~ max(0, (1 - rB) / (1 - rB - rB * tP) * (VB[-1] + rL * (DL + L[-1]) - crT * L + rB / (1 - rB) * (B[-1] + pC * G + UB - (tW * W + tP * (PFC + PFK) + tC * pC * C)))),
     T ~ tW * W + tP * P + tC * pC * C,
     muC ~ muC[-1] * (1 + ThethaMu * (cuC[-1] - cuT) / cuT),
     muK ~ muK[-1] * (1 + ThethaMu * (cuK[-1] - cuT) / cuT),
     HpC ~ (1 + tC) * pC,
-    pC ~ (1 + muC) * (WFC / Y), # + dK * pK / betaC),
-    pK ~ ifelse(NK == 0, pK[-1], (1 + muK) * (WFK / I)), # + dK * W0 / betaK)),
+    pC ~ (1 + muC) * (WFC / Y),
+    pK ~ ifelse(NK == 0, pK[-1], (1 + muK) * (WFK / I)),
     KCu ~ min(NC, KC[-1]),
     KKu ~ min(NK, KK[-1]),
     Ku ~ KCu + KKu,
@@ -129,7 +131,6 @@ model_ext <- sfcr_set(
     tW ~ 0.35,
     tP ~ 0.2,
     tC ~ 0.2,
-    W0 ~ 1.0,
     cuT ~ 0.8,
     uT ~ 0.05,
     iT ~ 0.02,
@@ -138,6 +139,7 @@ model_ext <- sfcr_set(
     betaK ~ 1.0,
     phi ~ 0.7,
     ThethaMu ~ 0.1,
+    ThetaW ~ 0.1,
     DrL ~ 0.05, # Bank premium for Loans interest rate
     crT ~ 0.08 # target capital ratio
 )
@@ -157,7 +159,8 @@ model_init <- sfcr_set(
     pC ~ 1,
     pK ~ 1,
     muC ~ 0.5,
-    muK ~ 0.5
+    muK ~ 0.5,
+    W0 ~ 1.5
 )
 
 model <- sfcr_baseline(

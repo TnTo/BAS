@@ -5,8 +5,8 @@
 #   In this form is completely a-cyclical
 ###
 
-install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
-devtools::install_github("TnTo/sfcr", ref = "sankey")
+# install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
+# devtools::install_github("TnTo/sfcr", ref = "sankey")
 
 library(sfcr)
 library(tidyverse)
@@ -49,11 +49,17 @@ model_eqs <- sfcr_set(
     PFK ~ pK * I - WFK, # FK's profits (all distributed)
     T ~ tW * W + tP * P + tC * pC * C,
     HpC ~ (1 + tC) * pC,
-    pC ~ (1 + mu) * (Y / WFC), # Consumption goods price
+    pC ~ (1 + mu) * (WFC / Y), # Consumption goods price
     pK ~ ifelse(NK == 0, pK[-1], (1 + mu) * I / WFK), # Capital goods price
     Ku ~ min(NC, K[-1]), # Used Capital
     cu ~ Ku / K[-1], # Capacity utilization
     GDP ~ Y * pC + I * pK,
+    deficit ~ (pC * G + UB - T) / GDP,
+    debt ~ M / GDP,
+    wshare ~ W / (W + P),
+    pshare ~ P / (W + P),
+    ayR ~ HpC * C / DI,
+    avR ~ HpC * C / MH
 )
 
 sfcr_dag_cycles_plot(model_eqs, size = 6)
@@ -140,7 +146,7 @@ model %>%
 
 model %>%
     pivot_longer(cols = -period) %>%
-    filter(name %in% c("pC", "pK")) %>%
+    filter(name %in% c("pC", "pK", "W0")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
 
@@ -176,6 +182,24 @@ model %>%
 
 model %>%
     pivot_longer(cols = -period) %>%
-    filter(name %in% c("DI", "GDP", "MH")) %>%
+    filter(name %in% c("deficit")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("debt")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("wshare", "pshare")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("avR", "ayR")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
