@@ -60,7 +60,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 500
+        TMAX <- 300
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -311,12 +311,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Consumption Goods market
             C[t, , ] <- C[t - 1, , ]
             # Over-selling
-            Fids <- which(colSums(C[t, , ]) - Y[t, ] > tol)
+            Fids <- which(colSums(C[t, , ]) - Y[t, ] * sum(CT[t, ]) / YT[t] > tol)
             if (length(Fids) > 0) {
                 for (Fid in Fids) {
-                    while (sum(C[t, , Fid]) - Y[t, Fid] > tol) {
+                    while (sum(C[t, , Fid]) - Y[t, Fid] * sum(CT[t, ]) / YT[t] > tol) {
                         Hid <- sample.vec(which(C[t, , Fid] > 0), 1)
-                        d <- min(C[t, Hid, Fid], sum(C[t, , Fid]) - Y[t, Fid])
+                        d <- min(C[t, Hid, Fid], sum(C[t, , Fid]) - Y[t, Fid] * sum(CT[t, ]) / YT[t])
                         C[t, Hid, Fid] <- C[t, Hid, Fid] - d
                     }
                 }
@@ -336,11 +336,11 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Fill unsatisfied demand
             repeat {
                 Hids <- which((CT[t, ] - rowSums(C[t, , ]) > tol) & ((DI[t, ] + MH[t - 1, ]) - rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) > tol))
-                if (length(Hids > 0) && (sum(Y[t, ]) - sum(C[t, , ]) > tol)) {
+                if (length(Hids > 0) && (sum(Y[t, ]) * sum(CT[t, ]) / YT[t] - sum(C[t, , ]) > tol)) {
                     Hid <- sample.vec(Hids, 1)
-                    Fids <- which(Y[t, ] - colSums(C[t, , ]) > 0)
+                    Fids <- which(Y[t, ] * sum(CT[t, ]) / YT[t] - colSums(C[t, , ]) > 0)
                     Fid <- Fids[which.min(pC[t, Fids])]
-                    d <- min(CT[t, Hid] - sum(C[t, Hid, ]), ((DI[t, Hid] + MH[t - 1, Hid]) - sum(C[t, Hid, ] * pC[t, ])) / pC[t, Fid], Y[t, Fid] - sum(C[t, , Fid]))
+                    d <- min(CT[t, Hid] - sum(C[t, Hid, ]), ((DI[t, Hid] + MH[t - 1, Hid]) - sum(C[t, Hid, ] * pC[t, ])) / pC[t, Fid], Y[t, Fid] * sum(CT[t, ]) / YT[t] - sum(C[t, , Fid]))
                     C[t, Hid, Fid] <- C[t, Hid, Fid] + d
                 } else {
                     break
@@ -684,9 +684,10 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
 }
 
 {
-    par(mfrow = c(2, 2))
+    par(mfrow = c(2, 3))
     plot(apply(VH, 1, function(x) any(x < 0)), main = "any VH < 0")
     plot(apply(VFC, 1, function(x) any(x < 0)), main = "any VFC < 0")
     plot(apply(VFK, 1, function(x) any(x < 0)), main = "any VFK < 0")
+    plot(VB < 0, main = " VB < 0")
     plot(VG > 0, main = " VG > 0")
 }}
