@@ -15,24 +15,6 @@ library(profvis)
 
 sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
-# https://www.r-bloggers.com/2011/09/a-multidimensional-which-function/
-# multi.which <- function(A) {
-#     if (is.vector(A)) {
-#         return(which(A))
-#     }
-#     d <- dim(A)
-#     T <- which(A) - 1
-#     nd <- length(d)
-#     t(sapply(T, function(t) {
-#         I <- integer(nd)
-#         I[1] <- t %% d[1]
-#         sapply(2:nd, function(j) {
-#             I[j] <<- (t %/% prod(d[1:(j - 1)])) %% d[j]
-#         })
-#         I
-#     }) + 1)
-# }
-
 {
     ## prelude
     # eps <- 1e-25
