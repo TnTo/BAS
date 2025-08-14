@@ -14,24 +14,6 @@ library(profvis)
 
 sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
-# https://www.r-bloggers.com/2011/09/a-multidimensional-which-function/
-# multi.which <- function(A) {
-#     if (is.vector(A)) {
-#         return(which(A))
-#     }
-#     d <- dim(A)
-#     T <- which(A) - 1
-#     nd <- length(d)
-#     t(sapply(T, function(t) {
-#         I <- integer(nd)
-#         I[1] <- t %% d[1]
-#         sapply(2:nd, function(j) {
-#             I[j] <<- (t %/% prod(d[1:(j - 1)])) %% d[j]
-#         })
-#         I
-#     }) + 1)
-# }
-
 {
     ## prelude
     # eps <- 1e-25
@@ -40,7 +22,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         set.seed(8686)
 
         # SET SCENARIO
-        scenario <- "Eq" # "Eq" "Hist" "Lib" "Con" "Fat"
+        scenario <- "Lib" # "Eq" "Hist" "Lib" "Con" "Fat"
         M0 <- switch(scenario,
             "Eq" = "Flat",
             "Hist" = "Exp",
@@ -59,7 +41,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 1000
+        TMAX <- 500
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -187,7 +169,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             pC[t, ] <- ifelse(is.na(pC[t, ]), pC[t - 1, ], pC[t, ])
             HpC[t, ] <- (1 + tC) * pC[t, ] # price after VAT (Hs price)
 
-            CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / (rowSums(C[t - 1, , ] * HpC[t, ]) / rowSums(C[t - 1, , ])), 0) # Desired Demand for Hs, in units of goods
+            CT[t, ] <- pmax((ay * DI[t - 1, ] + av * MH[t - 1, ]) / replace_na(rowSums(C[t - 1, , ] * HpC[t, ]) / rowSums(C[t - 1, , ]), mean(HpC[t, ])), 0) # Desired Demand for Hs, in units of goods
             GT[t] <- max((dG * GDP[t - 1] + sum(T[t - 1, ]) - sum(UB[t - 1, ])) / ifelse(sum(G[t - 1, ]) == 0, mean(pC[t, ]), sum(G[t - 1, ] * pC[t, ]) / sum(G[t - 1, ])), 0) # Desired Demand for Gvt, in units of goods
             YT[t] <- sum(CT[t, ]) + GT[t] # Desired Demand
             ICT[t, ] <- ceiling(pmax(KCu[t - 1, ] * pmax(1 / cuT - 1 / cuC[t - 1, ], 0, na.rm = TRUE) + dK * KCu[t - 1, ], 0)) # Desired investments in units of capital goods for C Firms
@@ -280,12 +262,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Consumption Goods market
             C[t, , ] <- C[t - 1, , ]
             # Over-selling
-            Fids <- which(colSums(C[t, , ]) - Y[t, ] > tol)
+            Fids <- which(colSums(C[t, , ]) - Y[t, ] * sum(CT[t, ]) / YT[t] > tol)
             if (length(Fids) > 0) {
                 for (Fid in Fids) {
-                    while (sum(C[t, , Fid]) - Y[t, Fid] > tol) {
+                    while (sum(C[t, , Fid]) - Y[t, Fid] * sum(CT[t, ]) / YT[t] > tol) {
                         Hid <- sample.vec(which(C[t, , Fid] > 0), 1)
-                        d <- min(C[t, Hid, Fid], sum(C[t, , Fid]) - Y[t, Fid])
+                        d <- min(C[t, Hid, Fid], sum(C[t, , Fid]) - Y[t, Fid] * sum(CT[t, ]) / YT[t])
                         C[t, Hid, Fid] <- C[t, Hid, Fid] - d
                     }
                 }
@@ -305,11 +287,11 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Fill unsatisfied demand
             repeat {
                 Hids <- which((CT[t, ] - rowSums(C[t, , ]) > tol) & ((DI[t, ] + MH[t - 1, ]) - rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) > tol))
-                if (length(Hids > 0) && (sum(Y[t, ]) - sum(C[t, , ]) > tol)) {
+                if (length(Hids > 0) && (sum(Y[t, ]) * sum(CT[t, ]) / YT[t] - sum(C[t, , ]) > tol)) {
                     Hid <- sample.vec(Hids, 1)
-                    Fids <- which(Y[t, ] - colSums(C[t, , ]) > 0)
+                    Fids <- which(Y[t, ] * sum(CT[t, ]) / YT[t] - colSums(C[t, , ]) > 0)
                     Fid <- Fids[which.min(pC[t, Fids])]
-                    d <- min(CT[t, Hid] - sum(C[t, Hid, ]), ((DI[t, Hid] + MH[t - 1, Hid]) - sum(C[t, Hid, ] * pC[t, ])) / pC[t, Fid], Y[t, Fid] - sum(C[t, , Fid]))
+                    d <- min(CT[t, Hid] - sum(C[t, Hid, ]), ((DI[t, Hid] + MH[t - 1, Hid]) - sum(C[t, Hid, ] * pC[t, ])) / pC[t, Fid], Y[t, Fid] * sum(CT[t, ]) / YT[t] - sum(C[t, , Fid]))
                     C[t, Hid, Fid] <- C[t, Hid, Fid] + d
                 } else {
                     break
@@ -567,8 +549,8 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
 
 {
     par(mfrow = c(2, 2))
-    plot(apply(VH, 1, function(x) any(x < 0)), main = "any VH < 0")
-    plot(apply(VFC, 1, function(x) any(x < 0)), main = "any VFC < 0")
-    plot(apply(VFK, 1, function(x) any(x < 0)), main = "any VFK < 0")
-    plot(VG > 0, main = " VG > 0")
+    plot(apply(VH, 1, function(x) any(x < -tol)), main = "any VH < 0")
+    plot(apply(VFC, 1, function(x) any(x < -tol)), main = "any VFC < 0")
+    plot(apply(VFK, 1, function(x) any(x < -tol)), main = "any VFK < 0")
+    plot(VG > tol, main = " VG > 0")
 }}

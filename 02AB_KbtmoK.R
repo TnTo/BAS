@@ -7,29 +7,12 @@
 # install.packages(c("devtools", "tidyverse", "moments", "progress", "profvis"))
 
 library(tidyverse)
+library(tidyr)
 library(moments)
 library(progress)
 library(profvis)
 
 sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
-
-# https://www.r-bloggers.com/2011/09/a-multidimensional-which-function/
-# multi.which <- function(A) {
-#     if (is.vector(A)) {
-#         return(which(A))
-#     }
-#     d <- dim(A)
-#     T <- which(A) - 1
-#     nd <- length(d)
-#     t(sapply(T, function(t) {
-#         I <- integer(nd)
-#         I[1] <- t %% d[1]
-#         sapply(2:nd, function(j) {
-#             I[j] <<- (t %/% prod(d[1:(j - 1)])) %% d[j]
-#         })
-#         I
-#     }) + 1)
-# }
 
 {
     ## prelude
@@ -268,12 +251,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Since there is no innovation, no wage dynamics and homogeneus mark-up the prices are uniform among Firms
             C[t, , ] <- C[t - 1, , ]
             # Over-selling
-            Fids <- which(colSums(C[t, , ]) - Y[t, ] > tol)
+            Fids <- which(colSums(C[t, , ]) - Y[t, ] * sum(CT[t, ]) / YT[t] > tol)
             if (length(Fids) > 0) {
                 for (Fid in Fids) {
-                    while (sum(C[t, , Fid] - Y[t, Fid] > tol)) {
+                    while (sum(C[t, , Fid]) - Y[t, Fid] * sum(CT[t, ]) / YT[t] > tol) {
                         Hid <- sample.vec(which(C[t, , Fid] > 0), 1)
-                        d <- min(C[t, Hid, Fid], sum(C[t, , Fid]) - Y[t, Fid])
+                        d <- min(C[t, Hid, Fid], sum(C[t, , Fid]) - Y[t, Fid] * sum(CT[t, ]) / YT[t])
                         C[t, Hid, Fid] <- C[t, Hid, Fid] - d
                     }
                 }
@@ -292,10 +275,10 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Fill unsatisfied demand
             repeat {
                 Hids <- which(CT[t, ] - rowSums(C[t, , ]) > tol)
-                if (length(Hids > 0) && (sum(Y[t, ]) - sum(C[t, , ]) > tol)) {
+                if (length(Hids > 0) && (sum(Y[t, ]) * sum(CT[t, ]) / YT[t] - sum(C[t, , ]) > tol)) {
                     Hid <- sample.vec(Hids, 1)
-                    Fid <- sample.vec(which(Y[t, ] - colSums(C[t, , ]) > 0), 1)
-                    d <- min(CT[t, Hid] - sum(C[t, Hid, ]), Y[t, Fid] - sum(C[t, , Fid]))
+                    Fid <- sample.vec(which(Y[t, ] * sum(CT[t, ]) / YT[t] - colSums(C[t, , ]) > 0), 1)
+                    d <- min(CT[t, Hid] - sum(C[t, Hid, ]), Y[t, Fid] * sum(CT[t, ]) / YT[t] - sum(C[t, , Fid]))
                     C[t, Hid, Fid] <- C[t, Hid, Fid] + d
                 } else {
                     break
@@ -312,8 +295,6 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             S[t, ] <- S[t, ] + G[t, ]
             # Residual production is lost
 
-
-            ### DA RISCRIVERE
             # Capital Goods Market
             IC[t, , ] <- floor(Ip[t, , ] * (YK[t, ] / (colSums(Ip[t, , ]) + IKT[t, ])))
             IK[t, ] <- YK[t, ] - colSums(IC[t, , ])
