@@ -23,7 +23,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         set.seed(8686)
 
         # SET SCENARIO
-        scenario <- "Eq" # "Eq" "Hist" "Lib" "Con" "Fat"
+        scenario <- "Lib" # "Eq" "Hist" "Lib" "Con" "Fat"
         M0 <- switch(scenario,
             "Eq" = "Flat",
             "Hist" = "Exp",
@@ -42,7 +42,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 300
+        TMAX <- 500
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -66,6 +66,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         uT <- 0.05 # target unemployment rate
         iT <- 0.02 # target inflation rate
         thetaMu <- 0.1 # markup update rate
+        mu0 <- 0.5 # initial markup
         DrL <- 0.05 # Bank premium on loans
         crT <- 0.08 # target capital rate
     }
@@ -87,6 +88,9 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         DLFC <- array(NA, c(TMAX, NFC))
         DLFK <- array(NA, c(TMAX, NFK))
         DL <- array(NA, c(TMAX))
+        RLFC <- array(NA, c(TMAX, NFC))
+        RLFK <- array(NA, c(TMAX, NFK))
+        RL <- array(NA, c(TMAX))
         B <- array(NA, c(TMAX))
         KC <- array(NA, c(TMAX, NFC))
         KK <- array(NA, c(TMAX, NFK))
@@ -170,8 +174,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         T[1, ] <- 0
         GDP[1] <- 0
         S[1, ] <- 0.01 * NH / NFC
-        muC[1, ] <- 0.5
-        muK[1, ] <- 0.5
+        muC[1, ] <- mu0
+        muK[1, ] <- mu0
         pC[1, ] <- (1 + muC[1, ]) * W0 / betaC
         HpC[1, ] <- (1 + tC) * pC[1, ]
         pK[1, ] <- (1 + muK[1, ]) * W0 / betaK
@@ -380,29 +384,51 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             DLFK[t, ] <- colSums(WFK[t, , ])
             DL[t] <- sum(DLFC[t, ]) + sum(DLFK[t, ])
 
-            LFC[t, ] <- pmax(0, LFC[t - 1, ] + DLFC[t, ] - MFC[t - 1, ] - pC[t, ] * S[t, ])
-            LFK[t, ] <- pmax(0, LFK[t - 1, ] + DLFK[t, ] - MFK[t - 1, ] - colSums(sweep(IC[t, , ], 2, pK[t, ], "*")))
+            RLFC[t, ] <- pmax(0, pmin(LFC[t - 1, ] + DLFC[t, ], MFC[t - 1, ] + DLFC[t, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - rL[t] * (LFC[t - 1, ] + DLFC[t, ])))
+            RLFK[t, ] <- pmax(0, pmin(LFK[t - 1, ] + DLFK[t, ], MFK[t - 1, ] + DLFK[t, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - rL[t] * (LFK[t - 1, ] + DLFK[t, ])))
+            RL[t] <- sum(RLFC[t, ]) + sum(RLFK[t, ])
+
+            LFC[t, ] <- LFC[t - 1, ] + DLFC[t, ] - RLFC[t, ]
+            LFK[t, ] <- LFK[t - 1, ] + DLFK[t, ] - RLFK[t, ]
             L[t] <- sum(LFC[t, ]) + sum(LFK[t, ])
 
             # Profits
             PFK[t, , ] <- switch(PDist,
-                "Flat" = t(array(pmax(0, pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ])) / NH, c(NFK, NH))),
-                "Prop" = sweep(t(array(pmax(0, pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ])), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array(pmax(
+                    0,
+                    MFK[t - 1, ] + DLFK[t, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ]) - RLFK[t, ]
+                ) / NH, c(NFK, NH))),
+                "Prop" = sweep(t(array(pmax(
+                    0,
+                    MFK[t - 1, ] + DLFK[t, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ]) - RLFK[t, ]
+                ), c(NFK, NH))), 1, pmax(0, MH[t - 1, ]), "*") / sum(pmax(0, MH[t - 1, ]))
             )
             PFC[t, , ] <- switch(PDist,
-                "Flat" = t(array(pmax(0, pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ])) / NH, c(NFC, NH))),
-                "Prop" = sweep(t(array(pmax(0, pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ])), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array(pmax(
+                    0,
+                    MFC[t - 1, ] + DLFC[t, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ]) - RLFC[t, ]
+                ) / NH, c(NFC, NH))),
+                "Prop" = sweep(t(array(pmax(
+                    0,
+                    MFC[t - 1, ] + DLFC[t, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ]) - RLFC[t, ]
+                ), c(NFC, NH))), 1, pmax(0, MH[t - 1, ]), "*") / sum(pmax(0, MH[t - 1, ]))
             )
             PB[t, ] <- switch(PDist,
-                "Flat" = array(max(0, (1 - rB[t]) / (1 - rB[t] - rB[t] * tP) * (VB[t - 1] + rL[t] * (DL[t] + L[t - 1]) - crT * L[t] + rB[t] / (1 - rB[t]) * (B[t - 1] + sum(pC[t, ] * G[t, ]) + sum(UB[t, ]) - (tW * sum(W[t, ]) + tP * (sum(PFC[t, , ]) + sum(PFK[t, , ])) + tC * sum(sweep(C[t, , ], 2, pC[t, ], "*")))))) / NH, c(NH)),
-                "Prop" = array(max(0, (1 - rB[t]) / (1 - rB[t] - rB[t] * tP) * (VB[t - 1] + rL[t] * (DL[t] + L[t - 1]) - crT * L[t] + rB[t] / (1 - rB[t]) * (B[t - 1] + sum(pC[t, ] * G[t, ]) + sum(UB[t, ]) - (tW * sum(W[t, ]) + tP * (sum(PFC[t, , ]) + sum(PFK[t, , ])) + tC * sum(sweep(C[t, , ], 2, pC[t, ], "*")))))) * MH[t - 1, ] / sum(MH[t - 1, ]), c(NH))
+                "Flat" = array(max(
+                    0,
+                    (1 - rB[t]) / (1 - rB[t] - rB[t] * tP) * (VB[t - 1] + rL[t] * (DL[t] + L[t - 1]) - crT * L[t] + rB[t] / (1 - rB[t]) * (B[t - 1] + sum(pC[t, ] * G[t, ]) + sum(UB[t, ]) - (tW * sum(W[t, ]) + tP * (sum(PFC[t, , ]) + sum(PFK[t, , ])) + tC * sum(sweep(C[t, , ], 2, pC[t, ], "*")))))
+                ) / NH, c(NH)),
+                "Prop" = array(max(
+                    0,
+                    (1 - rB[t]) / (1 - rB[t] - rB[t] * tP) * (VB[t - 1] + rL[t] * (DL[t] + L[t - 1]) - crT * L[t] + rB[t] / (1 - rB[t]) * (B[t - 1] + sum(pC[t, ] * G[t, ]) + sum(UB[t, ]) - (tW * sum(W[t, ]) + tP * (sum(PFC[t, , ]) + sum(PFK[t, , ])) + tC * sum(sweep(C[t, , ], 2, pC[t, ], "*")))))
+                ) * pmax(0, MH[t - 1, ]) / sum(pmax(0, MH[t - 1, ])), c(NH))
             )
             P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ]) + PB[t, ]
 
             T[t, ] <- tW * W[t, ] + tP * P[t, ] + tC * rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) # Taxes
             MH[t, ] <- MH[t - 1, ] + P[t, ] + W[t, ] + UB[t, ] - rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) - T[t, ] # Households' Money
-            MFK[t, ] <- MFK[t - 1, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - colSums(PFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ]) + (LFK[t, ] - LFK[t - 1, ]) # Capital Firms' Money
-            MFC[t, ] <- MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - colSums(PFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ]) + (LFC[t, ] - LFC[t - 1, ]) # Consumption Firms' Money
+            MFK[t, ] <- MFK[t - 1, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]) - colSums(PFK[t, , ]) - rL[t] * (DLFK[t, ] + LFK[t - 1, ]) + (DLFK[t, ] - RLFK[t, ]) # Capital Firms' Money
+            MFC[t, ] <- MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]) - colSums(PFC[t, , ]) - rL[t] * (DLFC[t, ] + LFC[t - 1, ]) + (DLFC[t, ] - RLFC[t, ]) # Consumption Firms' Money
             M[t] <- sum(MH[t, ]) + sum(MFC[t, ]) + sum(MFK[t, ]) # Bank's Money
 
             B[t] <- (B[t - 1] - (sum(T[t, ]) - sum(pC[t, ] * G[t, ]) - sum(UB[t, ]))) / (1 - rB[t]) # Gvt Bonds
@@ -426,11 +452,23 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             cr[t] <- ifelse(L[t] == 0, crT, VB[t] / L[t])
 
             VH[t, ] <- MH[t, ] # Households' Net Wealth
-            VFC[t, ] <- MFC[t, ] + pKC[t, ] * KC[t, ] # Capital Firms' Net Wealth
-            VFK[t, ] <- MFK[t, ] + pK[t, ] * KK[t, ] # Consumption Firms' Net Wealth
+            VFC[t, ] <- MFC[t, ] + pKC[t, ] * KC[t, ] - LFC[t, ] # Capital Firms' Net Wealth
+            VFK[t, ] <- MFK[t, ] + pK[t, ] * KK[t, ] - LFK[t, ] # Consumption Firms' Net Wealth
             VB[t] <- -M[t] + L[t] + B[t]
             VG[t] <- -B[t] # Gvt' Net Wealth
             V[t] <- sum(VH[t, ]) + sum(VFK[t, ]) + sum(VFC[t, ]) + VB[t] + VG[t] # System Total Wealth
+
+            # Defaulting
+            LFC[t, which(VFC[t, ] < -tol)] <- 0
+            MFC[t, which(VFC[t, ] < -tol)] <- 0
+            muC[t, which(VFC[t, ] < -tol)] <- mu0
+            VFC[t, which(VFC[t, ] < -tol)] <- pKC[t, which(VFC[t, ] < -tol)] * KC[t, which(VFC[t, ] < -tol)]
+            LFK[t, which(VFK[t, ] < -tol)] <- 0
+            MFK[t, which(VFK[t, ] < -tol)] <- 0
+            muK[t, which(VFK[t, ] < -tol)] <- mu0
+            VFK[t, which(VFK[t, ] < -tol)] <- pK[t, which(VFK[t, ] < -tol)] * KK[t, which(VFK[t, ] < -tol)]
+
+
             GDP[t] <- sum(pC[t] * S[t, ]) + sum(pK[t, ] * colSums(IC[t, , ]))
 
             pb$tick()
@@ -596,15 +634,19 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
 }
 
 {
-    par(mfrow = c(2, 4))
+    par(mfrow = c(3, 4))
     plot(L, type = "l", main = "L")
     plot(DL, type = "l", main = "DL")
     plot(M, type = "l", main = "M")
     plot(B, type = "l", main = "B")
     plot(rowSums(LFC), type = "l", main = "LFC")
     plot(rowSums(DLFC), type = "l", main = "DLFC")
+    plot(rowSums(RLFC), type = "l", main = "RLFC")
+    plot((rowSums(DLFC) - rowSums(RLFC)), type = "l", main = "Delta LFC")
     plot(rowSums(LFK), type = "l", main = "LFK")
     plot(rowSums(DLFK), type = "l", main = "DLFK")
+    plot(rowSums(RLFK), type = "l", main = "RLFK")
+    plot((rowSums(DLFK) - rowSums(RLFK)), type = "l", main = "Delta LFK")
 }
 
 {
@@ -667,9 +709,9 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
 
 {
     par(mfrow = c(2, 3))
-    plot(apply(VH, 1, function(x) any(x < 0)), main = "any VH < 0")
-    plot(apply(VFC, 1, function(x) any(x < 0)), main = "any VFC < 0")
-    plot(apply(VFK, 1, function(x) any(x < 0)), main = "any VFK < 0")
-    plot(VB < 0, main = " VB < 0")
-    plot(VG > 0, main = " VG > 0")
+    plot(apply(VH, 1, function(x) sum(x < -tol)), main = "any VH < 0")
+    plot(apply(VFC, 1, function(x) sum(x < -tol)), main = "any VFC < 0")
+    plot(apply(VFK, 1, function(x) sum(x < -tol)), main = "any VFK < 0")
+    plot(VB < -tol, main = " VB < 0")
+    plot(VG > tol, main = " VG > 0")
 }}
