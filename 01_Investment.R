@@ -45,8 +45,8 @@ model_eqs <- sfcr_set(
     G ~ Y - C,
     I ~ NK * betaK,
     P ~ PFC + PFK,
-    PFC ~ pC * (C + G) - WFC - pK * I, # FCs' profits (all distributed)
-    PFK ~ pK * I - WFK, # FK's profits (all distributed)
+    PFC ~ MFC[-1] + pC * (C + G) - WFC - pK * I, # FCs' profits (all distributed)
+    PFK ~ MFK[-1] + pK * I - WFK, # FK's profits (all distributed)
     T ~ tW * W + tP * P + tC * pC * C,
     HpC ~ (1 + tC) * pC,
     pC ~ (1 + mu) * (WFC / Y), # Consumption goods price

@@ -53,8 +53,8 @@ model_eqs <- sfcr_set(
     IC ~ ifelse(ICT > 0, ICT * I / IT, 0),
     IK ~ I - IC,
     P ~ PFC + PFK,
-    PFC ~ pC * C + pC * G - WFC - pK * IC,
-    PFK ~ pK * IC - WFK,
+    PFC ~ MFC[-1] + pC * C + pC * G - WFC - pK * IC,
+    PFK ~ MFC[-1] + pK * IC - WFK,
     T ~ tW * W + tP * P + tC * pC * C,
     muC ~ muC[-1] * (1 + Thetha * (cuC[-1] - cuT) / cuT), # FCs' mark-up
     muK ~ muK[-1] * (1 + Thetha * (cuK[-1] - cuT) / cuT), # FKs' mark-up

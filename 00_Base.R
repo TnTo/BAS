@@ -31,7 +31,7 @@ model_eqs <- sfcr_set(
     Y ~ beta * N, # Output in units of goods
     C ~ CT * Y / YT, # Hs Consumption, in units of goods
     G ~ Y - C, # Gvt Consumption, in units of goods
-    P ~ p * (C + G) - W, # Firms' Profits (all distributed)
+    P ~ M[-1] + p * (C + G) - W, # Firms' Profits (all distributed)
     T ~ tW * W + tP * P + tC * p * C, # Taxes
     p ~ (1 + mu) * W / Y, # price
     Hp ~ (1 + tC) * p, # price after VAT (Hs price)

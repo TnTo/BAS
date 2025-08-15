@@ -113,7 +113,7 @@ model_tfm <- sfcr_matrix(
     c("Benefits", H = "UB", G = "-UB"),
     c("Wages", H = "W", FC = "-WFC", FK = "-WFK"),
     c("Profits", H = "P", FC = "-PFC", FK = "-PFK", B = "-PB"),
-    c("Taxes", H = "-T", G = "T"),
+    c("Taxes", H = "-T", G = "+T"),
     c("Loan int.", FC = "-rL * (DLFC + LFC[-1])", FK = "-rL * (DLFK + LFK[-1])", B = "+rL * (DL + L[-1])"),
     c("Bond int.", B = "+rB * B", G = "-rB * B"),
     c("D Money", H = "-(MH - MH[-1])", FC = "-(MFC - MFC[-1])", FK = "-(MFK - MFK[-1])", B = "(M - M[-1])"),

@@ -192,8 +192,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Residual production is lost
 
             P[t, , ] <- switch(PDist,
-                "Flat" = t(array((p[t] * Y[t, ] - colSums(W[t, , ])) / NH, c(NF, NH))),
-                "Prop" = sweep(t(array((p[t] * Y[t, ] - colSums(W[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((MF[t - 1, ] + p[t] * Y[t, ] - colSums(W[t, , ])) / NH, c(NF, NH))),
+                "Prop" = sweep(t(array((MF[t - 1, ] + p[t] * Y[t, ] - colSums(W[t, , ])), c(NF, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             T[t, ] <- tW * rowSums(W[t, , ]) + tP * rowSums(P[t, , ]) + tC * rowSums(sweep(C[t, , ], 2, p[t], "*")) # Taxes
             MH[t, ] <- MH[t - 1, ] + rowSums(P[t, , ]) + rowSums(W[t, , ]) + UB[t, ] - rowSums(sweep(C[t, , ], 2, p[t], "*")) - T[t, ] # Households' Money

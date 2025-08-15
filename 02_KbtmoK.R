@@ -51,8 +51,8 @@ model_eqs <- sfcr_set(
     IC ~ ifelse(ICT > 0, ICT * I / IT, 0), # FCs' investment in units
     IK ~ I - IC, # FKs' investment in units
     P ~ PFC + PFK,
-    PFC ~ pC * C + pC * G - WFC - pK * IC,
-    PFK ~ pK * IC - WFK,
+    PFC ~ MFC[-1] + pC * C + pC * G - WFC - pK * IC,
+    PFK ~ MFK[-1] + pK * IC - WFK,
     T ~ tW * W + tP * P + tC * pC * C,
     HpC ~ (1 + tC) * pC,
     pC ~ (1 + mu) * (WFC / Y),

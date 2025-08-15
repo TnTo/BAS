@@ -352,12 +352,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             # Profits
             PFK[t, , ] <- switch(PDist,
-                "Flat" = t(array((pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH))),
-                "Prop" = sweep(t(array(pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((MFK[t - 1, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH))),
+                "Prop" = sweep(t(array(MFK[t - 1, ] + pK[t, ] * colSums(IC[t, , ]) - colSums(WFK[t, , ]), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             PFC[t, , ] <- switch(PDist,
-                "Flat" = t(array((pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) / NH, c(NFC, NH))),
-                "Prop" = sweep(t(array(pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ])) / NH, c(NFC, NH))),
+                "Prop" = sweep(t(array(MFC[t - 1, ] + pC[t, ] * S[t, ] - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) - colSums(WFC[t, , ]), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ])
 
@@ -549,8 +549,8 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
 
 {
     par(mfrow = c(2, 2))
-    plot(apply(VH, 1, function(x) any(x < -tol)), main = "any VH < 0")
-    plot(apply(VFC, 1, function(x) any(x < -tol)), main = "any VFC < 0")
-    plot(apply(VFK, 1, function(x) any(x < -tol)), main = "any VFK < 0")
+    plot(apply(VH, 1, function(x) sum(x < -tol)), main = "any VH < 0")
+    plot(apply(VFC, 1, function(x) sum(x < -tol)), main = "any VFC < 0")
+    plot(apply(VFK, 1, function(x) sum(x < -tol)), main = "any VFK < 0")
     plot(VG > tol, main = " VG > 0")
 }}

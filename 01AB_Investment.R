@@ -22,7 +22,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         set.seed(8686)
 
         # SET SCENARIO
-        scenario <- "Eq" # "Hist" "Lib" "Con" "Fat"
+        scenario <- "Lib" # "Eq" "Hist" "Lib" "Con" "Fat"
         M0 <- switch(scenario,
             "Eq" = "Flat",
             "Hist" = "Exp",
@@ -307,12 +307,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Profits
             # Firms' Profits (all distributed) -- each H get the same share
             PFK[t, , ] <- switch(PDist,
-                "Flat" = t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH))),
-                "Prop" = sweep(t(array((pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((MFK[t - 1, ] + pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])) / NH, c(NFK, NH))),
+                "Prop" = sweep(t(array((MFK[t - 1, ] + pK[t] * colSums(I[t, , ]) - colSums(WFK[t, , ])), c(NFK, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             PFC[t, , ] <- switch(PDist,
-                "Flat" = t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])) / NH, c(NFC, NH))),
-                "Prop" = sweep(t(array((pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
+                "Flat" = t(array((MFC[t - 1, ] + pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])) / NH, c(NFC, NH))),
+                "Prop" = sweep(t(array((MFC[t - 1, ] + pC[t] * S[t, ] - pK[t] * rowSums(I[t, , ]) - colSums(WFC[t, , ])), c(NFC, NH))), 1, MH[t - 1, ], "*") / sum(MH[t - 1, ])
             )
             P[t, ] <- rowSums(PFK[t, , ]) + rowSums(PFC[t, , ])
 
