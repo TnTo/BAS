@@ -5,8 +5,8 @@
 #   In this form is completely a-cyclical
 ###
 
-install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
-devtools::install_github("TnTo/sfcr", ref = "sankey")
+# install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
+# devtools::install_github("TnTo/sfcr", ref = "sankey")
 
 library(sfcr)
 library(tidyverse)
