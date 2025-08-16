@@ -42,7 +42,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 500
+        TMAX <- 1000
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -309,10 +309,10 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             }
             # Over-buying
             # Sincerely decentralized market ignoring G
-            Hids <- which((rowSums(C[t, , ]) - CT[t, ] > tol) | (rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) - (DI[t, ] + MH[t - 1, ]) > tol))
+            Hids <- which((rowSums(C[t, , ]) - CT[t, ] > tol) | (rowSums(sweep(C[t, , ], 2, pC[t, ], "*")) - pmax(0, DI[t, ] + MH[t - 1, ]) > tol))
             if (length(Hids) > 0) {
                 for (Hid in Hids) {
-                    while ((sum(C[t, Hid, ]) - CT[t, Hid] > tol) || (sum(C[t, Hid, ] * pC[t, ]) - (DI[t, Hid] + MH[t - 1, Hid]) > tol)) {
+                    while ((sum(C[t, Hid, ]) - CT[t, Hid] > tol) || (sum(C[t, Hid, ] * pC[t, ]) - max(0, DI[t, Hid] + MH[t - 1, Hid]) > tol)) {
                         Fid <- sample.vec(which(C[t, Hid, ] > 0), 1)
                         d <- min(C[t, Hid, Fid], max(sum(C[t, Hid, ]) - CT[t, Hid], (sum(C[t, Hid, ] * pC[t, ]) - (DI[t, Hid] + MH[t - 1, Hid])) / pC[t, Fid]))
                         C[t, Hid, Fid] <- C[t, Hid, Fid] - d
