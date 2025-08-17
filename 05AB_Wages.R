@@ -42,7 +42,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 1000
+        TMAX <- 500
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -51,6 +51,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     ## Constants
     {
         W0 <- 1 # Wage level
+        thetaW <- 0.01 # wage update rate
         ay <- 0.6 # Desired share of consumption out of income
         av <- 0.2 # Desired share of consumptio out of wealth
         betaC <- 2.0 # Output per worker in units of goods in Consumption Goods Firms
@@ -107,6 +108,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         WFC <- array(NA, c(TMAX, NH, NFC))
         WFK <- array(NA, c(TMAX, NH, NFK))
         W <- array(NA, c(TMAX, NH))
+        W0FC <- array(NA, c(TMAX, NFC))
+        W0FK <- array(NA, c(TMAX, NFK))
         UB <- array(NA, c(TMAX, NH))
         NCT <- array(NA, c(TMAX, NFC))
         NKT <- array(NA, c(TMAX, NFK))
@@ -180,6 +183,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         HpC[1, ] <- (1 + tC) * pC[1, ]
         pK[1, ] <- (1 + muK[1, ]) * W0 / betaK
         pKC[1, ] <- (1 + mean(muK[1, ])) * W0 / betaK
+        W0FC[1, ] <- W0
+        W0FK[1, ] <- W0
         NC[1, , ] <- 0
         NK[1, , ] <- 0
         C[1, , ] <- 0.01
@@ -194,10 +199,15 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         pb <- progress_bar$new(total = TMAX)
         pb$tick()
         for (t in 2:TMAX) {
+            W0FC[t, ] <- W0FC[t - 1, ] * (1 + thetaW * (NCT[t - 1, ] - colSums(NC[t - 1, , ])) / NCT[t - 1, ])
+            W0FK[t, ] <- W0FK[t - 1, ] * (1 + thetaW * (NKT[t - 1, ] - colSums(NK[t - 1, , ])) / NKT[t - 1, ])
+            W0FC[t, ] <- ifelse(is.na(W0FC[t, ]), W0FC[t - 1, ], W0FC[t, ])
+            W0FK[t, ] <- ifelse(is.na(W0FK[t, ]), W0FK[t - 1, ], W0FK[t, ])
+
             muC[t, ] <- muC[t - 1, ] * (1 + thetaMu * (cuC[t - 1, ] - cuT) / cuT)
             muK[t, ] <- muK[t - 1, ] * (1 + thetaMu * (cuK[t - 1, ] - cuT) / cuT)
-            pC[t, ] <- (1 + muC[t, ]) * W0 / betaC # price
-            pK[t, ] <- (1 + muK[t, ]) * W0 / betaK # price
+            pC[t, ] <- (1 + muC[t, ]) * W0FC[t, ] / betaC # price
+            pK[t, ] <- (1 + muK[t, ]) * W0FK[t, ] / betaK # price
             pC[t, ] <- ifelse(is.na(pC[t, ]), pC[t - 1, ], pC[t, ])
             HpC[t, ] <- (1 + tC) * pC[t, ] # price after VAT (Hs price)
 
@@ -286,8 +296,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             Y[t, ] <- betaC * pmin(colSums(NC[t, , ]), KC[t - 1, ]) # Consumption Goods output in units of goods
             YK[t, ] <- floor(betaK * pmin(colSums(NK[t, , ]), KK[t - 1, ])) # Capital Goods output in units of goods
-            WFC[t, , ] <- W0 * NC[t, , ] # Wages
-            WFK[t, , ] <- W0 * NK[t, , ] # Wages
+            WFC[t, , ] <- sweep(NC[t, , ], 2, W0FC[t, ], "*") # Wages
+            WFK[t, , ] <- sweep(NK[t, , ], 2, W0FK[t, ], "*") # Wages
             W[t, ] <- rowSums(WFC[t, , ]) + rowSums(WFK[t, , ])
             UB[t, ] <- 0
             UB[t, which(W[t, ] == 0)] <- phi * W0 # Unemployment benefits
