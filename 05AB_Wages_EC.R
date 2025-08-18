@@ -306,13 +306,8 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             DI[t, ] <- NetW[t, ] + UB[t, ] # Disposable Income for Hs
 
             # Consumption Goods market
-            G[t, ] <- Y[t, ] * min(sum(Y[t, ]), GT[t]) / sum(Y[t,])
-            G[t, ] <- replace_na(G[t,], 0)
-
-            print(Y[t, ])
-            print(G[t, ])
-            print(min(sum(Y[t, ]), GT[t]) / sum(Y[t, ]))
-            print(Y[t, ] - G[t, ])
+            G[t, ] <- Y[t, ] * min(sum(Y[t, ]), GT[t]) / sum(Y[t, ])
+            G[t, ] <- replace_na(G[t, ], 0)
 
             C[t, , ] <- C[t - 1, , ]
             # Over-selling
