@@ -49,18 +49,19 @@ model_eqs <- sfcr_set(
     NKT ~ min(1, KK[-1], IT / betaK),
     NT ~ NCT + NKT,
     N ~ min(1, NT),
-    NC ~ min(NCT * N / NT, (NCT * W0) / (NCT * W0 + ICT * pK) * min(NCT * W0 + ICT * pK, max(0, VFC[-1] + MFC[-1])) / W0),
-    NK ~ min(NKT * N / NT, min(NKT * W0, max(0, VFK[-1] + MFK[-1])) / W0),
-    W0 ~ W0[-1] * (1 + ThetaW * (N[-1] - (1 - uT)) / (1 - uT)),
+    NC ~ min(NCT * N / NT, (NCT * W0FC) / (NCT * W0FC + ICT * pK) * min(NCT * W0FC + ICT * pK, max(0, VFC[-1] + MFC[-1])) / W0FC),
+    NK ~ min(NKT * N / NT, min(NKT * W0FK, max(0, VFK[-1] + MFK[-1])) / W0FK),
+    W0FC ~ ifelse(NCT[-1] > 0, W0FC[-1] * (1 + ThetaW * (NCT[-1] - NC[-1]) / NCT[-1]), W0FC[-1]),
+    W0FK ~ ifelse(NKT[-1] > 0, W0FK[-1] * (1 + ThetaW * (NKT[-1] - NK[-1]) / NKT[-1]), W0FK[-1]),
     W ~ WFC + WFK,
-    WFC ~ W0 * NC,
-    WFK ~ W0 * NK,
+    WFC ~ W0FC * NC,
+    WFK ~ W0FK * NK,
     Y ~ NC * betaC,
-    UB ~ W0 * phi * u,
+    UB ~ W[-1] / N[-1] * phi * u,
     C ~ min(Y - G, CT),
     G ~ min(Y, GT),
     I ~ NK * betaK,
-    IC ~ ifelse(ICT > 0, min(ICT * I / IT, (ICT * pK) / (NCT * W0 + ICT * pK) * min(NCT * W0 + ICT * pK, max(0, VFC[-1] + MFC[-1])) / W0), 0),
+    IC ~ ifelse(ICT > 0, min(ICT * I / IT, (ICT * pK) / (NCT * W0FC + ICT * pK) * min(NCT * W0FC + ICT * pK, max(0, VFC[-1] + MFC[-1])) / W0FC), 0),
     IK ~ I - IC,
     P ~ PFC + PFK + PB,
     PFC ~ max(0, pC * C + pC * G - WFC - pK * IC - rL * (DLFC + LFC[-1])),
@@ -69,7 +70,7 @@ model_eqs <- sfcr_set(
     PB ~ max(0, (1 - rB) / (1 - rB - rB * tP) * (VB[-1] + rL * (DL + L[-1]) - crT * L + rB / (1 - rB) * (B[-1] + pC * G + UB - (tW * W + tP * (PFC + PFK) + tC * pC * C)))),
     T ~ tW * W + tP * P + tC * pC * C,
     muC ~ muC[-1] * (1 + ThethaMu * (cuC[-1] - cuT) / cuT),
-    muK ~ max(1, muK[-1] * (1 + ThethaMu * (cuK[-1] - cuT) / cuT)), # Horrible, but the same old problem
+    muK ~ muK[-1] * (1 + ThethaMu * (cuK[-1] - cuT) / cuT), # Horrible, but the same old problem
     HpC ~ (1 + tC) * pC,
     pC ~ (1 + muC) * (WFC / Y),
     pK ~ ifelse(NK == 0, pK[-1], (1 + muK) * (WFK / I)),
@@ -150,7 +151,6 @@ model_init <- sfcr_set(
     VH ~ 1,
     M ~ 1,
     VG ~ -1,
-    W0 ~ 1,
     KC ~ 0.1,
     KK ~ 0.1,
     K ~ 0.2,
@@ -160,8 +160,9 @@ model_init <- sfcr_set(
     pC ~ 1,
     pK ~ 1,
     muC ~ 1,
-    muK ~ 1,
-    W0 ~ 1.5
+    muK ~ 2,
+    W0FC ~ 1.5,
+    W0FK ~ 1.5
 )
 
 model <- sfcr_baseline(
@@ -202,7 +203,7 @@ model %>%
 
 model %>%
     pivot_longer(cols = -period) %>%
-    filter(name %in% c("pC", "pK", "W0")) %>%
+    filter(name %in% c("pC", "pK", "W0FC", "W0FK")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
 
