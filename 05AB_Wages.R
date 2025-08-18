@@ -300,7 +300,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             WFK[t, , ] <- sweep(NK[t, , ], 2, W0FK[t, ], "*") # Wages
             W[t, ] <- rowSums(WFC[t, , ]) + rowSums(WFK[t, , ])
             UB[t, ] <- 0
-            UB[t, which(W[t, ] == 0)] <- phi * W0 # Unemployment benefits
+            UB[t, which(W[t, ] == 0)] <- phi * W[t - 1, ] / (sum(NC[t - 1, , ]) + sum(NK[t - 1, , ])) # Unemployment benefits
             NetW[t, ] <- (1 - tW) * W[t, ] # Net Wages
             DI[t, ] <- NetW[t, ] + UB[t, ] # Disposable Income for Hs
 
