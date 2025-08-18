@@ -380,7 +380,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
                 FCids <- which(rowSums(IC[t, , ]) < ICT[t, ])
                 if (length(FKids > 0) && length(FCids > 0)) {
                     FCid <- sample.vec(FCids, 1)
-                    FKid <- sample.vec(FKids, 1)
+                    FKid <- FKids[which.min(pK[t,FKids])]
                     IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
                     IK[t, FKid] <- IK[t, FKid] - 1
                 } else {
