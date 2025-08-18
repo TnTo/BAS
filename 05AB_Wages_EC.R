@@ -148,22 +148,10 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         rB <- array(NA, c(TMAX))
         rL <- array(NA, c(TMAX))
         cr <- array(NA, c(TMAX))
-        WFCT <- array(NA, c(TMAX, NFC))
-        WFKT <- array(NA, c(TMAX, NFK))
-        pICT <- array(NA, c(TMAX, NFC))
     }
 
     # Initial values
     {
-        muC[1, ] <- mu0
-        muK[1, ] <- mu0
-        pC[1, ] <- (1 + muC[1, ]) * W0 / betaC
-        HpC[1, ] <- (1 + tC) * pC[1, ]
-        pK[1, ] <- (1 + muK[1, ]) * W0 / betaK
-        pKC[1, ] <- (1 + mean(muK[1, ])) * W0 / betaK
-        KC[1, ] <- 10
-        KK[1, ] <- 10
-        K[1] <- sum(KC[1, ]) + sum(KK[1, ])
         MH[1, ] <- switch(M0,
             "Flat" = 1,
             "Exp" = rexp(NH),
@@ -176,12 +164,11 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         LFK[1, ] <- 0
         L[1] <- 0
         B[1] <- 0
-        VH[1, ] <- MH[1, ]
-        VFC[1, ] <- pKC[1, ] * KC[1, ] + MFC[1, ] - LFC[1, ]
-        VFK[1, ] <- pK[1, ] * KK[1, ] + MFK[1, ] - LFK[1, ]
-        VB[1] <- B[1] + L[1] - M[1]
-        VG[1] <- -B[1]
+        VB[1] <- 0
         DI[1, ] <- 0
+        KC[1, ] <- 10
+        KK[1, ] <- 10
+        K[1] <- sum(KC[1, ]) + sum(KK[1, ])
         IC[1, , ] <- 0
         KCu[1, ] <- 0
         KKu[1, ] <- 0
@@ -273,19 +260,15 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             NC[t, , ] <- NC[t - 1, , ]
             NK[t, , ] <- NK[t - 1, , ]
 
-            WFCT[t, ] <- NCT[t, ] * W0FC[t, ]
-            WFKT[t, ] <- NKT[t, ] * W0FK[t, ]
-            pICT[t, ] <- rowSums(sweep(Ip[t, , ], 2, pK[t, ], "*"))
-
             # Fire
             for (Fid in 1:NFC) {
-                while ((sum(NC[t, , Fid]) > NCT[t, Fid]) || (W0FC[t, Fid] * sum(NC[t, , Fid]) > WFCT[t, Fid] / (WFCT[t, Fid] + pICT[t, Fid]) * min(WFCT[t, Fid] + pICT[t, Fid], max(0,MFC[t - 1, Fid] + VFC[t - 1, Fid])))) {
+                while (sum(NC[t, , Fid]) > NCT[t, Fid]) {
                     Hid <- sample.vec(which(NC[t, , Fid] != 0), 1)
                     NC[t, Hid, Fid] <- 0
                 }
             }
             for (Fid in 1:NFK) {
-                while ((sum(NK[t, , Fid]) > NKT[t, Fid]) || (W0FK[t, Fid] * sum(NK[t, , Fid]) > min(WFKT[t, Fid], max(0,MFK[t - 1, Fid] + VFK[t - 1, Fid])))) {
+                while (sum(NK[t, , Fid]) > NKT[t, Fid]) {
                     Hid <- sample.vec(which(NK[t, , Fid] != 0), 1)
                     NK[t, Hid, Fid] <- 0
                 }
@@ -294,13 +277,10 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Hiring
             while (
                 (sum(NC[t, , ]) + sum(NK[t, , ]) < NH) &&
-                    (
-                        any(colSums(NC[t, , ]) < min(NCT[t, ], floor(WFCT[t, ] / (WFCT[t, ] + pICT[t, ]) * min(WFCT[t, ] + pICT[t, ], pmax(0,MFC[t - 1, ] + VFC[t - 1, ])) / W0FC[t, ]))) ||
-                            any(colSums(NK[t, , ]) < min(NKT[t, ], floor(min(WFKT[t, ], pmax(0,MFK[t - 1, ] + VFK[t - 1, ])) / W0FK[t, ])))
-                    )
+                    (any(colSums(NC[t, , ]) < NCT[t, ]) || any(colSums(NK[t, , ]) < NKT[t, ]))
             ) {
-                FCids <- which(colSums(NC[t, , ]) < min(NCT[t, ], floor(WFCT[t, ] / (WFCT[t, ] + pICT[t, ]) * min(WFCT[t, ] + pICT[t, ], pmax(0,MFC[t - 1, ] + VFC[t - 1, ])) / W0FC[t, ])))
-                FKids <- which(colSums(NK[t, , ]) < min(NKT[t, ], floor(min(WFKT[t, ], pmax(0,MFK[t - 1, ] + VFK[t - 1, ])) / W0FK[t, ])))
+                FCids <- which(colSums(NC[t, , ]) < NCT[t, ])
+                FKids <- which(colSums(NK[t, , ]) < NKT[t, ])
                 # it could be written as a function of the number of vacancies in each firm rather then the number of firms with vacancies...
                 if (runif(1) < (length(FCids) / (length(FCids) + length(FKids)))) {
                     # FC
@@ -326,7 +306,13 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             DI[t, ] <- NetW[t, ] + UB[t, ] # Disposable Income for Hs
 
             # Consumption Goods market
-            G[t, ] <- ifelse(sum(Y[t,])>0, Y[t, ] * min(sum(Y[t, ]), GT[t]) / sum(Y[t, ]),0)
+            G[t, ] <- Y[t, ] * min(sum(Y[t, ]), GT[t]) / sum(Y[t,])
+            G[t, ] <- replace_na(G[t,], 0)
+
+            print(Y[t, ])
+            print(G[t, ])
+            print(min(sum(Y[t, ]), GT[t]) / sum(Y[t, ]))
+            print(Y[t, ] - G[t, ])
 
             C[t, , ] <- C[t - 1, , ]
             # Over-selling
@@ -370,10 +356,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             # Capital Goods Market
 
-            IC[t, , ] <- min(
-                floor(Ip[t, , ] * replace_na(YK[t, ] / (colSums(Ip[t, , ]) + IKT[t, ]), 0)),
-                floor(Ip[t, , ] * (WFCT[t, ] + pICT[t, ]) * min(WFCT[t, ] + pICT[t, ], pmax(0,MFC[t - 1, ] + VFC[t - 1, ])))
-            )
+            IC[t, , ] <- floor(Ip[t, , ] * replace_na(YK[t, ] / (colSums(Ip[t, , ]) + IKT[t, ]), 0))
 
             # over promised
             while (any(colSums(IC[t, , ]) > YK[t, ])) {
@@ -394,16 +377,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # sell remaining
             repeat {
                 FKids <- which(IK[t, ] > IKT[t, ])
-                if (length(FKids > 0)) {
-                    FCids <- which((rowSums(IC[t, , ]) < ICT[t, ]) & (MFC[t - 1, ] * VFC[t - 1, ] - colSums(WFC[t, , ]) - rowSums(sweep(IC[t, , ], 2, pK[t, ], "*")) > min(pK[t, FKids])))
-                    if (length(FCids > 0)) {
-                        FCid <- sample.vec(FCids, 1)
-                        FKid <- FKids[which.min(pK[t, FKids])]
-                        IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
-                        IK[t, FKid] <- IK[t, FKid] - 1
-                    } else {
-                        break
-                    }
+                FCids <- which(rowSums(IC[t, , ]) < ICT[t, ])
+                if (length(FKids > 0) && length(FCids > 0)) {
+                    FCid <- sample.vec(FCids, 1)
+                    FKid <- FKids[which.min(pK[t, FKids])]
+                    IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
+                    IK[t, FKid] <- IK[t, FKid] - 1
                 } else {
                     break
                 }
