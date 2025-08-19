@@ -23,7 +23,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         set.seed(8686)
 
         # SET SCENARIO
-        scenario <- "Lib" # "Eq" "Hist" "Lib" "Con" "Fat"
+        scenario <- "Fat" # "Eq" "Hist" "Lib" "Con" "Fat"
         M0 <- switch(scenario,
             "Eq" = "Flat",
             "Hist" = "Exp",
@@ -42,7 +42,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 500
+        TMAX <- 1000
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -475,6 +475,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             M[t] <- sum(MH[t, ]) + sum(MFC[t, ]) + sum(MFK[t, ]) # Bank's Money
             L[t] <- sum(LFC[t, ]) + sum(LFK[t, ])
+            VB[t] <- -M[t] + L[t] + B[t]
             V[t] <- sum(VH[t, ]) + sum(VFK[t, ]) + sum(VFC[t, ]) + VB[t] + VG[t] # System Total Wealth
 
             GDP[t] <- sum(pC[t] * S[t, ]) + sum(pK[t, ] * colSums(IC[t, , ]))

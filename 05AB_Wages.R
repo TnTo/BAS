@@ -380,7 +380,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
                 FCids <- which(rowSums(IC[t, , ]) < ICT[t, ])
                 if (length(FKids > 0) && length(FCids > 0)) {
                     FCid <- sample.vec(FCids, 1)
-                    FKid <- FKids[which.min(pK[t,FKids])]
+                    FKid <- FKids[which.min(pK[t, FKids])]
                     IC[t, FCid, FKid] <- IC[t, FCid, FKid] + 1
                     IK[t, FKid] <- IK[t, FKid] - 1
                 } else {
@@ -480,6 +480,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
             M[t] <- sum(MH[t, ]) + sum(MFC[t, ]) + sum(MFK[t, ]) # Bank's Money
             L[t] <- sum(LFC[t, ]) + sum(LFK[t, ])
+            VB[t] <- -M[t] + L[t] + B[t]
             V[t] <- sum(VH[t, ]) + sum(VFK[t, ]) + sum(VFC[t, ]) + VB[t] + VG[t] # System Total Wealth
 
             GDP[t] <- sum(pC[t] * S[t, ]) + sum(pK[t, ] * colSums(IC[t, , ]))
