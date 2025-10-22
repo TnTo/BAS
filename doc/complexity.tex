@@ -1,0 +1,271 @@
+\section{On Complexity}
+Dealing with the subject of complexity is generally something very difficult to do due to the ambiguous and elusive nature of the term.
+First of all, complexity has now become a \textit{buzzword} that often has no meaning of its own.
+In addition, there is no agreed definition of what complexity is at a scientific level\footnote{\textcite{horgan2015}, cited in \textcite{holt2011}, lists 45 different ideas which could be used as a starting point for a definition of complexity, and more can be found in \textcite{hooker2011} and \textcite{ladyman2020}.}, making it very difficult to deal with the topic precisely.
+
+The cause of this I believe becomes evident once one looks at the problem of defining complexity from a historical perspective.
+
+A list of what is undoubtedly being studied by complexity theory today has to include, among others, dynamical systems (in particular deterministic chaos and bifurcation theory) and statistical mechanics. For both disciplines of study, it is possible to trace their birth (or at least a founding moment) to the 1870s, when Poincaré published his first work on recurrence and Boltzmann presented the first results on which statistical mechanics could be based.
+
+On the other hand, the term complexity entered the scientific lexicon with the \citeyear{anderson1972} article by \citeauthor{anderson1972}, which opens by questioning the reductionist paradigm\footnote{With \textit{reductionism} I'm pointing at a methodological notion rather than an ontological one. I consider reductionism the scientific practice that aim to achieve the \textit{Unity of Science} described by \textcite{oppenheim1958}, regarding the success of the attempt.} on which modern science is based, recognising that although one can create a hierarchy of sciences according to the reductionist view (e.g. physics \textrightarrow{} chemistry \textrightarrow{} biology \textrightarrow{} physiology \textrightarrow{} psychology \textrightarrow{} sociology) it is not possible to claim that "X is `just applied Y'".
+That is, it is not possible to reformulate on the basis of the laws of the more reduced discipline all the laws of the more complex one (i.e. we cannot express, for example, all psychological knowledge by referring only to the underlying physiological phenomena).
+
+By the time Anderson published his article, however, many mathematical methods for dealing with complex systems had already been developed, and there was already a common sense of which problems are studied by the complexity theory (as mentioned earlier, dynamic systems and thermodynamics, to which we can add, without claiming to be exhaustive, information theory, stochastic processes, computational agent models, game theory, graph or network theory).
+In other words, by the time a definition appeared and an attempt was made to methodologically ground the field of research, the development of mathematical techniques to investigate it was already advanced and developed into an independent, reductionist perspective.
+
+The tension appearing here is probably the focal point of the article: following Anderson complexity can only be anti-reductionist, but some mathematical methods of complexity theory (particularly the oldest ones) are born and developed inside a reductionist perspective.
+
+Let us return to statistical mechanics as an archetypal example. The problem it solves is to bring a macroscopic phenomenon (the laws of thermodynamics and the irreversibility of physical processes) back to known microscopic laws (molecular dynamics) as prescribed by the reductionist paradigm.  This eliminates the need to have two different theories for the microscopic and the macroscopic, explaining macroscopic phenomena as a manifestations of microscopic laws.
+
+This is in theory. In practice, however, macroscopic laws remain in use for reasons of simplicity and adequacy, because they better describe macroscopic reality and return representations that are simpler to use and still sufficiently accurate.
+Moreover, statistical mechanics has created a new mesoscopic description where microscopic and macroscopic laws intermingle, describing phenomena that can be explained neither by one nor by the other alone, effectively requiring a new theoretical apparatus of mesoscopic laws.
+
+In this sense, we can recover Anderson's insight: the moment one tries to reduce the macroscopic to the microscopic, one loses accuracy in describing the macroscopic (or at least practicality) while discovering a grey area that belongs to neither the macroscopic nor the microscopic and, at the same time, belongs to both.
+Thus, one obtains a new formulation that is in practice unusable and unsuitable as a scientific theory for either level. Also a third intermediate level appears and it needs its own, distinct set of laws.
+
+To proceed further in the discussion, it is probably necessary to attempt to give a definition of the object of study: complexity.
+
+The concepts most often associated with the idea of complexity are the relationship between the parts and the whole, the difference between individual and collective behaviour, emergent properties, the interactions among elements, and non-linearity.\footnote{Non-linearity may seem like the odd card in the list, but its relationship to the other ideas is easy to show. Assume a set of elements ${x_i}$ and suppose we aggregate them by summing them as $X=\sum_i x_i$. The relation between the change of one of the elements of the set and the change of the aggregate is $\Delta X=\Delta x_i$, identifying macroscopic and microscopic changes and eliminating the need for two different representations of the dynamics. Perhaps a more common and analogous case in economics is that of log-linearity when the aggregation function is the product, i.e. $\log X = \log(\prod_i x_i)$ and $\Delta \log X=\Delta\log(x_i)$.} This is why it is common to speak of \textit{complex systems} almost as a synonym for complexity, because the word system implies not much more than a set of parts in relation to each other.
+
+The definition of complexity\footnote{I'm approaching the problem of defining a complex system in a phenomenological rather than ontological way: I'm not really interested in revealing the "true nature" of a complex system, I'm rather aiming in describing which characteristics allow recognizing a complex system or, more precisely, what is studied and considered as such. As a consequence, because the focus is put on the scientific practices rather than on the system itself, the attempts made by \textcite{wiesner2020} to find a way to precisely measure a property of a complex system itself and to define it objectively on that basis, attack the issue from a different (and somehow incommensurable) perspective.} I propose, which diverge form those given by \textcite[§3][]{holt2011} or \textcite{ladyman2020}, is the following:
+\begin{quote}
+	A system is complex if and only if it must be described differently on different levels of one or more scales.
+\end{quote}
+
+This definition requires defining what a scale is and its levels are. But before doing so, I will say a few words about the idea of description.
+
+Every scientific theory aims at an understanding of reality through a simplified representation that allows particular features of interest to be brought into focus. These representations are generally produced in the form of laws or models.
+At the same time, however, each of these representations expresses only a particular description of reality that focuses on certain details while leaving out others.\footnote{One might, as a thought experiment, think that one could create a description of reality so comprehensive and precise, at once analytical and synthetic, to be able to make all others obsolete, but it would not deviate much from a 1:1 map of the world, on whose uselessness and impracticality Eco and Borges have written better than I can.}.
+
+This observation gives us an initial insight into what complexity is: recognising that the world is made up of too many entities, linked together by too many connections and relationships, to be able to isolate one at a time or study them all together with precision. Instead, it is necessary to recognise, from time to time, which are the important details in focus, the magnification necessary to see what is of interest, while being aware of what and why it is left out of the field of vision.
+
+Following this metaphor, I try to explain what I mean by scale and levels.
+
+Think of a microscope slide with a single sample. The sample appears very differently depending on the magnification or focal plane chosen for observation.
+These two variables, two dimensions along which to move, change the way we observe the sample and the description we can give of it.
+The perception we have of the sample and thus the characteristics and properties we can describe, vary as the two variables (magnification and focal plane) of observation vary.
+
+So, we have introduced two dimensions, which we call scales, that present different ways, levels, of observing, or describing, the same entity.
+
+Typical examples of scales are the geographical scale (which in reference to the economy has as levels, for example, a city, an industrial district, a country, a continent, the entire
+global market) or the time scale (among whose levels we can list the short run, used for example for fixed capital models, and the long run).
+
+Another scale, perhaps less intuitive, that finds enormous space in the description of economy is the aggregation scale, among whose levels we find the individual (micro), groups (meso) and the whole of society (macro), which allows us to describe how the concepts of heterogeneity and interaction influence the description of the economy, and thus to describe those behaviours of the individual that can only be explained by their relationship with others.
+
+Other dimensions along which the description varies, and which I therefore call scales here, are less intuitively scales.
+For example, we can interpret the gender perspective as a scale.
+The same phenomenon can be studied by ignoring the gender of the subjects involved, by using a binary perspective based on the biological sex of the subjects involved, by maintaining a still binary perspective but based on the gender and socialisation of the subjects involved, or by adopting a queer perspective by including a multiplicity of classification categories based on the self-representation of the subjects involved.
+Each of these levels returns different characteristics of the studied system to the observer and none of them is a priori the correct one.
+A research project in medicine on reproductive health is likely to use a perspective based on biological sex, which is, at least to a first approximation, a determining factor, without, however, introducing a greater richness of detail that would only produce noise when analysing the results statistically\footnote{At least to a first approximation. Having obtained the results of the initial study, it might be extremely useful to change the level of observation on the scale in order to be able to describe, for example, the same phenomenon in the population undergoing hormone replacement therapy following a diagnosis of gender incongruence.}.
+Likewise, an ethnography on queer movements probably needs the level of detail and heterogeneity that lies in the self-representation of individuals.
+
+To sum up, a scale is an aspect of the system, a semantic or conceptual area of it, that can be analysed from different viewpoints or with different levels of detail.
+And a complex system is any system that changes its characteristics, or rather the description one can make of it, depending on the point or mode of observation (or the observing subject). In other words, a system that does not always remain the same and coherent in every context.
+
+It is likely that following this definition, reality is complex and almost every subset of it is also complex. But this does not mean that every model, every representation of an aspect of reality, must resort to the mathematical methods of complexity or develop on multiple levels of a scale.
+There are questions that can be answered (or at least answered concisely and with few details) on a single level on each scale, without having to (or wanting to) consider how the system changes as the system of observation changes.
+
+This definition, on the other hand, in addition to including -I believe- all the different insights into the nature of complexity due to the abstractness and generality of the idea of scale, indirectly draws attention to the approximations that are explicitly or (more often) implicitly made in any scientific research and in any description of reality.
+
+What this definition does not do is directly provide some kind of specific knowledge in any field of knowledge.
+In this sense, we cannot consider complexity theory, as it has just been defined, a theory in the strict sense.
+
+Rather, it provides guidance on how to operationalise the observation, and thus the study, of a complex system, i.e. how to construct theories on different complex systems.
+
+In this sense, I think it is more correct to speak of a meta-theory of complexity, i.e. a theory of how theories describing complex systems need to be developed\footnote{If what was mentioned earlier about reality itself being a complex system in all its aspects is true, then the meta-theory of complexity provides principles that any scientific theory should take into account.}.
+
+It could be argued that the particular case of physics is sufficient to break down the argumentative construction I am pursuing, providing a very strong argument in favour of maintaining a reductionist paradigm.
+Through logical steps it is now possible to trace almost every physical law back to a small number of fundamental forces (between one and three depending on the theory), which are thus able to explain every phenomenon of reality.
+
+From a speculative point of view, assuming for the sake of simplicity an absolutely deterministic reality, this might indeed seem to be the realisation of the reductionist dream of tracing every phenomenon back to a handful of first principles and thus to the possibility of formulating a \textit{theory of everything} that governs reality in all its aspects. But such thinking finds no practical or experiential confirmation.
+No researcher would ever try to describe even the statics of a bridge using the few fundamental laws, let alone more complex phenomena in the animal kingdom or the cultural sphere.
+And as already mentioned, even in physics itself, there are phenomena that are only traced back to the unifying theory under ideal and perfect conditions, whose real inaccuracies are better explained by ad hoc theories and corrections, developed for the specific case without any claim to universality.
+
+The anti-reductionism present in Anderson's work and in the idea of a meta-theory of complexity can then be reformulated as the rejection of the possibility of a theory of everything and a privileged point of view.
+
+As a consequence, \textbf{knowledge cannot but be understood as contextual and functional}, i.e. linked to particular premises and purposes that highlight different characteristics of the same object of study, leading to different approximations that highlight different levels on different scales.
+
+Doing research according to this understanding of complexity therefore requires putting the specific research question at the centre, or recognising the specific facet of reality to be observed, and taking it as a starting point.
+From there, it is necessary to describe the object of study as precisely and richly as possible in order to be able to recognise as many relevant scales as possible and on each of them the most suitable levels for the purpose, i.e. to make one's premises as explicit as possible, and then to approximate the object of study to a representation of it -to a model of it- that is manageable and addressable.
+
+The act, so central here, of describing requires careful analysis, without, at least in the first instance, shortcuts and approximations. In some contexts it is possible that this can be done with care and meticulousness using the formal language of mathematics or a language that one does not perfectly master, but in general if describing (and thus, perhaps, intimately understanding) becomes a fundamental aspect of scientific practice, a return to the use of one's mother tongue (and perhaps also the use of multi-mediality) becomes an unavoidable possibility\footnote{This is just one of the practical difficulties that the adoption of complexity meta-theory faces in contemporary research. The last section of this article seeks to explore this issue further.}.
+
+Outlined in this way, the complexity meta-theory resembles a methodology of the particular and the unique, which recognises that the important features of a system are multiple and different depending on the purpose, history and subjectivity of the researcher. It recognises, to some extent, the organic role of the particular within the general, rather than taking the particular as a variation on the theme of the general.
+
+The prominence of the particular requires extending the methods available to the researcher, and in particular recovering qualitative methods even where their use has been lost. This is because the complementary use of qualitative and quantitative methods is able to explore the same phenomenon at different levels, to obtain a richer and more multifaceted knowledge of it. That is, it also allows us to capture those aspects of a system that are or are difficult to express through the abstract and formal language of mathematics\footnote{Or, perhaps more appropriately, whereby the description obtained through the abstract and formal language of mathematics adds neither clarity nor precision to the description made in other languages, such as natural language. Theoretically, any description made in natural language can be rewritten equivalently in terms of content with some form of first-order logic, but only in some cases does this prove to be a clarifying tool for the forms of discourse rather than a way of hiding the content behind the form.} or which concern experiences that are sufficiently rare or varied that it is not possible to obtain for them numerous and consistent measures that would allow statistical assumptions to be fulfilled.
+
+Similarly, individual experience is recognised for its own importance, at least as a determinant of the description the researcher makes (observable from the right level of the right scale), and not as a mere variation of a general archetype.
+In this sense, I think that a complexity meta-theory offers a conceptual framework for those instances that try to bring an intersectional, democratic and caring perspective into scientific practice.
+
+To close this section, I will briefly touch on a lively debate in many disciplines, including economics, on the coexistence of alternative theories and the problem of choosing one theory over another: the debate on pluralism.
+
+The term pluralism usually indicates a view whereby a plurality of different alternative theories can (or should) coexist within a discipline.
+The approach we are outlining here provides a possible justification for pluralism.
+Since each theory is born and developed in a precise and limited domain of knowledge, different theories must be used to explain phenomena only on certain levels of certain scales, whenever the domain of validity is exceeded.
+
+At the same time, Newtonian physics, classical electromagnetism and even geocentrism are not absolutely wrong theories, but simply theories and models that have a non-universal domain of validity, but in their domain of validity remain useful because they answer the questions for which they were created in a simple way.
+
+An example from economics is the study of long-term phenomena.
+There are at least four different approaches in the history of economics to describe the long run: the neoclassical approach, which describes the existence of a single long-run equilibrium and the behaviour of the economy relaxing towards it; the post-Keynesian approach, which describes the possibility of multiple steady states, similar in idea to unstable equilibria, among which the economy can move; the Marxian approach, which qualitatively describes certain characteristics of the dynamics of the economy in the long run, without however describing the end point of it with sufficient precision to be studied; the deterministic chaos theory approach, which by describing the economy as a chaotic system concludes that it is impossible to study its long-term behaviour, due to the gradual accumulation of errors inevitable in any representation.
+Each of these four approaches allows different aspects of the future to be studied, answering different questions.
+
+Complexity meta-theory can lend support to pluralism by replacing the need to recognise what is the correct representation of reality in each situation with reasoning about the implicit and explicit assumptions behind each of them in order to circumstantiate their domain of validity\footnote{For example, a too often forgotten assumption of the neoclassical model is that of normal time, or the absence of exogenous shocks. I find it more interesting to discuss what makes \textit{normal} time, and thus under what conditions the neoclassical representation is useful, than to stage a contest about who is \textit{absolutely} right.}.
+
+\section{On the Economy}
+We described at the beginning of the article a tension between complexity understood in an anti-reductionist sense (what I described as meta-theory) and complexity understood as a set of mathematical methods.
+This same tension can be found when trying to explore the relationship between economics and the idea of complexity, which has been understood both in an anti-reductionist sense and as the technical baggage of (new) mathematical methods.
+This section, therefore, not only provides an analysis of the development of economic thought, but also an example of how a discipline can make the complexity meta-theory its own or, on the contrary, merely adopt the mathematical methods of complexity.
+
+This analysis identifies in particular three archetypal relationships between complexity and economics, which will be illustrated and briefly discussed individually after a necessary historical contextualisation.
+
+Towards the end of the 19\textsuperscript{th} century, at the same time as the mathematical methods of complexity came into being, the marginalist paradigm developed in economics as a research approach inspired by reductionist principles.
+
+Marginalism, in fact, seeks to trace the study of economy back to the choices of ideal economic agents capable and willing to maximise specific goals.
+In particular, the problem typically studied concerns finding the conditions under which a small number of agents (usually one or two) faced with the possibility of making transactions give up because none of them is able to (marginally) weakly improve the situation of both, a condition known as the Paretian optimum.
+
+Starting from this apparently very simple idea, the marginalist school developed, on the one hand, mathematical methods to study this class of problems (generally using calculus on the model of Newtonian physics), and, on the other hand, an entire economic theory by deducing more properties of the system.
+Marginalist theory is thus constructed by successive additions to an elementary core of assumptions and ideas.
+
+The first archetypal situation of an economy of pure exchange (barter) between two agents is gradually generalised to a theory of production and, much later, to a theory of the economic aggregate.
+
+However, it would not be correct to say that the (early) marginalists did not recognise the complex nature of the economic system.
+\textcite[p. 20]{marshall1988} wrote in the \textit{Principia} that "Society is something more than the sum of the lives of its individual members.", recognising the economy as a complex system.
+Nevertheless, undoubtedly following the zeitgeist, the attempt being made was to explain complexity as an emergent property that can be analytically traced to a few fundamental laws, as Boltzmann did with statistical mechanics.
+
+After a phase of relative decline in the first half of the 20th century, the marginalist approach undoubtedly became dominant in the economic discipline from the 1970s onwards.
+
+The pervasiveness of the marginalist school's hegemony can also be observed in how the definition of economics has changed.
+While it may seem intuitive that economics studies the economy, or that it is defined with words like 'the study of the processes of production and exchange', this is not the answer most economists would give.
+
+In 1932 Robbins published a book in which he argued that "The [...] subject of Economic Science [is the study of] the forms assumed by human behaviour in disposing of scarce means." \parencite[p. 15]{robbins2007}.
+The adoption of this definition shifts over time the unifying element of the discipline from contents to methods, allowing both a phase of imperialist expansion in the study of topics traditionally belonging to other disciplines \parencite[see][]{stigler1984, lazear2000} and to exclude from the positions of power and prestige those schools that do not use the tools useful to study the optimal allocation of scarce resources, or that do not formulate their research question in terms of the constrained optimisation of a certain objective function (called utility, or following Pareto ophelimity).
+
+In practice, the marginalist idea of building up an economic theory from few assumptions about human behaviour and the choices agents face has replaced the study of the economy as the identifying element of economics.
+
+Acknowledging the complexity of reality and taming it within the reductionist paradigm is also present in one of the articles that founded modern macroeconomics.
+
+In 1976 Lucas wrote that "Given that the structure of an econometric model consists of optimal decision rules of economic agents, and that optimal decision rules vary systematically with changes in the structure of series relevant to the decision maker, it follows that any change in policy will systematically alter the structure of econometric models." \parencite{lucas1976}.
+In other words, Lucas recognised that any quantitative model in economics that is based on real data has a domain of validity limited to the period of time in which the socio-cultural norms --institutions-- for which it was imagined remain in place.
+In doing so, he also clearly implied the need to recognise and describe two different levels on the scale of aggregation (individual choices and the behaviour of aggregate variables) and the interactions between them. The need to integrate microeconomics and macroeconomics is made explicit.
+
+If, however, we wish to remain within the reductionist paradigm, neoclassical macroeconomics, developing from Lucas' critique, poses the problem of reconciling the laws of economic aggregates with fundamental microeconomic laws (i.e. microfounding macroeconomic research), precluding the possibility of imagining models that describe only the aggregate level but are at the same time flexible enough to accommodate changes in institutions\footnote{Not unknown to economic theory are hysteresis models, which, while presenting two different macroscopic behaviours, can be modelled by a single parameter-dependent equation. Generalising the intuition, bifurcation theory is a tool that allows for the representation of non-linear (or non-intuitive) macroscopic changes by substituting a limited number of parameters for the microfoundations that abstracts changes in institutions.}.
+
+The problem may seem at first sight to be the same as the one addressed by Boltzmann a century earlier in reconciling the macroscopic laws of thermodynamics to the microscopic laws of molecular dynamics, and a strand of research known as Econophysics has tried for years, without conclusive results, to apply the methods of statistical mechanics developed by Boltzmann to the problem of microfoundation without success\footnote{The missing element in economics to be able to draw a useful parallel with statistical mechanics is the presence of a quantity that is conserved like energy for physics. Looking at some similarities, this quantity should have the unit of measurement of a value but no economic theory succeeds in providing a \textit{principle of conservation of total value} either measured in monetary terms or measured in terms of time (as labour value).}.
+Instead, the solution pursued is, at least until recently, to identify the two levels, i.e. to describe aggregates \textit{as if} they were single agents, to describe the macroscopic level \textit{as if} it were the microscopic one. This approximation strategy makes it possible to obtain reductionist and analytically resolvable models, but it generates a series of paradoxes when trying to explore the nexus between the representative agent (of the aggregate) and the individual real economic agents \parencite{kirman1992}.
+
+More or less at the same time, in 1987 a first workshop was organised at the Institute for the Study of Complex Systems in Santa Fe to investigate the possible role of the emerging complexity theory in the discipline of economics, with the participation of, among others, Anderson, Arrow and Arthur \parencite{fontana2010a}.
+Fontana reports that: "[Arrow] is not expecting the birth of an entirely new approach: the general framework should remain as it is, with the role for the `new economics', enriched by cooperation with physicists and biologists, being to improve the status quo ante." \parencite{fontana2010a}. Arrow is not, therefore, questioning the deductive-reductionist method\footnote{Adopting a deductive-reductionist approach is of vital importance for many economists because it is the method of the natural sciences (and especially of physics), which in their view allows economics to be elevated to a status of a more mature (and in some ways better as more epistemologically sound) science than the other social sciences.}.
+
+However, the direction of the economics program at the Santa Fe Institute (SFI) is assigned in the following years not to Arrow but to Arthur \parencite{fontana2010a}, who sets up the development of a new paradigm that, accepting Anderson's intuition to focus on the relationships between entities rather than seeking a unifying theory, stands as a (heterodox) alternative to the neoclassical (reductionist) paradigm \parencite{fontana2010,arthur2021}.
+This strand of research, known as Complexity Economics or the Santa Fe Perspective, has produced numerous individual papers over the years, investigating topics and employing methods (such as computational simulations) that are generally neglected in the discipline, but without producing a unifying theory by its very nature.
+
+In recent times, three other phenomena have affected economics, greatly influencing its relationship with complexity.
+
+The first is the spread of computers, which has allowed for solutions obtained with computational tools to be accepted alongside analytical solutions \parencite{cherrier2023, backhouse2016}, paving the way for macroeconomic models that partly abandon the representative agent to include a certain degree of heterogeneity (as the HANK models).
+
+The second is the progressive shift of the discipline from purely model-theoretical research to empirical research, which bases its results on a thorough analysis of the available data \parencite{cherrier2018, backhouse2017}.
+This neo-empirical turn is taken to extremes by some economists who reject the need for an economic theory (partly as a result of the limitations that emerged with the crises at the beginning of the 21st century), believing that data analysis is sufficient to reveal the cause and effect relationships underlying economic phenomena.
+
+The third is the progressive specialisation of economists that has led to the emergence of independent research communities that nonetheless share a common origin in neoclassical theory. This phenomenon has been labelled by some as \textit{mainstream pluralism} \parencite{cedrini2018, davis2006, davis2019a} to emphasise that there is a plurality of research agendas that coexist with each other and coexist with (and indeed feed off of) the dominant (neoclassical) paradigm that preceded them.
+
+The next sections will be devoted to describing three archetypal relationships between complexity and economics useful to reflect both on the current state of economics and on the general reception of the idea of complexity in scientific practice.
+The first archetypal relation has its roots in the neo-empirical turn and makes use of the mathematical tools of complexity. The second one is the one outlined by Arrow and can be understood as one of the causes of the fragmentation described by \textit{mainstream pluralism}, which I call post-neoclassical and also makes use of the mathematical tools of complexity.
+The third starts with the Santa Fe Perspective and succeeds in embracing complexity as meta-theory.
+The purpose of these paragraphs is, as anticipated, to exemplify and highlight different ways in which complexity can relate to a discipline, highlighting opportunities and risks.
+
+\subsection{Neo-Empirical Complexity}
+The first of the three archetypal relationships is the neo-empirical one.
+
+As mentioned, the neo-empirical strand of research in economics focuses on constructing methods that allow a scientist to find causal relationships in data, regardless of the specific research domain. These include generalisations of linear regressions (such as \textit{difference-in-differences} methods) and methods that attempt to manipulate the sample in order to obtain pairs of observations to compare (as in \textit{randomised control trials} or the use of \textit{matching} procedures).
+
+Mathematical methods of complexity offer improvements for these two classes of methods through the \textit{machine learning} techniques developed over the years, which allow non-linear relationships to be identified and transform the representation of the sample in order to improve the procedures for matching observations.
+Furthermore, complexity theory has over the years used various mathematical entities to describe the data to be analysed, while at the same time developing specific techniques for the purpose.
+An example of these different representations are networks, that made it possible to analyse the data taking into account the mutual interdependence relationships of the observations.
+
+The "Economic Complexity" research strand \parencite{hidalgo2021} is an interesting example of how a common tool of complexity (networks) made it possible to represent an economic problem (the level of development of an economy) without significant recourse to economic theory.
+The underlying assumption is that the most advanced economies produce and export complex products.
+By representing global import and export flows by product class as a network, in which the nodes represent countries and the links represent commodity flows, a fixed point process can be defined to model the hypothesis.
+The result of the fixed point process is an index to rank economies by their level of development.
+
+It is fascinating that a very simple model, which uses rather simple observations as theoretical premises, succeeds through an effective representation of the data to produce results that align well with intuition.
+On the other hand, the absence of a solid theoretical model makes it impossible to problematise what a developed economy is, because the definition derived from it is in a sense tautological (an advanced economy exports the products that advanced economies export), leaving no room for the analysis of historical processes (any diachronic perspective, and thus a time scale, is absent except in the comparison of indices calculated over different periods) and the institutional contexts that influence economic development.
+
+The data describing the economy are often not of excellent quality: the numerosity is often small, the measurements not well defined and the sampling incomplete.
+All this makes the data noisy, giving very flexible algorithms (as machine learning algorithms usually are) the opportunity to infer regularities that are not really present in the measured phenomena, but are artefacts of how the data were collected and analysed.
+
+The illusion that eliminating theoretical frameworks from data analysis can produce objective knowledge runs up against the possibility of inferring spurious or non-generalisable relationships outside the analysed sample (returning to the problem of contextuality of knowledge), problems that a theoretical guide is able to reduce by directing the analysis towards the most important elements (distinguishing them from the noise) and making sense of the results obtained.
+
+On the other hand, it is impossible to deny that a broader range of increasingly sophisticated mathematical methods has enabled and continues to enable empirical studies that were impossible with the methods historically belonging to the discipline of economics, allowing phenomena to be represented in new and more appropriate ways.
+
+\subsection{Post-Neoclassical Complexity}
+The second relationship is the post-neoclassical one.
+
+Neoclassical theory has accumulated over the years (like any long-standing scientific theory) a number of counterexamples and research questions that are difficult to address with its core set of assumptions.
+
+To remedy this problem, the choice of some economists is not to reject neoclassical theory and replace it with one of the heterodox alternatives or the neo-empirical approach, but rather to relax some (few) assumptions in order to deal with a specific class of problems, while maintaining the same reductionist-deductive approach as much as possible\footnote{\textcite{kanazawa2021} compares these attempts to the addition of epicycles in late geocentric theory and I think the comparison captures the spirit well. The model becomes more complicated so as not to have to question the earlier theory or accept a pluralist system.}.
+
+Mathematical methods of complexity are, in some cases, the tools that allow assumptions to be relaxed while still obtaining an analytically (or computationally) tractable solution.
+
+A very important example in the history of microeconomics is the theory of iterated games. The assumption that is relaxed is that all agents possess perfect information, allowing it to develop and improve through repetition of the game. At the same time, the time scale is introduced into the model, allowing the optimal action in the single iteration to be distinguished from the optimal action in the game as a whole.
+In this way, real situations in which, for example, agents exhibit collaborative rather than competitive behaviour can be reconciled with neoclassical theory.
+
+More recent examples include the introduction of non-linear utility functions
+by behavioural economics or the use of computational agent models in innovation theory, which allow for the introduction of information asymmetries and other rigidities and the observation of how far these solutions deviate from those obtained with typical assumptions and methods.
+
+In other cases, it is less clear which mathematical tool allows the specialisation of the theory, but it is very clear which scale is added and which assumptions relaxed. For example, environmental economics relaxes the assumption that price is an indicator of market disequilibria to try to assign a (monetary) value even to goods and externalities that are not traded in a market.
+That is to say, a second notion of price is introduced that introduces a scale of the exchangeability of goods for which we must simultaneously consider the two levels of exchangeable goods (for which the typical assumptions about price formation and thus value definition apply) and non-exchangeable goods (for which a different notion of price and value must be introduced).
+
+In both cases (i.e. the use of mathematical methods of complexity or the introduction of certain new levels on certain scales), however, the elements of complexity introduced are functional to maintaining (if not saving) the reductionist approach.
+This archetypal relationship can also be used to interpret Boltzmann's (successful) attempt to develop mathematical tools that would make it possible to explain new phenomena (thermodynamics) with the old theory (molecular dynamics) without abandoning the reductionist approach.
+
+\subsection{Meta-theoretical complexity}
+The third archetypal relationship is the one that, in fact, sets up economic research following the principles I have outlined to understand complexity as a meta-theory\footnote{Evidently no author or tradition may have recognised themselves in the past in the complexity meta-theory, which would be anachronistic considering that this expression is being introduced for the first time in this paper. There are, however, researchers who, as already mentioned, have understood complexity in an anti-reductionist sense, mostly recognising themselves in the Santa Fe perspective or Complexity Economics. Aware of the abuse of this in historical times, in this section I will use the concept of complexity meta-theory to refer to anything that aligns with what was described in the first section, in particular the creation of models specifically tailored to the individual research question.}.
+
+This relation is the most difficult to focus on because, as mentioned above, it has not produced a cohesive and easily identifiable body of knowledge, but rather a collection of independent works produced by researchers who identify with the Santa Fe Perspective or the Complexity Economics but do not constitute a cohesive research community.
+
+In the spirit of the above, these works generally focus on a single research question by developing an \textit{ad hoc} model, without giving rise to a stream of similar works that can mutually cite each other, thereby creating a relational capital that allows one to become recognisable as a research niche and successfully enter the power dynamics underlying recruitment processes. An excellent overview was published by \textcite{arthur2021}.
+
+This I believe is partly an inherent characteristic of the approach, partly a survival strategy.
+Each new research question (no matter how similar to the previous ones) will correspond to new scales and hypotheses, which will necessarily produce different models and will also require time to question previously used assumptions, which does not happen when a reductionist approach is adopted.
+On the other hand, as there are no major collaborations in this line of research, with the exception of the Santa Fe Institute where there are very few resident researchers anyway, the production of articles focuses on short-term projects that can be completed by a single person or a small group in time for the subsequent search for a position, funding or evaluation procedure.
+
+Moreover, complexity economics includes a set of researchers who share a very general idea of the approach to research, whereas most other research niches identify with a single topic or method.
+Assuming complexity as a meta-theory, then, one must recognise that what we now recognise as complexity economics is not an economic theory as such, but rather a collection of loosely related methods, people and ideas.
+In this sense, the moment the complexity meta-theory becomes widespread in the study of economics, it would be inevitable to see the end of complexity economics as a programme, while the work it has produced would be included in various research programmes that are homogeneous in terms of themes or methods that can actually produce a theory of reality.
+
+On the other hand, especially in recent years in which the neo-empirical turn has made the theoretical frame of reference less important, work that follows the complexity meta-theory has sneaked into other research strands.
+This is because in its generality, complexity meta-theory is able to build and dialogue with prior knowledge, with the only caution being to use it where it is consistent in its assumptions with the assumptions made in the analysis and approximation phase of the problem.
+
+The complexity meta-theory is necessarily heterodox not so much because it rejects the results of the neoclassical approach in their entirety, but because it rejects its search for a universal and context-independent theory.
+From the point of view of complexity meta-theory, neoclassical theory is valid for the phenomena that correspond to its assumptions, while alternatives must be sought for other phenomena\footnote{The example I have in mind is oligopolistic competition between large firms that can be assumed to have optimising behaviour (profits), control all available information, and can continuously vary the number of workers and goods produced. As long as these conditions are consistent with the problem to be studied, I believe it is useful to draw on the many results that neoclassical theory has produced. On the other hand, one may question the usefulness of these results when the assumptions no longer describe the problem of interest}.
+
+In some parts of the heterodox galaxy, I believe there is now room to introduce the idea of a meta-theory of complexity with the expectation that the working method it proposes will be taken up by other research traditions.
+In particular, Marc Lavoie in his textbook on post-Keynesian economics \parencite{lavoie2022}, describes heterodoxies as inspired by principles of realism, holism and organicism \parencite[][p. 12]{lavoie2022}, as well as by the need for dialogue with other research traditions\footnote{Post-Keynesian economics itself can easily be described as a collection of different and complementary approaches held together by some general guiding principles that does not, however, achieve a theoretical monolithicity.}. "Realism" is the demand that the assumptions used are consistent with the reality of the objects of study, "holism" and "organicism" are the demand to consider the interactions between economic agents and the context in which they occur instead of resorting to over-stylized archetypal representations, and the need for dialogue is the recognition that each theory develops to answer certain questions while lacking the tools to investigate other classes of phenomena.
+These characteristics can easily be traced back to the description I gave of the complexity meta-theory, which focuses on describing (real) phenomena in their context, recognising the need for a plurality of descriptions to grasp all aspects of a system.
+
+\section{On reality}
+The description so far has been on the theoretical-methodological and historical level, without focusing particularly on future scientific practice.
+It is therefore legitimate to ask how realistic it is to do research using the principles of complexity meta-theory.
+This question can be interpreted in two very different ways: on the one hand, whether an organised research (eco)system can exist by embracing complexity meta-theory, and on the other hand, whether it is possible in the current research system for a single researcher to work according to the principles of complexity meta-theory. And the answers I think are opposite.
+
+A system that organically embraces the complexity meta-theory is, in essence, a system that places more emphasis on the setting up and the developing the research (the initial phase of analysis and conscious approximation) than on the results produced. It is a system in which the preliminary work that the researcher does in describing it is emphasised.
+Similarly, it can only be a system in which the possibility of moving between disciplines, using non-canonical methodologies or exploring new problems is not penalised by extensive and normative metrics of evaluation, in terms of number of citations or publications or membership of certain research communities that are identified with precise canons and stylemes, and, often, with lists of journals.
+
+It is therefore necessary to make room again for work that focuses on the analysis phase and that allows the researcher to share with the tools they prefer (at the level of language, media, stylemes to be adopted, methods of communication, ...) the process of analysis and approximation, and that this is part of the evaluation of their work, an evaluation that can only be made on the very content and not through bibliometric metrics.
+
+This task is a form of slow work that requires researchers to have the time to carry it out without having to worry about the precariousness of their contract. On the other hand, it is a task that can be done relatively few times in one's career if, as is often the case, one concentrates on a single research question for many consecutive years.
+Those who would be most affected by this change are the young precarious researchers, who already need better material working conditions.
+
+On the other hand, I do not find the prospect of scientific research production slowing down worrying, if this is to be a consequence of more precise and careful work that moves away from the assembly-line logic that the last few years of research evaluation and allocation of funds have encouraged worldwide.
+
+The biggest change that could be introduced, however, is on the epistemic level.
+The process of analysis and approximation involves the researcher as the acting subject and is based on their own experiences and sensitivities.
+The impact of gender or ethnic differences has long been ignored because they were not in the experience of researchers, particularly in economics.
+The contextuality of knowledge, therefore, also derives from the subjectivity of knowledge, which is not considered in the positivist view that epistemologically populates our time.
+
+As a consequence, part of the scientific confrontation should shift from the refutation of the results to the contextualisation of the hypotheses, opening up the problem of how, in the technical application of scientific knowledge, to converge the different readings that can be given from reality.
+On the other hand, it would be easier to recognise which implicit social determinants, which unexpressed power relations, influence the creation of new knowledge and its technical application.
+
+The answer is therefore that it is not a problem to adopt the complexity meta-theory if it is also possible to change social norms and adopt a pragmatic and inductive approach to the problem of technical application, while there are numerous social norms that hinder its adoption in the near future, among them the precariousness of work, the use of extensive bibliometric metrics for the evaluation of individual work and the progressive corporatisation of academia, the combination of bureaucratisation of processes and standardisation of research output\footnote{This phenomenon is particularly present in economics given its highly hierarchical nature and propensity to standardisation. One thinks of the institutionalisation of the \textit{job market paper} as the concluding moment of the doctorate or the strong direction that a handful of departments and journals succeed in imprinting on the entire discipline \parencite{heckman2020, aistleitner2023, baccini2023a}, creating an unbridgeable difference in prestige between the themes, methods and stylistic features adopted by the dominant community and all others.}.
+
+Complexity meta-theory would also benefit from better and more inclusive research practices such as those described in the San Francisco Declaration on Research Assessment (DORA)\footnote{\url{https://sfdora.org/read/}} or the Leiden Manifesto \parencite{hicks2015}, confirming that radical innovations, such as the one I propose here or those that have enabled the evolution of science, need rich and fertile soil to germinate.

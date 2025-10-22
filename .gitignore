@@ -11,3 +11,11 @@ renv/
 
 # other subdirs
 */*
+!doc/*
+
+*.zip
+*.log
+*.synctex.gz
+*.blg
+
+*.pdf

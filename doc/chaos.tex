@@ -1,0 +1,39 @@
+\chapter{On Chaos and Calibration}
+\label{ch:chaos}
+
+An open problem among researchers who develop (AB-)SFC models is the calibration of the model, i.e. finding the right values for the parameters to make the model fitting data or at least stylized facts \parencite{fagiolo2019a, grazzini2017a, zezza2019}.
+The idea behind it is to increase the realism (and so the reliability) of the predictions. But as discussed in chapter \ref{ch:against} and in a wide literature about neoclassical economics, realism is not always a necessary requirement neither is a feature of models required in Economics today.
+If we think about mathematical models as a way to streamline and clarify complex thoughts, then a quantitative realism rather than a qualititave realism is an effort not worth its results.
+
+Additionally SFC models are generally non-linear, with exponential or conditional dynamics (plus effects of discretization if we consider the AB extensions), which leads to chaotic behaviours. I mean chaotic in the strict mathematical sense: a model that change significantly its behaviour for small variations of the initial conditions (or in our case of the parameters).
+This characteristic makes calibration a very difficult exercize that has to relies on stochastics and often black-boxed algorith to find the right parameters, because it's not possible to assume that the macroscopic behaviours targeted for the calibration change continously even for small variation of the parameter(s) of interest (even not considering the interactions among them).
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chaos_trace}
+        \caption{Dynamics of the employment share during the simulation for different values of the capital depreciation rate}
+        \label{fig:chaos_trace}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{chaos_end}
+        \caption{Employment share at the end of the simulation for different values of the capital depreciation rate}
+        \label{fig:chaos_end}    
+    \end{subfigure}
+\end{figure}
+
+An example is recovered from the SFC version of the model "Mark up" (see chapter \ref{ch:m3}): the parameter of interest is the depreciation rate of capital, i.e. which share of capital goods have to be replaced each period to maintain the some production capacity, which varies from 0 (the capital goods last forever) to 1 (the capital goods must be substituted each period), while the target variable is the employment share.
+The parameter varies with increments of 0.025 and both the dynamics (figure \ref{fig:choas_trace}) and the final state of the target variable (figure \ref{fig:chaos_end}) are recorded.
+First thing to be noted is that the model reach either full employment or full unemployment, unable to stabilize on an intermediate state.
+This is what in physics is called a phase transition: a rapid macroscopic variation between two caused by a small microscopic change.
+Second, the phase thransitions are three and for one of the values of the parameter considered a cyclical behaviour appears in the middle of the simulation.
+Third, even in each phase the behaviour is not exceptionally continuos, as we can see from the color sequence that is not uniform in figure \ref{fig:chaos_trace}.
+
+Why this is happening is difficult to say.
+Analyzing a dynamics like this even in a simple model often requires to untangle a chain of causal relation that can involve many equations and variable with lagged interactions.
+
+The model presented here are developed more as a teaching tool, a way to show basic economic interations and how to think and implement AB-SFC models.
+As such, parameters values are gotten from literature and when needed roughly turned by hand to obtain stabile and not too much unrealistic dynamics.

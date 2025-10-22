@@ -1,0 +1,82 @@
+% !TeX spellcheck = en_GB
+\documentclass[]{report}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[style=apa, backend=biber, sorting=ynt, sortcites=true, useprefix=true, refsection=part]{biblatex}
+\usepackage[autostyle=false, style=english]{csquotes}
+\MakeOuterQuote{"}
+\usepackage[british]{babel}
+\usepackage[modulo]{lineno}
+\linenumbers
+
+\usepackage{graphicx}
+\graphicspath{{plot/}}
+\usepackage{subcaption}
+
+\usepackage{etoolbox}
+
+\usepackage[hidelinks]{hyperref}
+
+\usepackage{textcomp}
+\usepackage{extdash}
+
+
+\addbibresource{thesis.bib}
+\addbibresource{doc/complexity.bib}
+
+\title{On Agent-Based Models and Complexity:\\ a methodological note and a toy-model}
+
+\makeatletter
+\@addtoreset{chapter}{part}
+\patchcmd{\l@chapter}{1.5em}{2.5em}{}{}
+\makeatother  
+
+\renewcommand{\thechapter}{\thepart.\arabic{chapter}}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+%intro
+\input{doc/intro.tex}
+
+\begin{refcontext}[sorting=nyt]
+	\printbibliography
+\end{refcontext}
+
+\part{Methodology}
+% premise to the article
+\input{doc/premise.tex}
+% the article
+\chapter[On Complexity as Meta-Theory]{On Complexity as Meta-Theory: a perspective from Economics}
+\label{ch:complexity}
+\input{doc/complexity.tex}
+% against
+\input{doc/against.tex}
+% UBI, Inequality and ABMs: complex design, required features and a review
+\input{doc/why.tex}
+
+\begin{refcontext}[sorting=nyt]
+	\printbibliography
+\end{refcontext}
+
+\part{A Toy-Model}
+\label{part:model}
+
+% The goal, the strategy
+\input{doc/goal.tex}
+% Note on implementation
+\input{doc/implementation.tex}
+% Note on complexity and bifurcations
+\input{doc/chaos.tex}
+% Each couple
+% The EC series
+% What is missing? Possible improvements
+%\input{doc/next.tex}
+
+\begin{refcontext}[sorting=nyt]
+	\printbibliography
+\end{refcontext}
+
+\end{document}

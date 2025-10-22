@@ -1,0 +1,23 @@
+\chapter{A Note on the Techicalities of Implementation}
+\label{ch:implementation}
+Both AB and SFC models are characterized as numerical simulations, as systems of equations solved numerically rather than analitically.
+As such, each model is also a piece of software to be written.
+
+For SFC models there is a lot of legacy code written in EViews (a propertary econometric software) using a set of macros created by Gennaro Zezza to streamline and standardize the development of the model\footnote{\url{https://gennaro.zezza.it/software/eviews/gl2006.php}}.
+Joao Macalos developed an R package\footnote{\url{https://joaomacalos.github.io/sfcr/}} that is easy to use, creating an almost custom programming language (a so called Domain Specific Language or DSL) to write SFC models almost without interfacing directly with R.
+Other programming languages as MATLAB or Python\footnote{\url{https://github.com/kennt/monetary-economics}, using the \textit{pysolve} package} have been used relying on general numeric routines.
+All considered, for SFC model there are more or less standard practices and choice with regards to the implementation and a community of researchers that try to mantain a curated repository of code examples\footnote{\url{https://sfc-models.net/software/}}.
+
+On the ABM side, the most commonly used software is NetLogo, which relies on a custom Lisp-like Domain Specific Language. But NetLogo is really lacking in perfomance and it's custom development environment makes uncomfortable to analyze data and write equations that are mathematically complex. As far as I know, no AB-SFC macroeconomic models has been written in NetLogo so far.
+
+Each variable in an ABM can be seen as a vector indicized by the agents, but at the same time each agent can be represented as a group of variables.
+This duality leads to two different paradigm in writing AB-SFC models: the first one relies on Object Oriented Programming, directly or adopting and adapting an existing framework as FLAME\footnote{\url{http://flame.ac.uk/}} (used in the EURACE project and based on C) or developing an ad hoc one as JMAB\footnote{\url{https://github.com/S120/jmab}} (a JAVA library); the second one represent each variable as a matrix (using the number of agents and the length of the simulation as dimensions) and leveraging linear algebra rourines to implement the model from scratch.
+Additionally, an attempt to create a framework that relies on a DSL and a custom and self-contained environment to streamline the writing of the model and homogenize the literature is LSD\footnote{\url{https://github.com/SantAnnaKS/LSD}}.
+
+All three strategies are equally valid but, at the state of the art, neither of them provide a streamlined and easy to read way to write AB-SFC models, and many more recent models are written from scratch using either OOP (even in Python) or matrices. It's interesting to note that only JMAB tries to be AB-SFC specific, aims to guarantee the consistency of the model from an accounting perspective.
+
+During this PhD journey many attempts to write a model has been made using different strategies (OOP in C++, structs in Julia, matrices in R) and none of those emerges as a clearly superior alternatives. I have the feeling that an OOP approach requires more work to be set up but is more maintenable in the long period while a matrices-based approach is easier to set up but messier as the model grows, but it's only a feeling.
+
+I firmly believe that a strongly-opinionated DSL with its own development environment (à la NetLogo) that target specifically (AB-)SFC models\footnote{Actually, if we assume a single agent per sector a SFC model can be formally represented as an AB-SFC model, even if the first ones are usually solved simultaneously while in the second ones the order of equations matters.} would hugely help the field of research to homogenize, to make models more reusable and comparable, and lowering the steepness of the learning curve.
+
+The final choice for this thesis is to use the same open source language for both the SFC and the AB-SFC part, and R (with the \textit{sfcr} package) is clearly the best choice for the SFC models. Given the poorly OOP features of R, the AB extensions are written using the matrix-based style.

@@ -1,0 +1,35 @@
+\chapter{Why an Agent-Based Model?}
+\label{ch:why}
+Lets take a step back to the original question: "How can the macroeconomic effect of an Universal Basic Income be studied?" and lets following the reasoning of chapter \ref{ch:complexity}.
+
+The aggregation scale it is certantly to be taken in account: an UBI is essentially a microeconomic policy, or at least it affects indivudual behaviour, while we want to observe the aggregate effects (i.e. inflation, growth, ...) of such policy.
+
+Generally speaking, every time we want to address inequalities in a model we cannot consider only the most aggregate level of representation.
+
+Post-Keynesian tradition usually adopts a class perspective with a Kaleckian approximation in which people are split in two classes: capitalists, who don't work and only receive dividends, and workers, who receive wages but not dividends.
+This approach is very simple and is already able to produce sound economic theory but it is possible to point at two big shortcoming.
+First, it is not possible to measure a fine-grained inequality index à la Gini but only something like a Top10 Bottom90 ratio à la Piketty-Zuckman-Saez \parencite{pikettya, piketty2014}.
+Second, as noted by, for example, Piketty nowadays it is very common to have mixed sources of income both in the lower strata (e.g. pension founds are based on dividends and financial income) and upper strata (CEO and top manager usually have a mix of stocks with dividends and wages as income sources).
+
+We can refine the descriptiveness of the model by increasing the number of subdivisions of people, and allowing for mixed income sources for each subdivision.
+But as the number of subdivisions grows it becomes more and more difficult to find elegant solutions for the model and practically impossible to find analytical ones.
+Actually, it becomes necessary to adopt a computational approach \parencite{tesfatsion} and when the number of subdivisions grows enough, each subdivision can be interpreted no longer as a class but rather as a single person, which can be described by microeconomic theory.
+This line of thinking leads to what in literature is known as Agent-Based Models \parencite{arthur2021, farmer2012b} and allows to create a bridge between macroeconomics and microeconomics without the need of a representative agent \parencite{dosi2019}.
+A similar argument can be upstand for firms: instead od rapresenting them as a single homogenous sector, it is possible to introduce in the model a plurality of agents each rapresenting a different (group of) firm(s) with diffent technology, strategy or wage level, allowing for representing competition and innovation among firms.
+
+Another framework significant to adopt are the Stock-Flow Consistent models \parencite{nikiforos2017,godley2012}: this class of models recognizes that any monetary or financial flow in the economy leave behind a credit and a corresponding debt, that financial wealth cannot be created but only transfered (with public debt as primary source of it).
+This is relevant if we are focusing on distributional effects and inequalities: those models make impossible to increase the (financial) wealth of someone without making someone else poorer at the same time, preventing the possibility to create an ad hoc model in which wealth accomulation is a positive sum process.
+
+These two ideas have been already put toghether generating a rich stream of papers collwctively known as AB-SFC models \parencite{caverzasi2018}, with some of them able to reproduce a significant number of economic theory results and economic empitical observation in simulations with an high agent count \parencite[e.g.][]{caiani2016,reissl2024,dawid2019,dosi2010,assenza2015}.
+This synthesis doesn't prescibe a specific economics theory to model the behaviour of each agent and the general structure of the economy, but all of the model cited above are grounded in post-Keynesian theory \parencite{lavoie2022}\footnote{The mainstream economics have developed the HANK models to address the problem of heterogeneity among agents \parencite{violante}, while for example a SFC model for italian economy developed by the ministry of finance doesn't rely on a post-keynesian closure \parencite{barbierihermitte2023}.}.
+We chose to found the behavioural equations of the model mostly on post-keynesian theory for its greater realism compared to the neoclassical microeconomic theory \parencite{kirman1992,arnsperger}.
+
+The model developed in this thesis focuses on production, based on the hypothesis that wages and innovation play a more significant role in differentiating the level of income than the financial side, for which the return on capital can be approximated as costant with regard to the wealth accumulated as a first approximation, if an egalitarian starting position is assumed. 
+To allow the model to be developed in this direction we choose to manage capital goods as an integer number of workers that can use them, as in a Leontieff production function.
+This approach potentially allows to implement capital goods as objects (see \ref{ch:implementation}) with different productivity levels, "skills" required to be used and wages associated to enable differentation in wages levels and firm-worker matches.
+Such a choice of modelling allows for obeserving a continuous wage curve instead a segmented one, usually assuming a constant level of wage for each class of workers (e.g. low-, medium- and high-trained) \parencite{caiani2019b} \footnote{Some models as \textcite{dosi2021a} represent heterogeneous wages levels at the agent-level but the resulting distribution is not reported.}
+
+The financial side is kept as simple as possible, assuming as a first approximation that either the rent derived from wealth is proportional to the household's wealth.
+While it is true that richer individuals are able to achieve higher return rate on their wealth, this mechanism only accelarate the increasing in inequality rather than creating it.
+
+The attempt presented here is to developed a simple model that sketches an unequal distribution of income and wealth (ideally fat-tailed) rooted in the labour market dynamics, that can be used as a baseline to compare different welfare policies such as an UBI. 
