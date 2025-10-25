@@ -1,5 +1,5 @@
 % !TeX spellcheck = en_GB
-\documentclass[]{report}
+\documentclass[]{book}
 
 \usepackage[margin=2.5cm]{geometry}
 \usepackage[style=apa, backend=biber, sorting=ynt, sortcites=true, useprefix=true, refsection=part]{biblatex}
@@ -9,6 +9,17 @@
 \usepackage[modulo]{lineno}
 \linenumbers
 
+\usepackage{booktabs}
+
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{
+	language=R, 
+	basicstyle=\ttfamily,
+	breaklines=true,
+  	postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}
+}
+
 \usepackage{graphicx}
 \graphicspath{{plot/}}
 \usepackage{subcaption}
@@ -16,6 +27,8 @@
 \usepackage{etoolbox}
 
 \usepackage[hidelinks]{hyperref}
+
+\usepackage{appendix}
 
 \usepackage{textcomp}
 \usepackage{extdash}
@@ -72,11 +85,88 @@
 \input{doc/chaos.tex}
 % Each couple
 % The EC series
+\input{doc/models.tex}
+\input{doc/models/base.tex}
 % What is missing? Possible improvements
 %\input{doc/next.tex}
 
 \begin{refcontext}[sorting=nyt]
 	\printbibliography
 \end{refcontext}
+
+\appendix
+\addcontentsline{toc}{part}{Appendices}
+
+\iffalse
+	\chapter{R code}
+	\label{app:code}
+	\section{Base}
+	\subsection{SFC}
+	\lstinputlisting{00_Base.R}
+	\clearpage
+	\subsection{Endogenous SFC}
+	\lstinputlisting{00_Base_EC.R}
+	\clearpage
+	\subsection{AB-SFC}
+	\lstinputlisting{00AB_Base.R}
+	\clearpage
+
+	\section{Investment}
+	\subsection{SFC}
+	\lstinputlisting{01_Investment.R}
+	\clearpage
+	\subsection{Endogenous SFC}
+	\lstinputlisting{01_Investment_EC.R}
+	\clearpage
+	\subsection{AB-SFC}
+	\lstinputlisting{01AB_Investment.R}
+	\clearpage
+
+	\section{KbtmoK}
+	\subsection{SFC}
+	\lstinputlisting{02_KbtmoK.R}
+	\clearpage
+	\subsection{Endogenous SFC}
+	\lstinputlisting{02_KbtmoK_EC.R}
+	\clearpage
+	\subsection{AB-SFC}
+	\lstinputlisting{02AB_KbtmoK.R}
+	\clearpage
+
+	\section{Markup}
+	\subsection{SFC}
+	\lstinputlisting{03_Markup.R}
+	\clearpage
+	\subsection{Endogenous SFC}
+	\lstinputlisting{03_Markup_EC.R}
+	\clearpage
+	\subsection{AB-SFC}
+	\lstinputlisting{03AB_Markup.R}
+	\clearpage
+
+	\section{Circuit}
+	\subsection{SFC}
+	\lstinputlisting{04_Circuit.R}
+	\clearpage
+	\subsection{Endogenous SFC}
+	\lstinputlisting{04_Circuit_EC.R}
+	\clearpage
+	\subsection{AB-SFC}
+	\lstinputlisting{04AB_Circuit.R}
+	\clearpage
+
+	\section{Wages}
+	\subsection{SFC}
+	\lstinputlisting{05_Wages.R}
+	\clearpage
+	\subsection{Endogenous SFC}
+	\lstinputlisting{05_Wages_EC.R}
+	\clearpage
+	\subsection{AB-SFC}
+	\lstinputlisting{05AB_Wages.R}
+	\clearpage
+	\subsection{Endogenous AB-SFC}
+	\lstinputlisting{05AB_Wages_EC.R}
+\fi
 
 \end{document}

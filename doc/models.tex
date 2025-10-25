@@ -1,0 +1,13 @@
+\chapter{An Introduction to the Models}
+In the following chapters the versions of the model will be presented.
+The model has been built up progressively, with new elements introduced in each version.
+For each version three variants will be presented (where relevant): a SFC variant with endogenous government spending; a SFC variant with exogenous government spending; an AB-SFC variant with endogenous government spending as close as possible to the aggregate one.
+
+Bold letters will indicate assets, calligraphic ones sectors, and often upper case letters will indicate aggregate variables while lower case ones will refer to each agent's value.
+Where not otherwise specified, the variables refer to current period, while a ${t-1}$ pedix is used to denote a lagged variable.
+
+All the R code written for the simulations is available online\footnote{\url{https://github.com/TnTo/BAS}} and in the appendix \ref{app:code}.
+
+At the moment of writing this thesis and reviewing the code some errors appear: the stock-flow consistency of the AB models where not checked correctly but there is no evident source of error.
+The R standard library is not exceptionally good in managing tensorial algebra (with some operation that provide unintuive results rather then errors, as in Julia standard library or Python's NumPy).
+I'm quite confident that the general dynamics of the models is similar to the correct one, but obviously without certainty.

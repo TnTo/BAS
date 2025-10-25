@@ -5,9 +5,11 @@
 #   In this form is completely a-cyclical
 ###
 
-# install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
+# install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2", "webshot"))
 # devtools::install_github("TnTo/sfcr", ref = "sankey")
+# webshot::install_phantomjs()
 
+Sys.setenv(OPENSSL_CONF = "/etc/ssl")
 library(sfcr)
 library(tidyverse)
 
@@ -105,11 +107,21 @@ sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
 
 sfcr_sankey(model_tfm, model, when = "end")
 
+networkD3::saveNetwork(.Last.value, "plot/00_sankey.html", selfcontained = TRUE)
+webshot::webshot("plot/00_sankey.html", "plot/00_sankey.pdf")
+
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("MH", "MF", "M", "VH", "VF", "VG")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("MH", "MF", "M")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))
+dev.print(pdf, "plot/00_M.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
@@ -130,12 +142,16 @@ model %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
 
+dev.print(pdf, "plot/00_N.pdf")
+
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("Y", "YT")) %>%
     filter(period > 10) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+
+dev.print(pdf, "plot/00_Y.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%

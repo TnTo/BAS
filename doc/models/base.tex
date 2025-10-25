@@ -1,0 +1,184 @@
+\chapter{The Base Model}
+The first model is very simple and the unusual elements (like the unemployment benefits) doesn't add complexity to it.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|ccc|l}
+              & $\mathcal{H}$             & $\mathcal{F}$               & $\mathcal{G}$    & Tot. \\
+        \midrule
+        Money & $+\mathbf{M}_\mathcal{H}$ & $+\mathbf{M}_{\mathcal{F}}$ & $-\mathbf{M}$    & 0    \\
+        \midrule
+        Tot.  & $+V_\mathcal{H}$          & $+V_{\mathcal{F}}$          & $+V_\mathcal{G}$ & 0    \\
+    \end{tabular}
+    \caption{Balance sheet for the Base model}
+\end{table}
+
+As shown in the balance sheet for the model there is only one financial asset (money) issued by the consolidated public sector (including both the government and the central bank) and which bearing no interests.
+
+Additionally there is one real homogenuos good consumed by both the households and the government that is depleted at the end of each period.
+As such there is no accumulation of the good between periods and it is not relevant to include it in the balance sheet (which represent the state of the system at the end of each period).
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|ccc|l}
+
+                       & $\mathcal{H}$                   & $\mathcal{F} $                  & $\mathcal{G}$       & Tot. \\
+        \midrule
+        Consumption    & $-p C$                          & $+p C$                          &                     & 0    \\
+        Gvt Spending   &                                 & $+p G$                          & $-p G$              & 0    \\
+        Benefits       & $+UB$                           &                                 & $-UB$               & 0    \\
+        Wages          & $+W$                            & $-W$                            &                     & 0    \\
+        Profits        & $+P$                            & $-P$                            &                     & 0    \\
+        Taxes          &
+        $-T$           &                                 & $+T$                            & 0                          \\
+        \midrule
+        $\Delta$ Money & $-\Delta\mathbf{M}_\mathcal{H}$ & $-\Delta\mathbf{M}_\mathcal{F}$ & $+\Delta\mathbf{M}$ & 0    \\
+        \midrule
+        $\Sigma$       & 0                               & 0                               & 0                   & 0    \\
+    \end{tabular}
+    \caption{Trasactions and Flows matrix for the Base model}
+\end{table}
+
+In this version of the model the single good is produced by firms and sold to the households and the government.
+The households receive a wage from the firms if they are employed or a money transfer from the government otherwise, and the profits distributed by the firms.
+Taxes are paid only by the households.
+
+\section{The aggregate version}
+\subsection{Behavioural equations}
+The behavioural equations of the aggregate version are written such there is no simultaneity among equations, making it easier to extend to the agent based version later.
+
+Wages are set exogenously, while prices are determined by a cost plus mark up strategy like $$p = (1 + \mu) \frac{W}{Y} = (1+\mu) \beta$$ (which results in constant prices) and unemployment benefits are a fraction $phi$ of the wages.
+
+Taxes are payed with a flat rate on wages ($\tau_W$), distributed profits ($\tau_P$) and consumption ($\tau_C$).
+
+Desidered consumption in units of good for households is defined in a classic post-keynesian way as $$C^T = \frac{a_Y ((1- \tau_W) W + UB) + a_V {\mathbf{M}_\mathcal{H}}_{t-1}}{(1 + \tau_C) p_{t-1}}$$
+while government's desired consumption is determined against target expected deficit $d$ $$G^T = \frac{d \cdot {GDP}_{t-1} + T_{t-1} - UB_{t-1}}{p_{t-1}}$$
+
+Given the desired total consumption $Y^T = C^T + G^T$, firms aim to hire a number of workers equal to $N = Y^T/\beta$, where $\beta$ is the productivity in a Leontiff function.
+The number of households, or equivalently the number of available workers, is normalized in the $[0,1]$ interval.
+
+Desiderd consumption are reduced proportionally to match the realized production $Y = \beta N$.
+
+Finally, firms distributed any resulting money to households as profits (or receive money from the households to cover the losses), netting their deposit to 0 at the end of each period.
+
+The exact implementation and the values used for the parameters and the initialization are reported in appendix.
+
+\subsection{Results}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{00_sankey}
+    \caption{Sankey diagram of flow at the steady state}
+    \label{fig:00_san}
+\end{figure}
+
+Diagram \ref{fig:00_san} represents the flows of the model at the steady state.
+The distribution of the flows of values among the sector has the right sign and macrospically realistic magnitudes.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{00_M}
+        \caption{Stock of money}
+        \label{fig:00_M}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{00_N}
+        \caption{Employment share}
+        \label{fig:00_N}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{00_Y}
+        \caption{Output and potential output}
+        \label{fig:00_Y}
+    \end{subfigure}
+    \caption{Dynamics of the base model}
+\end{figure}
+
+Figure \ref{fig:00_M} shows the stock of money in the simulation: as designed the firms save no money.
+
+The model leads to full employment (figure \ref{fig:00_N}) with a potential output gap (figure \ref{fig:00_Y}).
+In this model the government is allowed to influx liquidity each period (the target deficit is positive), so there are no financial constraints to the economy.
+On the other side, given a fixed productivity and no population dynamics the maximum real output is fixed and is what prevent the economy to grow in real terms. Fixed wages and mark up prevent a nominal growth.
+
+\section{Exogenous government spending}
+In a variation of the model (marked with \textit{EC} in the name of R script), we try to fix exogenously the government spending as considering $G^T$ as constant.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{00_sankey_EC}
+    \caption{Sankey diagram of flow at the steady state with exogenous government spending}
+    \label{fig:00_san_EC}
+\end{figure}
+
+The sankey diagram for tis variant is shown in figure \ref{fig:00_san_EC}: the only macroscopic difference is the emergence of a non-zero value for the unemployment benefits, as a consequence of a non zero unemployment rate (dependent of the level of government spending within a given range of stable values).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=.5\textwidth]{00_Y_EC}
+    \caption{Output, potential output and (exogenous) government spending}
+    \label{fig:00_Y_EC}
+\end{figure}
+
+The model dynamics is slower and no output gap appears (see figure \ref{fig:00_Y_EC}): the exogenous government spending limit the influx of money in the system; as a consequence the cash flow of the households is limited and their consumption as well.
+In such a scenario the goods market is short on the demand side rather than on the supply side and, as a consequence, not all the production capacity of the system is required, leading to unemployment.
+
+\section{The agent-based extension}
+To adapt the aggregate model to an Agent-Based one there are few choices to be made about the distribution and the discretization of some variables.
+
+First of all, the households and firms sectors are now a set of agents rather than being represented as a single variable.
+Second, the non-zero values at the beginning of the model (in our case the stock of money held by the households) have to be divided among the agent.
+Third, each interaction among non-aggregate sectors now requires a matching procedure.
+
+The model is initialized by attributing the same amount of money to each households: in this way is easier to observe if and how inequalities emerge.
+
+All the matching procedures present a strong path-dependency to reduce the computational cost: each period the resulting matching of the previous one is refined instead to be reconstructed from scratch (as if all the working contracts were permanent and the good market show a kind of monopolistic competition that sticks toghether producers and consumers).
+
+The job market matching is random: if the aggregate desidered consumption by both the households and the government is higher than the output related to the current level of employment a random firm employs a random unemployed household; otherwise if the current level of employment overshoot the target demand a random firm fires a random household.
+
+To distribute the consumption between the households and the public sector, the two sectors get the same fraction of the desired consumption such that all the produced goods are bought (or the entire desired consumption is matched and the over-production is lost).
+
+Profits are distributed from all firms to all households proportionally to the stock of money held by each households at the end of the previous period. This resembles an homogeneous return on wealth, as in modern ETFs.
+
+\subsection{Results}
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{00AB_M}
+        \caption{Stock of money and net value of the sectors}
+        \label{fig:00AB_M}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{00AB_macro}
+        \caption{Consumption, output and employment share (dotted is desired)}
+        \label{fig:00AB_macro}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{00AB_moments}
+        \caption{Moments of wealth distribution among households}
+        \label{fig:00AB_moments}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{00AB_hist}
+        \caption{Evolution of wealth distribution among households}
+        \label{fig:00AB_hist}
+    \end{subfigure}
+    \caption{Dynamics of AB base model}
+\end{figure}
+
+The qualitative dynamics of the stock and flows of the model remains largely the same: the economy is still at full employment with unsatisfied demand (figure \ref{fig:00AB_macro}).
+The AB extension introduces some volatility in the macro variables as consequence of the heterogenity among agents: figure \ref{fig:00AB_moments} shows how inequality among agents varies during the simulation introducing some form of cycles in the dynamics.
+
+Finally, even such a simple model is able to produce a fat tail distribution of wealth (see figure \ref{fig:00AB_hist}): this is not a guarantee results since many previous versions in which all the households demand was fullfilled before the public one, where not able to get such a dynamics for the effects of the central limit theorem.
+Introducing path dependency and limited consumption allow for some agents to underconsume (and so having an higher saving rate) and to accumulate an initial stock of money. The proportional distribution of profits amplifies this dynamics but its not necessary: even by dividing the profits equally among agents, the same initial inequality appears.

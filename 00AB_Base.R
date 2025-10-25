@@ -21,7 +21,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         set.seed(8686)
 
         # SET SCENARIO
-        scenario <- "Eq" # "Eq" "Hist" "Lib" "Con" "Fat"
+        scenario <- "Lib" # "Eq" "Hist" "Lib" "Con" "Fat"
         M0 <- switch(scenario,
             "Eq" = "Flat",
             "Hist" = "Exp",
@@ -269,6 +269,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     plot(rowSums(VH), type = "l", main = "VH")
     plot(rowSums(VF), type = "l", main = "VF")
     plot(VG, type = "l", main = "VG")
+    dev.print(pdf, "plot/00AB_M.pdf")
 }
 
 {
@@ -299,10 +300,23 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
 {
     par(mfrow = c(2, 2))
+    plot(rowSums(C), type = "l", main = "C", ylim = c(0, max(rowSums(CT), na.rm = TRUE)))
+    lines(rowSums(CT), lty = "dashed")
+    plot(rowSums(G), type = "l", main = "G", ylim = c(0, max(GT, na.rm = TRUE)))
+    lines(GT, lty = "dashed")
+    plot(rowSums(Y), type = "l", main = "Y", ylim = c(0, max(YT, na.rm = TRUE)))
+    lines(YT, lty = "dashed")
+    plot(rowSums(N) / NH, type = "l", main = "N")
+    dev.print(pdf, "plot/00AB_macro.pdf")
+}
+
+{
+    par(mfrow = c(2, 2))
     plot(apply(MH, 1, mean), type = "l", main = "MH mean")
     plot(apply(MH, 1, var), type = "l", main = "MH var")
     plot(apply(MH, 1, skewness), type = "l", main = "MH skewness")
     plot(apply(MH, 1, kurtosis), type = "l", main = "MH kurtosis")
+    dev.print(pdf, "plot/00AB_moments.pdf")
 }
 
 {
@@ -318,4 +332,5 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     hist(MH[1, ], main = "MH T=1")
     hist(MH[100, ], main = "MH T=100")
     hist(MH[TMAX, ], main = "MH T=TMAX")
+    dev.print(pdf, "plot/00AB_hist.pdf")
 }}
