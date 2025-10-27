@@ -41,7 +41,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 500
+        TMAX <- 2500
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -427,6 +427,7 @@ if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
     plot(rowSums(W), type = "l", main = "W")
     plot(rowSums(P), type = "l", main = "P")
     plot(rowSums(T), type = "l", main = "T")
+    dev.print(pdf, "plot/01AB_macro.pdf")
 }
 
 {
@@ -452,7 +453,8 @@ if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
     plot(rowSums(I), type = "l", main = "I", ylim = c(0, max(rowSums(IT), na.rm = TRUE)))
     lines(rowSums(IT), lty = "dashed")
     plot(rowSums(YK), type = "l", main = "YK")
-    plot(rowSums(S), type = "l", main = "YK")
+    plot(rowSums(S), type = "l", main = "S")
+    dev.print(pdf, "plot/01AB_output.pdf")
 }
 
 {
@@ -461,6 +463,7 @@ if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
     plot(apply(MH, 1, var), type = "l", main = "MH var")
     plot(apply(MH, 1, skewness), type = "l", main = "MH skewness")
     plot(apply(MH, 1, kurtosis), type = "l", main = "MH kurtosis")
+    dev.print(pdf, "plot/01AB_moments.pdf")
 }
 
 {
@@ -469,6 +472,7 @@ if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
     boxplot(W[TMAX, ], main = "WH")
     boxplot(rowSums(C[TMAX, , ]), main = "CH")
     boxplot(P[TMAX, ], main = "PH")
+    dev.print(pdf, "plot/01AB_households.pdf")
 }
 
 {

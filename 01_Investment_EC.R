@@ -8,7 +8,6 @@
 # install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
 # devtools::install_github("TnTo/sfcr", ref = "sankey")
 
-Sys.setenv(OPENSSL_CONF = "/etc/ssl")
 library(sfcr)
 library(tidyverse)
 
@@ -28,7 +27,7 @@ model_eqs <- sfcr_set(
     NetW ~ (1 - tW) * W,
     DI ~ NetW + UB,
     CT ~ max(0, (ay * DI[-1] + av * MH[-1]) / HpC[-1]),
-    GT ~ max(0, (d * GDP[-1] + T[-1] - UB[-1]) / pC[-1]),
+    GT ~ 0.4,
     YT ~ CT + GT,
     IT ~ max(0, Ku[-1] * (1 / cuT - 1 / cu[-1]) + dK * K[-1]), # Desired investments in units of capital goods
     NCT ~ min(1, K[-1], YT / betaC), # Labour demand for Consumptio Firms
@@ -132,8 +131,6 @@ sfcr_validate(model_bs, model, "bs", tol = 1e-7, rtol = TRUE)
 sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
 
 sfcr_sankey(model_tfm, model, when = "end")
-networkD3::saveNetwork(.Last.value, "plot/01_sankey.html", selfcontained = TRUE)
-webshot::webshot("plot/01_sankey.html", "plot/01_sankey.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
@@ -146,7 +143,7 @@ model %>%
     filter(name %in% c("C", "G", "Y", "W", "P")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
-dev.print(pdf, "plot/01_macro.pdf")
+dev.print(pdf, "plot/01_macro_ex.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
@@ -159,27 +156,25 @@ model %>%
     filter(name %in% c("N", "NC", "NK")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
-dev.print(pdf, "plot/01_N.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("Y", "YT")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
-dev.print(pdf, "plot/01_Y.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("I", "IT")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
-dev.print(pdf, "plot/01_I.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("cu", "cuT")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+dev.print(pdf, "plot/01_cu_ex.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%

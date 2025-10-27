@@ -1,0 +1,170 @@
+\chapter{A Model with Investments}
+The first extension to the model is to add productive capital.
+
+To do so a new sector is introduced composed by firms that produce capital goods by using only labour as input.
+Additionaly, firms that produce consumption goods now use both capital and labour as input with a Leontieff production function using the minimum between the number of workers employed and the number of capital goods detained at the end of the previous period.
+
+Capital goods are homogenous and each period a fraction $\delta_\mathbf{K}$ is dismissed.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|cccc|l}
+                 & $\mathcal{H}$             & $\mathcal{F}_\mathbf{C}$               & $\mathcal{F}_\mathbf{K}$               & $\mathcal{G}$    & $\Sigma$                   \\
+        \midrule
+        Money    & $+\mathbf{M}_\mathcal{H}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{C}}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{K}}$ & $-\mathbf{M}$    & 0                          \\
+        \midrule
+        Capital  &                           & $+p_\mathbf{K} \mathbf{K}$             &                                        &                  & $+p_\mathbf{K} \mathbf{K}$ \\
+        \midrule
+        $\Sigma$ & $+V_\mathcal{H}$          & $+V_{\mathcal{F}_\mathbf{C}}$          & $+V_{\mathcal{F}_\mathbf{K}}$          & $+V_\mathcal{G}$ & $+p_\mathbf{K} \mathbf{K}$ \\
+    \end{tabular}
+    \caption{Balance sheet for the model with investments}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|cccc|l}
+
+                         & $\mathcal{H}$                   & $\mathcal{F}_\mathbf{C}$                     & $\mathcal{F}_\mathbf{K}$                     & $\mathcal{G}$       & $\Sigma$                        \\
+        \midrule
+        Consumption      & $-p C$                          & $+p C$                                       &                                              &                     & 0                               \\
+        Gvt Spending     &                                 & $+p G$                                       &                                              & $-p G$              & 0                               \\
+        Investments      &                                 & $-p_\mathbf{K} I $                           & $+p_\mathbf{K} I $                           &                     & 0                               \\
+        Benefits         & $+UB$                           &                                              &                                              & $-UB$               & 0                               \\
+        Wages            & $+W$                            & $-W_{\mathcal{F}_\mathbf{C}}$                & $-W_{\mathcal{F}_\mathbf{K}}$                &                     & 0                               \\
+        Profits          & $+P$                            & $-P_{\mathcal{F}_\mathbf{C}}$                & $-P_{\mathcal{F}_\mathbf{K}}$                &                     & 0                               \\
+        Taxes            &
+        $-T$             &                                 &                                              & $+T$                                         & 0                                                     \\
+        \midrule
+        $\Delta$ Money   & $-\Delta\mathbf{M}_\mathcal{H}$ & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{C}}$ & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{K}}$ & $+\Delta\mathbf{M}$ & 0                               \\
+        $\Delta$ Capital &                                 & $+p_\mathbf{K}\Delta\mathbf{K}$              &                                              &                     & $+p_\mathbf{K}\Delta\mathbf{K}$ \\
+        \midrule
+        $\Sigma$         & 0                               & $+p_\mathbf{K}\Delta\mathbf{K}$              & 0                                            & 0                   & $+p_\mathbf{K}\Delta\mathbf{K}$ \\
+    \end{tabular}
+    \caption{Trasactions and Flows matrix for the model with investments}
+\end{table}
+
+The matrices of the model change as below.
+
+\section{The aggregate version}
+Desidered investments (in units of capital goods) are determined as $$I^T = {\mathbf{K}^u}_{t-1} (\frac{1}{{cu}^T} - \frac{1}{{cu}}) + \delta_\mathbf{K} \mathbf{K}_{t-1}$$ where $\mathbf{K}^u$ is the number of capital good matched by a worker in production and $cu$ and ${cu}^T$ are the capacity utilization rate of capital and its target value.
+
+Workers are split among the two sectors proportionally to the number required to match the desidered output of goods (or if lower the available capital goods to be matched with).
+
+Everything else is kept as the previous version.
+
+\subsection{Results}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{01_sankey}
+    \caption{Sankey diagram of flow at the steady state}
+    \label{fig:01_san}
+\end{figure}
+
+Diagram \ref{fig:01_san} represents the flows of the model at the steady state.
+Comparing with the base model (figure \ref{fig:00_san}) the only relevant diffence is the appereance of the investments flow.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01_macro}
+        \caption{Dynamics of some of the flows}
+        \label{fig:01_macro}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01_N}
+        \caption{Employment share}
+        \label{fig:01_N}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01_Y}
+        \caption{Output and potential output}
+        \label{fig:01_Y}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01_I}
+        \caption{Investments and desiderd investments}
+        \label{fig:01_I}
+    \end{subfigure}
+    \caption{Dynamics of the model with investments}
+\end{figure}
+
+The model still reaches full-employment (figure \ref{fig:01_N}), a stable steady state (figure \ref{fig:01_macro}) and unsatisfied demand for both consumption and capital goods (figures \ref{fig:01_Y} and \ref{fig:01_I}).
+
+\section{Exogenous government spending}
+If we try again to set exogenously the government spanding the model again becomes constrained on the demand side rather than the supply side, without reaching full employment.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01_macro_ex}
+        \caption{Dynamics of some of the flows}
+        \label{fig:01_macro_ex}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01_cu_ex}
+        \caption{Capacity utilization of capital and its target value}
+        \label{fig:01_cu_ex}
+    \end{subfigure}
+    \caption{Dynamics of the model with investments and exogenous government spending}
+\end{figure}
+
+The presence of productive capital creates cyclicality in this variant of the model: when the demand from the households grows, the capacity utilization of the capital overcome the target level triggering an increase in investments which fastly bring the capacity utilization back under the target level, triggering a massive lay-off by the capital goods firms, reducing the disposable income.
+But at the same time the disposable income is lower-bounded by the unemployment benefits, which create inelastic relations among variable (and a lot of hitseresis-like depencendies among variables).
+Particularly, when the lower-bound is reached, demand decreases slower than than available capital, increasing the capacity utilization a trigger a rise in investment, employment and demand, reversing the dynamics.
+
+\section{The agent-based extension}
+Most of the changing in the AB version mirrors the one in the aggregate version, using the same equations.
+
+As in other models, capital goods are "ordered" at the beginning of the sequence of events, matching the desidered investiment of the consumption goods firms to the so determined desidered production of the capital goods firms.
+After the consumption goods and labour markets transactions are concluded, consumption goods firms buys the ordered capital goods as long as they have the liquidity needed.
+In the eventuality that some firms are able to buy less goods than the amount ordered, other firms with unmatched demand and enough liquidity buys additional capital goods.
+After this process the remaining excess of production is lost.
+
+Having to split the demand for labour among the two sectors, it is necessary to determined the desidered amount of labour of each firm: instead of relying on the same random distribution of vacancies as in the previous version, now each consumption goods firm set the desidered output as as the output sold in the previous period plus an overhead, while capital goods firms relies on ordered capital goods.
+The hiring mechanism is then still random, picking one firm with unsatisfied demand for labour at time.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01AB_macro}
+        \caption{Dynamics of some of the macro variables}
+        \label{fig:01AB_macro}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01AB_output}
+        \caption{Dynamics of the demand and output of the model (S are the amount of consumption goods sold rather than produced)}
+        \label{fig:01AB_output}
+    \end{subfigure}
+
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01AB_moments}
+        \caption{Moments of the distribution of wealth}
+        \label{fig:01AB_moments}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{01AB_households}
+        \caption{Boxplot of money stock, wages, consumption and profits for the households at the end of the simulation}
+        \label{fig:01AB_households}
+    \end{subfigure}
+    \caption{Dynamics of the AB model with investments}
+\end{figure}
+
+Figures \ref{fig:01AB_macro} and \ref{fig:01AB_output} show that the model reach a steady state that satisfy a stable equilibrium, with the consumption goods market limited by the supply and the capital goods market determined by the demand. This is possible for the choice made to adjust the matching each period rather than redone it entirely, so if the matching reached satisfy the constrain of the following period it remains unmodified.
+
+Additionally the fat-tail distribution of wealth is present also in this version and becomes more extreme as the simulation run, without afflicting the macroeconomic dynamics.

@@ -148,7 +148,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             # Since there is no innovation, no wage dynamics and homogeneus mark-up the prices are uniform among Firms
             C[t, , ] <- C[t - 1, , ]
             # Over-selling
-            Fids <- which(colSums(C[t, , ]) - Y[t, ] > tol)
+            Fids <- which(colSums(C[t, , ]) - Y[t, ] * sum(CT[t, ]) / YT[t] > tol)
             if (length(Fids) > 0) {
                 for (Fid in Fids) {
                     while (sum(C[t, , Fid]) - Y[t, Fid] * sum(CT[t, ]) / YT[t] > tol) {
