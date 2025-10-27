@@ -1,0 +1,76 @@
+\chapter{Production of Capital by the means of Capital}
+The next extension of the model is to make also the production of capital goods to rely on capital goods.
+The reason behind it is to have each employed worked in the model matched with a capital good that can bring information about the salary or the skills required to improve the matching machanism down the line in the development of a model differentiating workers and their wages.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|cccc|l}
+                 & $\mathcal{H}$             & $\mathcal{F}_\mathbf{C}$               & $\mathcal{F}_\mathbf{K}$               & $\mathcal{G}$    & $\Sigma$                   \\
+        \midrule
+        Money    & $+\mathbf{M}_\mathcal{H}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{C}}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{K}}$ & $-\mathbf{M}$    & 0                          \\
+        \midrule
+        Capital  &                           & $+p_\mathbf{K} \mathbf{K}_\mathbf{C}$  & $+p_\mathbf{K} \mathbf{K}_\mathbf{K}$  &                  & $+p_\mathbf{K} \mathbf{K}$ \\
+        \midrule
+        $\Sigma$ & $+V_\mathcal{H}$          & $+V_{\mathcal{F}_\mathbf{C}}$          & $+V_{\mathcal{F}_\mathbf{K}}$          & $+V_\mathcal{G}$ & $+p_\mathbf{K} \mathbf{K}$ \\
+    \end{tabular}
+    \caption{Balance sheet for the model with investments}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|cccc|l}
+
+                         & $\mathcal{H}$                   & $\mathcal{F}_\mathbf{C}$                     & $\mathcal{F}_\mathbf{K}$                     & $\mathcal{G}$       & $\Sigma$                        \\
+        \midrule
+        Consumption      & $-p C$                          & $+p C$                                       &                                              &                     & 0                               \\
+        Gvt Spending     &                                 & $+p G$                                       &                                              & $-p G$              & 0                               \\
+        Investments      &                                 & $-p_\mathbf{K} I_\mathbf{C} $                & $+p_\mathbf{K} I_\mathbf{C} $                &                     & 0                               \\
+        Benefits         & $+UB$                           &                                              &                                              & $-UB$               & 0                               \\
+        Wages            & $+W$                            & $-W_{\mathcal{F}_\mathbf{C}}$                & $-W_{\mathcal{F}_\mathbf{K}}$                &                     & 0                               \\
+        Profits          & $+P$                            & $-P_{\mathcal{F}_\mathbf{C}}$                & $-P_{\mathcal{F}_\mathbf{K}}$                &                     & 0                               \\
+        Taxes            &
+        $-T$             &                                 &                                              & $+T$                                         & 0                                                     \\
+        \midrule
+        $\Delta$ Money   & $-\Delta\mathbf{M}_\mathcal{H}$ & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{C}}$ & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{K}}$ & $+\Delta\mathbf{M}$ & 0                               \\
+        $\Delta$ Capital &                                 & $+p_\mathbf{K}\Delta\mathbf{K}$              &                                              &                     & $+p_\mathbf{K}\Delta\mathbf{K}$ \\
+        \midrule
+        $\Sigma$         & 0                               & $+p_\mathbf{K}\Delta\mathbf{K}$              & 0                                            & 0                   & $+p_\mathbf{K}\Delta\mathbf{K}$ \\
+    \end{tabular}
+    \caption{Trasactions and Flows matrix for the model with investments}
+\end{table}
+
+The matrices of the model are very similar to the previous version with the only difference being the presence of a stock of capital goods for the capital firms sector.
+
+\section{The aggregate version}
+The same behavioural equation for the desired investment is used for both sectors, and the production of capital goods is divided between the two sector proportionally to the desired investments.
+
+The resulting dynamics of the model is stable, at full employment and with unmatched demand for both goods.
+
+When the government spending is set exogenous the behaviour is still cyclical but some lagged relations appear: for example the production of capital goods matches the desired investments except for the first few periods in which the demand increases, to allow the capital goods sector to increase its own stock of capital to accomodate the increment of the demand from the other sector.
+
+\section{The agent-based extension}
+The only substantial diffence in this version of the AB model is in the capital goods market.
+
+First each capital firms produces its own capital goods and not enters the market as a buyer from other firms.
+
+Consumption firms order all the capital goods to match their desidered investments up to the potential output of capital firms (i.e. numebr of capital goods times their productivity). Then the ordered investments and the desidered production for self-investment are proportionally scaled down to match the realized production.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{02AB_out.pdf}
+        \caption{Dynamics of some of the flows}
+        \label{fig:02AB_out}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{02AB_box}
+        \caption{Distribution for some variables for the households at the end of the distribution}
+        \label{fig:02AB_box}
+    \end{subfigure}
+    \caption{Dynamics of the AB model with capital goods in both sectors}
+\end{figure}
+
+The dynamics is overall still very stable and at full employment, but the gap between the demand for consumption goods and the supply is wide, compressing the comnsumption which results right skewed with regard to households wealth rather than left skewed as in the previous version. The demand of consumption firms for capital goods is still matched (figures \ref{fig:02AB_out} and \ref{fig:02AB_box}).

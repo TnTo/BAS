@@ -29,7 +29,7 @@ model_eqs <- sfcr_set(
     NetW ~ (1 - tW) * W,
     DI ~ NetW + UB,
     CT ~ max(0, (ay * DI[-1] + av * MH[-1]) / HpC[-1]),
-    GT ~ max(0, (d * GDP[-1] + T[-1]) / pC[-1]),
+    GT ~ max(0, (d * GDP[-1] + T[-1] - UB[-1]) / pC[-1]),
     YT ~ CT + GT,
     ICT ~ max(0, KCu[-1] * (1 / cuT - 1 / cuC[-1]) + dK * KC[-1], na.rm = TRUE), # FCs' desidered investment
     IKT ~ max(0, KKu[-1] * (1 / cuT - 1 / cuK[-1]) + dK * KK[-1], na.rm = TRUE), # FKs' desired investment

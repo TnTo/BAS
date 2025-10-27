@@ -467,6 +467,7 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     lines(rowSums(ICT), lty = "dashed")
     plot(rowSums(YK), type = "l", main = "YK")
     plot(rowSums(S), type = "l", main = "S")
+    dev.print(pdf, "plot/02AB_out.pdf")
 }
 
 {
@@ -483,6 +484,7 @@ if (any(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX] > tol)) {
     boxplot(W[TMAX, ], main = "WH")
     boxplot(rowSums(C[TMAX, , ]), main = "CH")
     boxplot(P[TMAX, ], main = "PH")
+    dev.print(pdf, "plot/02AB_box.pdf")
 }
 
 {

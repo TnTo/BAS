@@ -41,7 +41,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 2500
+        TMAX <- 500
         NH <- 1000
         NFC <- 50
         NFK <- 5
