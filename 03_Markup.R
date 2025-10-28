@@ -240,3 +240,9 @@ model %>%
     filter(name %in% c("avR", "ayR")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+
+model %>%
+    pivot_longer(cols = -period) %>%
+    filter(name %in% c("P", "PFC", "PFK")) %>%
+    ggplot(aes(x = period, y = value)) +
+    geom_line(aes(linetype = name, color = name))

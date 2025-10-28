@@ -10,6 +10,7 @@
 # install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
 # devtools::install_github("TnTo/sfcr", ref = "sankey")
 
+Sys.setenv(OPENSSL_CONF = "/etc/ssl")
 library(sfcr)
 library(tidyverse)
 
@@ -39,7 +40,7 @@ model_eqs <- sfcr_set(
     NetW ~ (1 - tW) * W,
     DI ~ NetW + UB,
     CT ~ max(0, (ay * DI[-1] + av * MH[-1]) / HpC[-1]),
-    GT ~ max(0, (d * GDP[-1] + T[-1]) / pC[-1]),
+    GT ~ max(0, (d * GDP[-1] + T[-1] + UB[-1]) / pC[-1]),
     YT ~ CT + GT,
     ICT ~ max(0, KCu[-1] * (1 / cuT - 1 / cuC[-1]) + dK * KC[-1], na.rm = TRUE),
     IKT ~ max(0, KKu[-1] * (1 / cuT - 1 / cuK[-1]) + dK * KK[-1], na.rm = TRUE),
@@ -176,6 +177,8 @@ sfcr_validate(model_bs, model, "bs", tol = 1e-7, rtol = TRUE)
 sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
 
 sfcr_sankey(model_tfm, model, when = "end")
+networkD3::saveNetwork(.Last.value, "plot/04_sankey.html", selfcontained = TRUE)
+webshot::webshot("plot/04_sankey.html", "plot/04_sankey.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
@@ -248,6 +251,7 @@ model %>%
     filter(name %in% c("L", "LFC", "LFK")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+dev.print(pdf, "plot/04_L.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
@@ -260,6 +264,7 @@ model %>%
     filter(name %in% c("P", "PFC", "PFK", "PB")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+dev.print(pdf, "plot/04_P.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%

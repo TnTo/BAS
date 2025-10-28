@@ -1,0 +1,122 @@
+\chapter{The Circuit}
+The next extension of the model is a very significant one, that introduces a new sector and two new assets.
+
+The goal of this extension is to add a stylezed financial sector inspered to Graziani circuit theory \parencite{passarella2024, caiani2017}: firms get loans from the financial sector to pay for wages and investments and repay them at the end of the period.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|ccccc|l}
+                 & $\mathcal{H}$             & $\mathcal{F}_\mathbf{C}$               & $\mathcal{F}_\mathbf{K}$               & $\mathcal{B}$    & $\mathcal{G}$    & $\Sigma$                   \\
+        \midrule
+        Money    & $+\mathbf{M}_\mathcal{H}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{C}}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{K}}$ & $-\mathbf{M}$    &                  & 0                          \\
+        Loans    &                           & $-\mathbf{L}_{\mathcal{F}_\mathbf{C}}$ & $-\mathbf{L}_{\mathcal{F}_\mathbf{K}}$ & $+\mathbf{L}$    &                  & 0                          \\
+        Bonds    &                           &                                        &                                        & $+\mathbf{B}$    & $-\mathbf{B}$    & 0                          \\
+        \midrule
+        Capital  &                           & $+p_\mathbf{K} \mathbf{K}_\mathbf{C}$  & $+p_\mathbf{K} \mathbf{K}_\mathbf{K}$  &                  &                  & $+p_\mathbf{K} \mathbf{K}$ \\
+        \midrule
+        $\Sigma$ & $+V_\mathcal{H}$          & $+V_{\mathcal{F}_\mathbf{C}}$          & $+V_{\mathcal{F}_\mathbf{K}}$          & $+V_\mathcal{B}$ & $+V_\mathcal{G}$ & $+p_\mathbf{K} \mathbf{K}$ \\
+    \end{tabular}
+    \caption{Balance sheet for the model with investments}
+\end{table}
+
+\begin{table}
+    \centering
+    \begin{tabular}{l|ccccc|l}
+
+                               & $\mathcal{H}$                   & $\mathcal{F}_\mathbf{C}$                                                                                    & $\mathcal{F}_\mathbf{K}$                                                                                    & $\mathcal{B}$                                             & $\mathcal{G}$       & $\Sigma$ \\
+        \midrule
+        Consumption            & $-p C$                          & $+p C$                                                                                                      &                                                                                                             &                                                           &                     & 0        \\
+        Gvt Spending           &                                 & $+p G$                                                                                                      &                                                                                                             &                                                           & $-p G$              & 0        \\
+        Investments            &                                 & $-p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$                                                                  & $+p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$                                                                  &                                                           &                     & 0        \\
+        Benefits               & $+UB$                           &                                                                                                             &                                                                                                             &                                                           & $-UB$               & 0        \\
+        Wages                  & $+W$                            & $-W_{\mathcal{F}_\mathbf{C}}$                                                                               & $-W_{\mathcal{F}_\mathbf{K}}$                                                                               &                                                           &                     & 0        \\
+        Profits                & $+P$                            & $-P_{\mathcal{F}_\mathbf{C}}$                                                                               & $-P_{\mathcal{F}_\mathbf{K}}$                                                                               & $-P_\mathcal{B}$                                          &                     & 0        \\
+        Taxes                  &
+        $-T$                   &                                 &                                                                                                             &                                                                                                             & $+T$                                                      & 0                              \\
+        \midrule
+        $\mathbf{L}$ interests &                                 & $-r_\mathbf{L} (\Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{C}} + {\mathbf{L}_{\mathcal{F}_\mathbf{C}}}_{t-1})$ & $-r_\mathbf{L} (\Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{K}} + {\mathbf{L}_{\mathcal{F}_\mathbf{K}}}_{t-1})$ & $-r_\mathbf{L} (\Delta^+\mathbf{L} + {\mathbf{L}}_{t-1})$ &                     & 0        \\
+        $\mathbf{B}$ interests &
+                               &                                 &                                                                                                             & $-r_\mathbf{B}\mathbf{B}$                                                                                   & $+r_\mathbf{B}\mathbf{B}$                                 & 0                              \\
+        \midrule
+        $\Delta$ Money         & $-\Delta\mathbf{M}_\mathcal{H}$ & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{C}}$                                                                & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{K}}$                                                                & $+\Delta\mathbf{M}$                                       &                     & 0        \\
+        $\Delta$ Loans         &                                 & $+\Delta\mathbf{L}_{\mathcal{F}_\mathbf{C}}$                                                                & $+\Delta\mathbf{L}_{\mathcal{F}_\mathbf{K}}$                                                                & $-\Delta\mathbf{L}_{\mathcal{B}}$                         &                     & 0        \\
+        $\Delta$ Bonds         &                                 &                                                                                                             &                                                                                                             & $-\Delta\mathbf{B}$                                       & $+\Delta\mathbf{B}$ & 0        \\
+        \midrule
+        $\Sigma$               & 0                               & 0                                                                                                           & 0                                                                                                           & 0                                                         & 0                   & 0        \\
+    \end{tabular}
+    \caption{Trasactions and Flows matrix for the model with investments}
+\end{table}
+
+The matrices of the models change as below: money is now issued by the bank as deposits and backed by government bonds (which can serve as reserves if the sign switches), while firms have access to credit trough the loans issued by the banking sector.
+Both loans and bonds are interests bearing.
+
+\section{The aggregate version}
+\subsection{The behavioural equations}
+Firms receive loanf from the bank to cover for wages and investment $$\Delta^+ \mathbf{L}_{\mathcal{F}_\mathbf{C}} = W_{\mathcal{F}_\mathbf{C}} + p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$$ $$\Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{K}} = W_{\mathcal{F}_\mathbf{K}}$$
+At the end of the period the stock of money of the previous period and the income of the current one are used to repay the loans $$\mathbf{L}_{\mathcal{F}_\mathbf{C}} = {\mathbf{L}_{\mathcal{F}_\mathbf{C}}}_{t-1} + \Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{C}} - {\mathbf{M}_{\mathcal{F}_\mathbf{C}}} - p_\mathbf{C} (C + G)$$ $$\mathbf{L}_{\mathcal{F}_\mathbf{K}} = {\mathbf{L}_{\mathcal{F}_\mathbf{K}}}_{t-1} + \Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{K}} - {\mathbf{M}_{\mathcal{F}_\mathbf{K}}} - p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$$
+
+Then interest are paied on maximum amount of loans inside the period $\mathbf{L}_{t-1} + \Delta^+\mathbf{L}$
+
+Bonds are issued by the government to finance the deficit and interests are paied on them; the accounting at the end of the period is $$\mathbf{B} = \frac{\mathbf{B}_{t-1} - (T - p_\mathbf{C}G - UB)}{1-r_\mathbf{B}}$$
+where $r$ denotes the interest rate.
+
+The interest rate on bond is determined with a Taylor-like rule depending on inflation ($i$), unemployment ($u$) and the capacity utilization as $$r_\mathbf{B} = i_{t-1} + \alpha_i (i_{i-1} - i^T) + \alpha_{cu} ({cu}_{t-1} - {cu}^T) - \alpha_u (u_{t-1} - u^T)$$ and the interest rate on loan is determined as a fixed premium on the interest rate on bonds.
+
+The bank aims to keep a target wealth to loan ratio, which leads to the equation for the distributed profits (see appendix \ref{app:eq}) $$ P_\mathcal{B}  = \frac{1-r_\mathbf{B}}{1-r_\mathbf{B}+r_\mathbf{B}\tau_P}(\mathbf{V}_{t-1} - {cr}^T \mathbf{L} + r_\mathbf{L} (\Delta^+\mathbf{L} + \mathbf{L}_{t-1}) + \frac{r_\mathbf{B}}{1-r_\mathbf{B}}(\mathbf{B}_{t-1} + p_\mathbf{C} G + UB - \tau_C C - \tau_W W - \tau_P (P_{\mathcal{F}_\mathbf{C}} + P_{\mathcal{F}_\mathbf{K}})))$$
+
+\subsection{Results}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{04_sankey}
+    \caption{Sankey diagram of flow at the steady state}
+    \label{fig:04_san}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04_L}
+        \caption{Stock of Loans}
+        \label{fig:04_L}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{04_P}
+        \caption{Distributed profits}
+        \label{fig:04_P}
+    \end{subfigure}
+    \caption{Dynamics of the model with the circuit}
+\end{figure}
+
+The sankey diagram (figure \ref{fig:04_san}) looks significantly different but the dynamics of the other variables is the same of the previous version.
+
+The profits are mostly concentrated in the consumption goods sectore (figure \ref{fig:04_P}) and the circuit closes entirely, not leaving a stock of loans at the end of the period (figure \ref{fig:04_L}).
+
+\subsection{Exogenous government spending}
+The model with exogenous government spending reach full-employment and a stable dynamics when the financial sector is added.
+This is clearly an effect of the endogeineity of money, which is now created without limits by the financial sector, being able to accomodate financially any growth of demand.
+
+To keep the demand constrained and the model to not reach full employment, it is necessary to also constrain the credit given to the firms.
+We impose as the restriction on the credit lines for each sector that $$\Delta^+\mathbf{L} \le V_{t-1} + \mathbf{M}_{t-1}$$ representing the necessity of a collateral good required by the bank.
+
+By adding this further restriction the model preserve its features: it still does not reach full employment, the demand for consumption goods is fully satisfied, and it presents cyclical behaviour.
+
+\section{The agent-based extension}
+The agent based follows closely the aggegate version with endogenous government spending, including the absence of constrains on credit.
+The only relevant difference is a consequence of the heterogeinity of the firms: as a consequence of the random matching, some firms accomulate enough debt to reach negative wealth.
+Those firms are considered bankrupted, their stock of loans is cancelled (the loss is absorbed by the bank) and they restart the production the following period with their stock of capital.
+
+\subsection{Results}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{04AB_L}
+    \caption{Dynamics of the AB model with the circuit}
+    \label{fig:04AB_L}
+\end{figure}
+
+In figure \ref{fig:04AB_L} we can observe the spike in the stock of loans held by capital firms before the bankrupticies. Additionally profits are negligible in the capital firms sector and are distributed mostly by the banking one and the consumption firms one.
+
+Additionally the fat-tail distribution of wealth among households becomes even more skewed, resembling a one-gets-all dynamics.
+

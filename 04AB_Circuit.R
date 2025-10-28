@@ -667,6 +667,7 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
     plot(rowSums(VFC), type = "l", main = "VFC")
     plot(rowSums(VFK), type = "l", main = "VFK")
     plot(VB, type = "l", main = "VB")
+    dev.print(pdf, "plot/04AB_L.pdf")
 }
 
 {

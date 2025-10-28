@@ -42,9 +42,6 @@
 
 \makeatletter
 \@addtoreset{chapter}{part}
-%\patchcmd{\l@chapter}{1.5em}{2.5em}{}{}
-%\patchcmd{\l@section}{1em}{1.5em}{}{}
-%\patchcmd{\l@subsection}{1em}{1.5em}{}{}
 \makeatother  
 
 \renewcommand{\thechapter}{\thepart.\arabic{chapter}}
@@ -89,6 +86,7 @@
 \input{doc/models/investment.tex}
 \input{doc/models/kbtmok.tex}
 \input{doc/models/markup.tex}
+\input{doc/models/circuit.tex}
 % What is missing? Possible improvements
 %\input{doc/next.tex}
 
@@ -99,6 +97,8 @@
 
 \appendix
 \addcontentsline{toc}{part}{Appendices}
+
+\input{doc/eq.tex}
 
 \iffalse
     \chapter{R code}
