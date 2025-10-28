@@ -10,6 +10,7 @@
 # install.packages(c("devtools", "tidyverse", "networkD3", "ggraph", "ggplot2"))
 # devtools::install_github("TnTo/sfcr", ref = "sankey")
 
+Sys.setenv(OPENSSL_CONF = "/etc/ssl")
 library(sfcr)
 library(tidyverse)
 
@@ -151,6 +152,8 @@ sfcr_validate(model_bs, model, "bs", tol = 1e-7, rtol = TRUE)
 sfcr_validate(model_tfm, model, "tfm", tol = 1e-7, rtol = TRUE)
 
 sfcr_sankey(model_tfm, model, when = "end")
+networkD3::saveNetwork(.Last.value, "plot/03_sankey.html", selfcontained = TRUE)
+webshot::webshot("plot/03_sankey.html", "plot/03_sankey.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
@@ -163,12 +166,14 @@ model %>%
     filter(name %in% c("C", "G", "Y", "W", "P")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+dev.print(pdf, "plot/03_macro.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%
     filter(name %in% c("pC", "pK", "W0")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))
+dev.print(pdf, "plot/03_p.pdf")
 
 model %>%
     pivot_longer(cols = -period) %>%

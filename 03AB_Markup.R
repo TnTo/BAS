@@ -41,7 +41,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
 
     ## Size
     {
-        TMAX <- 500
+        TMAX <- 1400
         NH <- 1000
         NFC <- 50
         NFK <- 5
@@ -483,6 +483,7 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
     plot(rowSums(W), type = "l", main = "W")
     plot(rowSums(P), type = "l", main = "P")
     plot(rowSums(T), type = "l", main = "T")
+    dev.print(pdf, "plot/03AB_macro.pdf")
 }
 
 {
@@ -495,6 +496,7 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
     plot(apply(pC, 1, mean), type = "l", main = "pC")
     plot(apply(pK, 1, mean), type = "l", main = "pK")
     plot(pmin(rowSums(KC)[1:TMAX - 1], rowSums(NC)[2:TMAX]) / rowSums(KC)[1:TMAX - 1], type = "l", main = "cu", ylim = c(0, 1))
+    dev.print(pdf, "plot/03AB_pN.pdf")
 }
 
 {
@@ -510,6 +512,7 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
     plot(rowSums(IK), type = "l", main = "IK", ylim = c(0, max(rowSums(IKT), rowSums(IK), na.rm = TRUE)))
     lines(rowSums(IKT), lty = "dashed")
     plot(rowSums(YK), type = "l", main = "YK")
+    dev.print(pdf, "plot/03AB_real.pdf")
 }
 
 {
@@ -545,6 +548,7 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
     hist(MH[1, ], main = "MH T=1")
     hist(MH[floor(TMAX / 10), ], main = "MH T=TMAX/10")
     hist(MH[TMAX, ], main = "MH T=TMAX")
+    dev.print(pdf, "plot/03AB_hist.pdf")
 }
 
 {
