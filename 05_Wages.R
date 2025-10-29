@@ -40,7 +40,7 @@ model_eqs <- sfcr_set(
     NetW ~ (1 - tW) * W,
     DI ~ NetW + UB,
     CT ~ max(0, (ay * DI[-1] + av * MH[-1]) / HpC[-1]),
-    GT ~ max(0, (d * GDP[-1] + T[-1]) / pC[-1]),
+    GT ~ max(0, (d * GDP[-1] + T[-1] + UB[-1]) / pC[-1]),
     YT ~ CT + GT,
     ICT ~ max(0, KCu[-1] * (1 / cuT - 1 / cuC[-1]) + dK * KC[-1], na.rm = TRUE),
     IKT ~ max(0, KKu[-1] * (1 / cuT - 1 / cuK[-1]) + dK * KK[-1], na.rm = TRUE),
@@ -49,14 +49,15 @@ model_eqs <- sfcr_set(
     NKT ~ min(1, KK[-1], IT / betaK),
     NT ~ NCT + NKT,
     N ~ min(1, NT),
-    NC ~ NCT * N / NT,
-    NK ~ NKT * N / NT,
-    W0 ~ W0[-1] * (1 + ThetaW * (N[-1] - (1 - uT)) / (1 - uT)),
+    NC ~ min(NCT * N / NT, (NCT * W0FC) / (NCT * W0FC + ICT * pK) * min(NCT * W0FC + ICT * pK, max(0, VFC[-1] + MFC[-1])) / W0FC),
+    NK ~ min(NKT * N / NT, min(NKT * W0FK, max(0, VFK[-1] + MFK[-1])) / W0FK),
+    W0FC ~ ifelse(NCT[-1] > 0, W0FC[-1] * (1 + ThetaW * (NCT[-1] - NC[-1]) / NCT[-1]), W0FC[-1]),
+    W0FK ~ ifelse(NKT[-1] > 0, W0FK[-1] * (1 + ThetaW * (NKT[-1] - NK[-1]) / NKT[-1]), W0FK[-1]),
     W ~ WFC + WFK,
-    WFC ~ W0 * NC,
-    WFK ~ W0 * NK,
+    WFC ~ W0FC * NC,
+    WFK ~ W0FK * NK,
     Y ~ NC * betaC,
-    UB ~ W0 * phi * u,
+    UB ~ W[-1] / N[-1] * phi * u,
     C ~ CT * Y / YT,
     G ~ Y - C,
     I ~ NK * betaK,
@@ -115,7 +116,7 @@ model_tfm <- sfcr_matrix(
     c("Benefits", H = "UB", G = "-UB"),
     c("Wages", H = "W", FC = "-WFC", FK = "-WFK"),
     c("Profits", H = "P", FC = "-PFC", FK = "-PFK", B = "-PB"),
-    c("Taxes", H = "-T", G = "T"),
+    c("Taxes", H = "-T", G = "+T"),
     c("Loan int.", FC = "-rL * (DLFC + LFC[-1])", FK = "-rL * (DLFK + LFK[-1])", B = "+rL * (DL + L[-1])"),
     c("Bond int.", B = "+rB * B", G = "-rB * B"),
     c("D Money", H = "-(MH - MH[-1])", FC = "-(MFC - MFC[-1])", FK = "-(MFK - MFK[-1])", B = "(M - M[-1])"),
@@ -139,7 +140,7 @@ model_ext <- sfcr_set(
     betaK ~ 1.0,
     phi ~ 0.7,
     ThethaMu ~ 0.1,
-    ThetaW ~ 0.1,
+    ThetaW ~ 0.03,
     DrL ~ 0.05, # Bank premium for Loans interest rate
     crT ~ 0.08 # target capital ratio
 )
@@ -149,7 +150,6 @@ model_init <- sfcr_set(
     VH ~ 1,
     M ~ 1,
     VG ~ -1,
-    W0 ~ 1,
     KC ~ 0.1,
     KK ~ 0.1,
     K ~ 0.2,
@@ -158,9 +158,10 @@ model_init <- sfcr_set(
     HpC ~ 1.2,
     pC ~ 1,
     pK ~ 1,
-    muC ~ 0.5,
-    muK ~ 0.5,
-    W0 ~ 1.5
+    muC ~ 1,
+    muK ~ 2,
+    W0FC ~ 1.5,
+    W0FK ~ 1.5
 )
 
 model <- sfcr_baseline(

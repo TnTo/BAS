@@ -101,9 +101,20 @@ This is clearly an effect of the endogeineity of money, which is now created wit
 To keep the demand constrained and the model to not reach full employment, it is necessary to also constrain the credit given to the firms.
 We impose as the restriction on the credit lines for each sector that $$\Delta^+\mathbf{L} \le V_{t-1} + \mathbf{M}_{t-1}$$ representing the necessity of a collateral good required by the bank.
 
-By adding this further restriction the model preserve its features: it still does not reach full employment, the demand for consumption goods is fully satisfied, and it presents cyclical behaviour.
+Already in the previous versions the markup rate of the capital sector decline until it reach zeros, but since all the costs are considered in the determination of the price of the capital goods, firms are able to operate without issues.
+This version add the interest on the loans taken to start the circuit as a cost of production, which is not taken in account in determining the prices.
+It is possible to either adjust the price equation or to fix a minimum value for the markup. The second option has been choosen.
+
+By adding these further restrictions the model preserve its features: it still does not reach full employment, the demand for consumption goods is fully satisfied, and it presents cyclical behaviour.
 
 \section{The agent-based extension}
+By adding another sector, it is necessary to choose with how many agents it should be represented.
+For realism, financial sector can be populated by competiting banks, financial firms that manage savings and trade in bonds and equities.
+But this would increase the complexity of the model (by adding many new interactions).
+As discussed in the chapter \ref{ch:complexity} we need to identify which level of detail better suits the needs.
+The model is rooted in the production side of the economy, labour and goods are the core elements we are investigating.
+To tame the complexity of the model we choose to considered the financial sector as a very stylized aggregate sector rather than a detailed sector with multiple agents.
+
 The agent based follows closely the aggegate version with endogenous government spending, including the absence of constrains on credit.
 The only relevant difference is a consequence of the heterogeinity of the firms: as a consequence of the random matching, some firms accomulate enough debt to reach negative wealth.
 Those firms are considered bankrupted, their stock of loans is cancelled (the loss is absorbed by the bank) and they restart the production the following period with their stock of capital.

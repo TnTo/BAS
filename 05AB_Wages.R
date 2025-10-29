@@ -722,10 +722,37 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
 }
 
 {
+    par(mfrow = c(2, 2))
+    plot(apply(W, 1, mean), type = "l", main = "W mean")
+    plot(apply(W, 1, var), type = "l", main = "W var")
+    plot(apply(W, 1, skewness), type = "l", main = "W skewness")
+    plot(apply(W, 1, kurtosis), type = "l", main = "W kurtosis")
+}
+
+{
+    par(mfrow = c(3, 1))
+    hist(W[2, ], main = "W T=1")
+    hist(W[floor(TMAX / 10), ], main = "W T=TMAX/10")
+    hist(W[TMAX, ], main = "W T=TMAX")
+    dev.print(pdf, "plot/05AB_whist.pdf")
+}
+
+{
     par(mfrow = c(2, 3))
     plot(apply(VH, 1, function(x) sum(x < -tol)), main = "any VH < 0")
     plot(apply(VFC, 1, function(x) sum(x < -tol)), main = "any VFC < 0")
     plot(apply(VFK, 1, function(x) sum(x < -tol)), main = "any VFK < 0")
     plot(VB < -tol, main = " VB < 0")
     plot(VG > tol, main = " VG > 0")
+}
+
+{
+    par(mfrow = c(2, 3))
+    plot(apply(pC, 1, mean), type = "l", main = "pC")
+    plot(apply(muC, 1, mean), type = "l", main = "muC")
+    plot(apply(W0FC, 1, mean), type = "l", main = "W0FC")
+    plot(apply(pK, 1, mean), type = "l", main = "pK")
+    plot(apply(muK, 1, mean), type = "l", main = "muK")
+    plot(apply(W0FK, 1, mean), type = "l", main = "W0FK")
+    dev.print(pdf, "plot/05AB_W.pdf")
 }}

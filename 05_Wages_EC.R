@@ -70,7 +70,7 @@ model_eqs <- sfcr_set(
     PB ~ max(0, (1 - rB) / (1 - rB - rB * tP) * (VB[-1] + rL * (DL + L[-1]) - crT * L + rB / (1 - rB) * (B[-1] + pC * G + UB - (tW * W + tP * (PFC + PFK) + tC * pC * C)))),
     T ~ tW * W + tP * P + tC * pC * C,
     muC ~ muC[-1] * (1 + ThethaMu * (cuC[-1] - cuT) / cuT),
-    muK ~ muK[-1] * (1 + ThethaMu * (cuK[-1] - cuT) / cuT), # Horrible, but the same old problem
+    muK ~ max(1, muK[-1] * (1 + ThethaMu * (cuK[-1] - cuT) / cuT)), # Horrible, but the same old problem
     HpC ~ (1 + tC) * pC,
     pC ~ (1 + muC) * (WFC / Y),
     pK ~ ifelse(NK == 0, pK[-1], (1 + muK) * (WFK / I)),
@@ -169,7 +169,7 @@ model <- sfcr_baseline(
     equations = model_eqs,
     external = model_ext,
     init = model_init,
-    periods = 200,
+    periods = 500,
     tol = 1e-7,
     hidden = c("V" = "pKK"),
     # hidden = NULL,
@@ -317,6 +317,6 @@ model %>%
 
 model %>%
     pivot_longer(cols = -period) %>%
-    filter(name %in% c("NKT", "NK")) %>%
+    filter(name %in% c("NKT", "NK", "NCT", "NC")) %>%
     ggplot(aes(x = period, y = value)) +
     geom_line(aes(linetype = name, color = name))

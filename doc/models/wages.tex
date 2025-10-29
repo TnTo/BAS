@@ -1,0 +1,103 @@
+\chapter{A Model with Endogenous Wage Dynamics}
+The last improvement presented in this thesis is the introduction of an endogenous wage dynamics.
+This would lead to a differentiation of the wages among firms in the AB version, introducing an additional source of inequality.
+
+The changes introduced affects only the determination of the wages leaving the matrices of the model untouched.
+
+\section{The aggregate version}
+%To model the wage dynamics we accept the idea that a minimum level of unemployment is inevitable for the flaws in the matching mechanism of any labour market (time to reskill workers, people that use their time in unregognized activities like childcare, the duration of a headhunting process, ...).
+%If the level of employment is higher than this "target" level we can suppose the labour market is short on the supply side, giving workers more bargaining power and the ability to get higher wages. On the other hand, if the unemployment rate is high the bargaining power is instead in the hands of the employer, lowering the wages.
+%This is translated in the equation $$W_0 = {W_0}_{t-1} (1 + \Theta_W \frac{N_{t-1} - (1-u^T)}{1-u^T})$$
+%where $W_0$ is the individual wage, $N$ is the share of employed people (because it is normalized in the $[0,1]$ interval) and $u^T$ is the target unemployment rate.
+
+The modelling of the wage dynamics relies on the mismatch between the demand and the supply of labour: a higher unsatisfied demand leads to a faster wage growth.
+The wages are update sector by sector as $$W_0 =  {W_0}_{t-1} (1 + \Theta_W \frac{N^T_{t-1} - N_{t-1}}{N^T_{t-1}})$$ where $W_0$ is the individual wage.
+
+The behavioural equation chosen does not include the possibility that the nominal wages decrese, which is an acceptable approximation given that the most relevant mechanism of loss of purchase pawer is the reduction in the real wages caused by the inflation rather than the reduction of the nominal ones.
+
+The dynamics is very similar to the version with the circuit, even slightly more stable.
+The increase in nominal wages reduces the real inflation for consumption goods and drive up the capital goods price allowing the capital sector to operate with less liquidity constraints.
+
+Instead, when exogenous government spending and the constraints on credit are introduced there is no unsatisfied demand for labour, so the wages remain constant and the dynamics is exactly the same of the previous version.
+
+\section{The agent-based extension}
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05AB_W}
+        \caption{Components that determine prices}
+        \label{fig:05AB_W}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05AB_whist}
+        \caption{Distribution of wages among workers}
+        \label{fig:05AB_whist}
+    \end{subfigure}
+    \caption{Dynamics of the AB model with wage dynamics}
+\end{figure}
+The same equation for the determination of wages is translated at agent level.
+
+The model shows the expected features: the dynamics is very close to the previuos version, but the wage growth (figure \ref{fig:05AB_W}) stabilizes the model reducing the bankrupticies.
+
+Additionally we observe a differentiation in wages among firms very right skewed, i.e. with a prominent right tail (figure \ref{fig:05AB_mhist}).
+
+\section{An agent-based extension of the costrained model}
+Finally, an AB version of the model with constrained government spenfing and credit lines has been made.
+The results are in line with the aggregate version and the unconstrained AB version.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05ABe_macro}
+        \caption{Dynamics of some macro variables}
+        \label{fig:05ABe_macro}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05ABe_Np}
+        \caption{Employment rate, prices and mark ups}
+        \label{fig:05ABe_Np}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05ABe_Y}
+        \caption{Supply and demand in the goods markets}
+        \label{fig:05ABe_Y}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05ABe_LP}
+        \caption{Dynamics of profits, loans, money and wealth for firms and the bank}
+        \label{fig:05ABe_LP}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05ABe_whist}
+        \caption{Distribution of wages among workers}
+        \label{fig:05ABe_whist}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{05ABe_mhist}
+        \caption{Distribution of the stock of money among workers}
+        \label{fig:05ABe_ehist}
+    \end{subfigure}
+    \caption{Dynamics of the AB model with wage dynamics and constraints}
+\end{figure}
+
+Particularly:
+\begin{itemize}
+    \item The macroeconomic dynamics is stable but presents short-term oscillations (figure \ref{fig:05ABe_macro})
+    \item The unemployment is persistent and there is volatlity in prices (figure \ref{fig:05ABe_Np})
+    \item The production matches the demand in the capital goods market and exceeds it in the consumption goods market (figure \ref{fig:05ABe_Y})
+    \item Profits flows and loans stocks are very volatile, suggesting a fair number of bankrupticies (figure \ref{fig:05ABe_LP})
+    \item There is no differentiation of wages (figure \ref{fig:05ABe_whist})
+    \item The stable dynamics prevents the emergence of strong inequalities in wealth. The heterogeinity among agents is small (everyone satisfies its demand entirely and still most of them are employed) and so the final distribution of wealth resemble a gaussian distribution for the central limit theorem (figure \ref{fig:05ABe_mhist})
+\end{itemize}
