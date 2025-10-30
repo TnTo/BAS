@@ -31,7 +31,7 @@ model_eqs <- sfcr_set(
     CT ~ max(0, (ay * DI[-1] + av * MH[-1]) / HpC[-1]),
     GT ~ sigma * 1 * betaC / pC[-1],
     YT ~ CT + GT,
-    ICT ~ max(0, KCu[-1] * (1 / cuT - 1 / cuC[-1]) + dK * KC[-1], na.rm = TRUE), # FCs' desidered investment
+    ICT ~ max(0, KCu[-1] * (1 / cuT - 1 / cuC[-1]) + dK * KC[-1], na.rm = TRUE), # FCs' desired investment
     IKT ~ max(0, KKu[-1] * (1 / cuT - 1 / cuK[-1]) + dK * KK[-1], na.rm = TRUE), # FKs' desired investment
     IT ~ ICT + IKT, # Demand for Capital goods in units
     NCT ~ min(1, KC[-1], YT / betaC),

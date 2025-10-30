@@ -2,7 +2,7 @@
 The first extension to the model is to add productive capital.
 
 To do so a new sector is introduced composed by firms that produce capital goods by using only labour as input.
-Additionaly, firms that produce consumption goods now use both capital and labour as input with a Leontieff production function using the minimum between the number of workers employed and the number of capital goods detained at the end of the previous period.
+Additionally, firms that produce consumption goods now use both capital and labour as inputs of a Leontief production function, using the minimum between the number of workers employed and the number of capital goods detained at the end of the previous period.
 
 Capital goods are homogenous and each period a fraction $\delta_\mathbf{K}$ is dismissed.
 
@@ -39,15 +39,15 @@ Capital goods are homogenous and each period a fraction $\delta_\mathbf{K}$ is d
         \midrule
         $\Sigma$       & 0                               & 0                                            & 0                                            & 0                   & 0        \\
     \end{tabular}
-    \caption{Trasactions and Flows matrix for the model with investments}
+    \caption{Transactions and Flows matrix for the model with investments}
 \end{table}
 
 The matrices of the model change as below.
 
 \section{The aggregate version}
-Desidered investments (in units of capital goods) are determined as $$I^T = {\mathbf{K}^u}_{t-1} (\frac{1}{{cu}^T} - \frac{1}{{cu}}) + \delta_\mathbf{K} \mathbf{K}_{t-1}$$ where $\mathbf{K}^u$ is the number of capital good matched by a worker in production and $cu$ and ${cu}^T$ are the capacity utilization rate of capital and its target value.
+Desired investments (in units of capital goods) are determined as $$I^T = {\mathbf{K}^u}_{t-1} (\frac{1}{{cu}^T} - \frac{1}{{cu}}) + \delta_\mathbf{K} \mathbf{K}_{t-1}$$ where $\mathbf{K}^u$ is the number of capital good matched by a worker in production and $cu$ and ${cu}^T$ are the capacity utilization rate of capital and its target value.
 
-Workers are split among the two sectors proportionally to the number required to match the desidered output of goods (or if lower the available capital goods to be matched with).
+Workers are split among the two sectors proportionally to the number required to match the desired output of goods (or if lower the available capital goods to be matched with).
 
 Everything else is kept as the previous version.
 
@@ -60,14 +60,14 @@ Everything else is kept as the previous version.
 \end{figure}
 
 Diagram \ref{fig:01_san} represents the flows of the model at the steady state.
-Comparing with the base model (figure \ref{fig:00_san}) the only relevant diffence is the appereance of the investments flow.
+Comparing with the base model (figure \ref{fig:00_san}) the only relevant difference is the appearing of the investments flow.
 
 \begin{figure}
     \centering
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\textwidth]{01_macro}
-        \caption{Dynamics of some of the flows}
+        \caption{Dynamics of some flows}
         \label{fig:01_macro}
     \end{subfigure}%
     ~
@@ -88,7 +88,7 @@ Comparing with the base model (figure \ref{fig:00_san}) the only relevant diffen
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\textwidth]{01_I}
-        \caption{Investments and desiderd investments}
+        \caption{Investments and desired investments}
         \label{fig:01_I}
     \end{subfigure}
     \caption{Dynamics of the model with investments}
@@ -97,14 +97,14 @@ Comparing with the base model (figure \ref{fig:00_san}) the only relevant diffen
 The model still reaches full-employment (figure \ref{fig:01_N}), a stable steady state (figure \ref{fig:01_macro}) and unsatisfied demand for both consumption and capital goods (figures \ref{fig:01_Y} and \ref{fig:01_I}).
 
 \section{Exogenous government spending}
-If we try again to set exogenously the government spanding the model again becomes constrained on the demand side rather than the supply side, without reaching full employment.
+If we try again to set exogenously the government spending the model again becomes constrained on the demand side rather than the supply side, without reaching full employment.
 
 \begin{figure}
     \centering
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\textwidth]{01_macro_ex}
-        \caption{Dynamics of some of the flows}
+        \caption{Dynamics of some flows}
         \label{fig:01_macro_ex}
     \end{subfigure}%
     ~
@@ -117,19 +117,19 @@ If we try again to set exogenously the government spanding the model again becom
     \caption{Dynamics of the model with investments and exogenous government spending}
 \end{figure}
 
-The presence of productive capital creates cyclicality in this variant of the model: when the demand from the households grows, the capacity utilization of the capital overcome the target level triggering an increase in investments which fastly bring the capacity utilization back under the target level, triggering a massive lay-off by the capital goods firms, reducing the disposable income.
-But at the same time the disposable income is lower-bounded by the unemployment benefits, which create inelastic relations among variable (and a lot of hitseresis-like depencendies among variables).
-Particularly, when the lower-bound is reached, demand decreases slower than than available capital, increasing the capacity utilization a trigger a rise in investment, employment and demand, reversing the dynamics.
+The presence of productive capital creates cyclicity in this variant of the model: when the demand from the households grows, the capacity utilization of the capital overcome the target level triggering an increase in investments which fast bring the capacity utilization back under the target level, triggering a massive lay-off by the capital goods firms, reducing the disposable income.
+But at the same time the disposable income is lower-bounded by the unemployment benefits, which create inelastic relations among variable (and a lot of hysteresis-like dependencies among variables).
+Particularly, when the lower-bound is reached, demand decreases slower than available capital, increasing the capacity utilization and triggering a rise in investment, employment and demand, reversing the dynamics.
 
 \section{The agent-based extension}
 Most of the changing in the AB version mirrors the one in the aggregate version, using the same equations.
 
-As in other models, capital goods are "ordered" at the beginning of the sequence of events, matching the desidered investiment of the consumption goods firms to the so determined desidered production of the capital goods firms.
+As in other models, capital goods are "ordered" at the beginning of the sequence of events, matching the desired investment of the consumption goods firms to the so determined desired production of the capital goods firms.
 After the consumption goods and labour markets transactions are concluded, consumption goods firms buys the ordered capital goods as long as they have the liquidity needed.
 In the eventuality that some firms are able to buy less goods than the amount ordered, other firms with unmatched demand and enough liquidity buys additional capital goods.
 After this process the remaining excess of production is lost.
 
-Having to split the demand for labour among the two sectors, it is necessary to determined the desidered amount of labour of each firm: instead of relying on the same random distribution of vacancies as in the previous version, now each consumption goods firm set the desidered output as as the output sold in the previous period plus an overhead, while capital goods firms relies on ordered capital goods.
+Having to split the demand for labour among the two sectors, it is necessary to determine the desired amount of labour of each firm: instead of relying on the same random distribution of vacancies as in the previous version, now each consumption goods firm set the desired output as the output sold in the previous period plus an overhead, while capital goods firms relies on ordered capital goods.
 The hiring mechanism is then still random, picking one firm with unsatisfied demand for labour at time.
 
 \begin{figure}
@@ -137,7 +137,7 @@ The hiring mechanism is then still random, picking one firm with unsatisfied dem
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\textwidth]{01AB_macro}
-        \caption{Dynamics of some of the macro variables}
+        \caption{Dynamics of some macro variables}
         \label{fig:01AB_macro}
     \end{subfigure}%
     ~
@@ -164,6 +164,6 @@ The hiring mechanism is then still random, picking one firm with unsatisfied dem
     \caption{Dynamics of the AB model with investments}
 \end{figure}
 
-Figures \ref{fig:01AB_macro} and \ref{fig:01AB_output} show that the model reach a steady state that satisfy a stable equilibrium, with the consumption goods market limited by the supply and the capital goods market determined by the demand. This is possible for the choice made to adjust the matching each period rather than redone it entirely, so if the matching reached satisfy the constrain of the following period it remains unmodified.
+Figures \ref{fig:01AB_macro} and \ref{fig:01AB_output} show that the model reach a steady state that satisfy a stable equilibrium, with the consumption goods market limited by the supply and the capital goods market determined by the demand. This is possible for the choice made to adjust the matching each period rather than redone it entirely, so if the matching reached satisfy the constraints of the following period it remains unmodified.
 
-Additionally the fat-tail distribution of wealth is present also in this version and becomes more extreme as the simulation run, without afflicting the macroeconomic dynamics.
+Additionally, the fat-tail distribution of wealth is present also in this version and becomes more extreme as the simulation run, without afflicting the macroeconomic dynamics.

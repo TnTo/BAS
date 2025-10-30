@@ -1,24 +1,27 @@
 \chapter{What's Next?}
-Every model can be enriched in details and features. This bottom-up approach has allowed for stabilizing a feature before adding the next one, insted of trying to realize a complex model in one go which is very difficult to be debugged (the first few attempt for this thesis followed this philosophy with very little success).
+Every model can be enriched in details and features. This bottom-up approach has allowed for stabilizing a feature before adding the next one, instead of trying to realize a complex model in one go which is very difficult to be debugged (the first few attempts for this thesis followed this philosophy with very little success).
 Which features are the next one down the line is a matter of focus the goal of the model and the dynamics we consider most relevant for our question.
 
 A starting point is the very last model presented: the only AB model with constrained credit.
-First, we should check if the constraint on credit is stronger than the one on public expenditure and its sufficient to let unemployment emerges.
+First, we should check if the constraint on credit is stronger than the one on public expenditure and it is sufficient to let unemployment emerges.
 Second, the model should be stabilized a little more, particularly allowing for a wage growth even in the case of a labour market short on the demand side.
-Third, the equations for mark up and prices can be rethinked to keep in consideration a more careful accounting by the firms.
+Third, the equations for mark-up and prices can be rethought to keep in consideration a more careful accounting by the firms.
+Fourth, a higher level of path-dependency and emerging heterogeneity among agents has to be recovered to get a fat-tail distribution of wealth, as in the unconstrained version.
 
-As for the new features I see two direction that can be taken in consideration to return on the original question about new welfare models.
+As for the new features I see two direction that can be taken in consideration.
 
 The first one is to add a mechanism to allow firms to innovate (i.e. increase the productivity of capital goods) and differentiate.
-This would allows also introducing another kind of heterogeinity among workers based on something that resemble a "skill" score, to be used in the matching mechanism to differentiate labour intensive firms (which usually employ low-skilled workes) and capital-intensive firms (which usually employ high-skilled workers).
+This would allow also introducing another kind of heterogeneity among workers based on something that resemble a "skill" score, to be used in the matching mechanism to differentiate labour intensive firms (which usually employ low-skilled workers) and capital-intensive firms (which usually employ high-skilled workers).
 
 The second one is to introduce other countries in the model with a system of import and export.
 This would allow for both different standard of living in different countries and to represent export-lead economies (like Germany or Italy) and import lead-one (like the US).
 In this way it is possible to observe how welfare in a country affects countries lower in the global value chain or how the effects changes from a demand-constrained economy to a supply-constrained one.
 
 The last AB version of the model already requires more elaborated behavioural equations, and introducing innovation requires a way more detailed characterization of the capital goods.
-This would be easier rewrite the model using the Object Orienting paradigm which, as discussed in chapter \ref{ch:implementation}, focus more on the internal logic of each agent rather then the accounting of the model.
+This would be easier by rewriting the model using the Object Orienting paradigm which, as discussed in chapter \ref{ch:implementation}, focus more on the internal logic of each agent rather than the accounting of the model.
 Rewriting the model focusing on agents should help to keep trace better of each transaction, fixing some small errors in accounting that appears in the current version of the models.
 Writing OOP in R is quite difficult since the lacking of ad hoc feature in the language, so a change in programming language is needed with Python and C++ as strong candidates.
 
-Finally, in the teaching spirit of the work it would be very interesting to transform the model into a videogame, giving the player agency in changing some of the parameters of the model, expecially those related to the public sector, to explore the dynamics of the model as a plyground to observe some Economics laws.
+Once the model is stabilized and a more heterogeneous wages distribution is achieved, it would be interesting to effectively experiment with the topic of the original question, introducing a progressive taxation, a taxation on wealth, an Universal Basic Income, a Job Guarantee scheme or other tools for a more progressive e redistributive welfare.
+
+Finally, in the teaching spirit of the work it would be very interesting to transform the model into a video game, giving the player agency in changing some parameters of the model, especially those related to the public sector, to explore the dynamics of the model as a playground to observe some Economics laws.

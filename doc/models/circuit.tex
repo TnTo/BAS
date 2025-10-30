@@ -1,7 +1,7 @@
 \chapter{The Circuit}
 The next extension of the model is a very significant one, that introduces a new sector and two new assets.
 
-The goal of this extension is to add a stylezed financial sector inspered to Graziani circuit theory \parencite{passarella2024, caiani2017}: firms get loans from the financial sector to pay for wages and investments and repay them at the end of the period.
+The goal of this extension is to add a stylized financial sector inspired to Graziani circuit theory \parencite{passarella2024, caiani2017}: firms get loans from the financial sector to pay for wages and investments and repay them at the end of the period.
 
 \begin{table}
     \centering
@@ -44,20 +44,20 @@ The goal of this extension is to add a stylezed financial sector inspered to Gra
         \midrule
         $\Sigma$               & 0                               & 0                                                                                                           & 0                                                                                                           & 0                                                         & 0                   & 0        \\
     \end{tabular}
-    \caption{Trasactions and Flows matrix for the model with investments}
+    \caption{Transactions and Flows matrix for the model with investments}
 \end{table}
 
-The matrices of the models change as below: money is now issued by the bank as deposits and backed by government bonds (which can serve as reserves if the sign switches), while firms have access to credit trough the loans issued by the banking sector.
+The matrices of the models change as below: money is now issued by the bank as deposits and backed by government bonds (which can serve as reserves if the sign switches), while firms have access to credit through the loans issued by the banking sector.
 Both loans and bonds are interests bearing.
 
 \section{The aggregate version}
 \subsection{The behavioural equations}
-Firms receive loanf from the bank to cover for wages and investment $$\Delta^+ \mathbf{L}_{\mathcal{F}_\mathbf{C}} = W_{\mathcal{F}_\mathbf{C}} + p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$$ $$\Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{K}} = W_{\mathcal{F}_\mathbf{K}}$$
+Firms receive loans from the bank to cover for wages and investment $$\Delta^+ \mathbf{L}_{\mathcal{F}_\mathbf{C}} = W_{\mathcal{F}_\mathbf{C}} + p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$$ $$\Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{K}} = W_{\mathcal{F}_\mathbf{K}}$$
 At the end of the period the stock of money of the previous period and the income of the current one are used to repay the loans $$\mathbf{L}_{\mathcal{F}_\mathbf{C}} = {\mathbf{L}_{\mathcal{F}_\mathbf{C}}}_{t-1} + \Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{C}} - {\mathbf{M}_{\mathcal{F}_\mathbf{C}}} - p_\mathbf{C} (C + G)$$ $$\mathbf{L}_{\mathcal{F}_\mathbf{K}} = {\mathbf{L}_{\mathcal{F}_\mathbf{K}}}_{t-1} + \Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{K}} - {\mathbf{M}_{\mathcal{F}_\mathbf{K}}} - p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$$
 
-Then interest are paied on maximum amount of loans inside the period $\mathbf{L}_{t-1} + \Delta^+\mathbf{L}$
+Then interest are paid on maximum amount of loans inside the period $\mathbf{L}_{t-1} + \Delta^+\mathbf{L}$
 
-Bonds are issued by the government to finance the deficit and interests are paied on them; the accounting at the end of the period is $$\mathbf{B} = \frac{\mathbf{B}_{t-1} - (T - p_\mathbf{C}G - UB)}{1-r_\mathbf{B}}$$
+Bonds are issued by the government to finance the deficit and interests are paid on them; the accounting at the end of the period is $$\mathbf{B} = \frac{\mathbf{B}_{t-1} - (T - p_\mathbf{C}G - UB)}{1-r_\mathbf{B}}$$
 where $r$ denotes the interest rate.
 
 The interest rate on bond is determined with a Taylor-like rule depending on inflation ($i$), unemployment ($u$) and the capacity utilization as $$r_\mathbf{B} = i_{t-1} + \alpha_i (i_{i-1} - i^T) + \alpha_{cu} ({cu}_{t-1} - {cu}^T) - \alpha_u (u_{t-1} - u^T)$$ and the interest rate on loan is determined as a fixed premium on the interest rate on bonds.
@@ -90,33 +90,33 @@ The bank aims to keep a target wealth to loan ratio, which leads to the equation
     \caption{Dynamics of the model with the circuit}
 \end{figure}
 
-The sankey diagram (figure \ref{fig:04_san}) looks significantly different but the dynamics of the other variables is the same of the previous version.
+The sankey diagram (figure \ref{fig:04_san}) looks significantly different, but the dynamics of the other variables is the same of the previous version.
 
-The profits are mostly concentrated in the consumption goods sectore (figure \ref{fig:04_P}) and the circuit closes entirely, not leaving a stock of loans at the end of the period (figure \ref{fig:04_L}).
+The profits are mostly concentrated in the consumption goods sector (figure \ref{fig:04_P}) and the circuit closes entirely, not leaving a stock of loans at the end of the period (figure \ref{fig:04_L}).
 
 \subsection{Exogenous government spending}
 The model with exogenous government spending reach full-employment and a stable dynamics when the financial sector is added.
-This is clearly an effect of the endogeineity of money, which is now created without limits by the financial sector, being able to accomodate financially any growth of demand.
+This is clearly an effect of the endogeineity of money, which is now created without limits by the financial sector, being able to accommodate financially any growth of demand.
 
 To keep the demand constrained and the model to not reach full employment, it is necessary to also constrain the credit given to the firms.
 We impose as the restriction on the credit lines for each sector that $$\Delta^+\mathbf{L} \le V_{t-1} + \mathbf{M}_{t-1}$$ representing the necessity of a collateral good required by the bank.
 
 Already in the previous versions the markup rate of the capital sector decline until it reach zeros, but since all the costs are considered in the determination of the price of the capital goods, firms are able to operate without issues.
-This version add the interest on the loans taken to start the circuit as a cost of production, which is not taken in account in determining the prices.
-It is possible to either adjust the price equation or to fix a minimum value for the markup. The second option has been choosen.
+This version adds the interest on the loans taken to start the circuit as a cost of production, which is not taken in account in determining the prices.
+It is possible to either adjust the price equation or to fix a minimum value for the mark-up. The second option has been chosen.
 
 By adding these further restrictions the model preserve its features: it still does not reach full employment, the demand for consumption goods is fully satisfied, and it presents cyclical behaviour.
 
 \section{The agent-based extension}
 By adding another sector, it is necessary to choose with how many agents it should be represented.
-For realism, financial sector can be populated by competiting banks, financial firms that manage savings and trade in bonds and equities.
+For realism, financial sector can be populated by competing banks, financial firms that manage savings and trade in bonds and equities.
 But this would increase the complexity of the model (by adding many new interactions).
 As discussed in the chapter \ref{ch:complexity} we need to identify which level of detail better suits the needs.
 The model is rooted in the production side of the economy, labour and goods are the core elements we are investigating.
-To tame the complexity of the model we choose to considered the financial sector as a very stylized aggregate sector rather than a detailed sector with multiple agents.
+To tame the complexity of the model we choose to consider the financial sector as a very stylized aggregate sector rather than a detailed sector with multiple agents.
 
-The agent based follows closely the aggegate version with endogenous government spending, including the absence of constrains on credit.
-The only relevant difference is a consequence of the heterogeinity of the firms: as a consequence of the random matching, some firms accomulate enough debt to reach negative wealth.
+The agent based follows closely the aggregate version with endogenous government spending, including the absence of constrains on credit.
+The only relevant difference is a consequence of the heterogeneity of the firms: as a consequence of the random matching, some firms accumulate enough debt to reach negative wealth.
 Those firms are considered bankrupted, their stock of loans is cancelled (the loss is absorbed by the bank) and they restart the production the following period with their stock of capital.
 
 \subsection{Results}
@@ -127,7 +127,7 @@ Those firms are considered bankrupted, their stock of loans is cancelled (the lo
     \label{fig:04AB_L}
 \end{figure}
 
-In figure \ref{fig:04AB_L} we can observe the spike in the stock of loans held by capital firms before the bankrupticies. Additionally profits are negligible in the capital firms sector and are distributed mostly by the banking one and the consumption firms one.
+In figure \ref{fig:04AB_L} we can observe the spike in the stock of loans held by capital firms before the bankruptcies. Additionally, profits are negligible in the capital firms sector and are distributed mostly by the banking one and the consumption firms one.
 
-Additionally the fat-tail distribution of wealth among households becomes even more skewed, resembling a one-gets-all dynamics.
+Finally, the fat-tail distribution of wealth among households becomes even more skewed, resembling a one-gets-all dynamics.
 

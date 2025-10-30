@@ -1,12 +1,12 @@
-\chapter{Dynamic Mark Up}
+\chapter{Dynamic Mark-Up}
 \label{ch:m3}
-The next feature added to the model is a dymanic pricing system: remaining in the "price plus mark up" framework with exogenous wages, the only element that can be vary is the mark up.
-Mark up is updated looking at the capacity utilization as a proxy for the unbalanceness of the market and the force of a firm's position (higher the capacity utilization, shorter the market, higher the possibility to be price setter).
+The next feature added to the model is a dynamic pricing system: remaining in the "price plus mark-up" framework with exogenous wages, the only element that can vary is the mark-up.
+Mark-up is updated looking at the capacity utilization as a proxy for the unbalancedness of the market and the force of a firm's position (higher the capacity utilization, shorter the market, higher the possibility to be price setter).
 
 Such improvement does not modify the matrices of the model.
 
 \section{The aggregate version}
-The mark up is updated by each sector looking at its own capacity utilization like $$\mu = \mu{t-1} (1 + \Theta \frac{{cu}_{t-1} - {cu}^T}{{cu}^T})$$ where $\Theta$ regulates the speed of the adjustment.
+The mark-up is updated by each sector looking at its own capacity utilization like $$\mu = \mu{t-1} (1 + \Theta \frac{{cu}_{t-1} - {cu}^T}{{cu}^T})$$ where $\Theta$ regulates the speed of the adjustment.
 
 \begin{figure}
     \centering
@@ -20,7 +20,7 @@ The mark up is updated by each sector looking at its own capacity utilization li
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\textwidth]{03_macro}
-        \caption{Dynamics of some of the flows (only profits are in nominal rather than real value)}
+        \caption{Dynamics of flows (only profits are in nominal rather than real value)}
         \label{fig:03_macro}
     \end{subfigure}%
     ~
@@ -33,18 +33,18 @@ The mark up is updated by each sector looking at its own capacity utilization li
     \caption{Dynamics of the model with investments and exogenous government spending}
 \end{figure}
 
-Allowing prices to rise makes the profit share grows maccroscopically when looking at the table of flows (figure \ref{fig:03_san})
+Allowing prices to rise makes the profit share grows macroscopically when looking at the table of flows (figure \ref{fig:03_san})
 
 Figure \ref{fig:03_macro} shows how real variables in the model remains relatively stable in the model (consumption is expressed in units of goods) while profits and the nominal variables (as the stock of money) grow exponentially as the prices (figure \ref{fig:03_p}).
 
 \section{The agent based extension}
-The new price and mark up equation are used also for each agent.
+The new price and mark-up equation are used also for each agent.
 As a consequence the prices are no more homogenous and each firm sells its goods at a different price.
-The matching is still path-depent and each buyer keep buying from the same seller if the transaction is still possible, otherwise the new seller is no more chose at random but by choosing the one offering the lower price.
+The matching is still path-dependent and each buyer keep buying from the same seller if the transaction is still possible, otherwise the new seller is no more chose at random but by choosing the one offering the lower price.
 
-Additionally some households start to show negative wealth, so additional constraints on available liquidity were added also in the consumption goods market.
+Additionally, some households start to show negative wealth, so additional constraints on available liquidity were added also in the consumption goods market.
 
-For simplicity capital goods are revalued at the average price paied by the holding consumption firm in the last period or the price fixed by each capital firm.
+For simplicity capital goods are revalued at the average price paid by the holding consumption firm in the last period or the price fixed by each capital firm.
 
 \subsection{Results}
 \begin{figure}
@@ -52,14 +52,14 @@ For simplicity capital goods are revalued at the average price paied by the hold
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\textwidth]{03AB_macro}
-        \caption{Dynamics of some of the nominal flows}
+        \caption{Dynamics of some nominal flows}
         \label{fig:03AB_macro}
     \end{subfigure}%
     ~
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\textwidth]{03AB_real}
-        \caption{PDynamics of some of the real flows}
+        \caption{Dynamics of some real flows}
         \label{fig:03AB_real}
     \end{subfigure}
 
@@ -73,16 +73,16 @@ For simplicity capital goods are revalued at the average price paied by the hold
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\textwidth]{03AB_hist}
-        \caption{PDistribution of wealth among households}
+        \caption{Distribution of wealth among households}
         \label{fig:03AB_hist}
     \end{subfigure}
     \caption{Dynamics of the AB model with investments and exogenous government spending}
 \end{figure}
 
 Figure \ref{fig:03AB_macro} shows an exponential dynamics for the aggregate nominal variables linked to the consumption goods market, while the nominal variables (figure \ref{fig:03AB_real}) are stable.
-If we look into prices (figure \ref{fig:03AB_pN}) the dynamics is very different in the two sector, with the mark up (and so the profits) growing in the consumption goods market while reducing to almost zero in the capital goods market.
-In other words, all the surplus value is extracted at the end of the supply chain, which is something that is observed for example with the high-end products designed in the US or EU and manifactured in China.
+If we look into prices (figure \ref{fig:03AB_pN}) the dynamics is very different in the two sector, with the mark-up (and so the profits) growing in the consumption goods market while reducing to almost zero in the capital goods market.
+In other words, all the surplus value is extracted at the end of the supply chain, which is something that is observed for example with the high-end products designed in the US or EU and manufactured in China.
 
-Comparing to previuos versions some households accumulate negative wealth (figure \ref{fig:03AB_hist}), effectively consuming by debt, a common feature in many economies in the North Atlantic.
+Comparing to previous versions some households accumulate negative wealth (figure \ref{fig:03AB_hist}), effectively consuming by debt, a common feature in many economies in the North Atlantic.
 
 The AB extension shows some fluctuation and cycles that the aggregate model does not show, providing already an interesting playground.
