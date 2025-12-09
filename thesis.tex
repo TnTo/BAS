@@ -1,7 +1,7 @@
 % !TeX spellcheck = en_GB
 \documentclass[]{book}
 
-\usepackage[margin=2.5cm]{geometry}
+\usepackage[showframe,margin=2.5cm]{geometry}
 \usepackage[style=apa, backend=biber, sorting=ynt, sortcites=true, useprefix=true]{biblatex}
 \usepackage[autostyle=false, style=english]{csquotes}
 \MakeOuterQuote{"}
@@ -34,12 +34,7 @@
 \usepackage{textcomp}
 \usepackage{extdash}
 
-
-\addbibresource{thesis.bib}
-\addbibresource{doc/complexity.bib}
-
-\title{On Agent-Based Models and Complexity:\\ a methodological note and a step-by-step model}
-\author{Margherita Ciruzzi}
+\AtBeginEnvironment{tabular}{\small}
 
 \makeatletter
 \@addtoreset{chapter}{part}
@@ -51,7 +46,16 @@
 \cftsetindents{section}{3em}{3em}
 \cftsetindents{subsection}{6em}{4em}
 
+\addbibresource{thesis.bib}
+\addbibresource{doc/complexity.bib}
+
+\title{On Agent-Based Models and Complexity:\\ a methodological note and a step-by-step model}
+\author{Margherita Ciruzzi}
+
+
 \begin{document}
+\pagestyle{empty}
+
 \maketitle
 \cleardoublepage
 
@@ -83,6 +87,7 @@
 \tableofcontents
 
 %intro
+\pagestyle{plain}
 \input{doc/intro.tex}
 
 \part{Methodology}
