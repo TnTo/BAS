@@ -11,9 +11,10 @@ The first model is very simple and the unusual elements (like the unemployment b
         $\Sigma$ & $+V_\mathcal{H}$          & $+V_{\mathcal{F}}$          & $+V_\mathcal{G}$ & 0        \\
     \end{tabular}
     \caption{Balance sheet for the Base model}
+    \label{tab:bs}
 \end{table}
 
-As shown in the balance sheet for the model there is only one financial asset (money) issued by the consolidated public sector (including both the government and the central bank) and which bearing no interests.
+As shown in the balance sheet for the model there is only one financial asset (money) issued by the consolidated public sector (including both the government and the central bank) as a debt for itself and a credit for the other sector, which bearing no interests.
 
 Additionally, there is one real homogenous good consumed by both the households and the government that is depleted at the end of each period.
 As such there is no accumulation of the good between periods and it is not relevant to include it in the balance sheet (which represent the state of the system at the end of each period).
@@ -37,6 +38,7 @@ As such there is no accumulation of the good between periods and it is not relev
         $\Sigma$       & 0                               & 0                               & 0                   & 0        \\
     \end{tabular}
     \caption{Transactions and Flows matrix for the Base model}
+    \label{tab:fof}
 \end{table}
 
 In this version of the model the single good is produced by firms and sold to the households and the government.
@@ -45,21 +47,36 @@ Taxes are paid only by the households.
 
 \section{The aggregate version}
 \subsection{Behavioural equations}
-The behavioural equations of the aggregate version are written such there is no simultaneity among equations, making it easier to extend to the agent based version later.
+The behavioural equations of the aggregate version are written such there is no simultaneity among equations, making it easier to extend to the agent based version later: while the set of equation of an SFC can be solved iteratively for each time-step, ignoring the order and allowing for simultaneity and interdependency among equations, and refining the result on each iteration until the system converges, the same strategy is not feasible for an ABM.
 
-Wages are set exogenously, while prices are determined by a cost plus mark-up strategy like $$p = (1 + \mu) \frac{W}{Y} = (1+\mu) \beta$$ (which results in constant prices) and unemployment benefits are a fraction $\phi$ of the wages.
+The feasibility of the iterative method is due the low number of variables that are preserved from the previous time period as input for the following one and the relative low number of operations implied by the equations: in an ABM each variable is replicated for each agent, each equation is repeated for each agent and, often, the necessity to disaggregate the behaviour requires to introduce many operations, often including choices and conditional checks.
+This increment the time to solve a single iteration of the ABM time-step of some magnitudes, making unfeasible to iterate multiple times to solve a single time-step.
+As a consequence the sequence of the events needs to be clearly defined in the AB version to be sure that each equation depend only on the state at the end of the previous period and equations already solved.
+With this in mind, also in the aggregate version we write the equations such that they can be solved in order, without interdependencies, to more easily adapt them to the AB version later.
 
-Taxes are paid with a flat rate on wages ($\tau_W$), distributed profits ($\tau_P$) and consumption ($\tau_C$).
+Wages (W) are set exogenously and are the only input of the production, and so the only cost for the firms.
 
-Desired consumption in units of good for households is defined in a classic post-Keynesian way as $$C^T = \frac{a_Y ((1- \tau_W) W + UB) + a_V {\mathbf{M}_\mathcal{H}}_{t-1}}{(1 + \tau_C) p_{t-1}}$$
-while government's desired consumption is determined against target expected deficit $d$ $$G^T = \frac{d \cdot {GDP}_{t-1} + T_{t-1} - UB_{t-1}}{p_{t-1}}$$
+Prices (p) are so determined by a cost plus mark-up strategy like $$p = (1 + \mu) \frac{W}{Y}$$ where Y is the total output and $\mu$ is the mark-up rate.
+By employing a Leontief production function the production ($\beta$) is the ratio between the single input and the output, and so prices can also be written as $$p= (1+\mu) \beta$$ which results in constant prices when productivity is constant.
 
-Given the desired total consumption $Y^T = C^T + G^T$, firms aim to hire a number of workers equal to $N = Y^T/\beta$, where $\beta$ is the productivity in a Leontief function.
+Unemployment benefits (UB) are a exogenous and constant fraction $\phi$ of the wages.
+
+Taxes (T) are paid with a flat rate on wages ($\tau_W$), distributed profits ($\tau_P$) and consumption ($\tau_C$).
+
+Desired consumption in units of good for households is defined in a classic post-Keynesian way as $$C^T = \frac{a_Y ((1 - \tau_W) W + UB) + a_V {\mathbf{M}_\mathcal{H}}_{t-1}}{(1 + \tau_C) p_{t-1}}$$
+where $a_Y$ and $a_V$ are the marginal propensity to consume out of disposable income (wages and unemployment benefits) and wealth (money, $\mathbf{M}_\mathcal{H}$).
+Additionally, at the denominator appears $(1 + \tau_C) p_{t-1}$ which is the price of the good for the consumers (including VAT) and allows to convert the desired expenditures for consumption into the desired units of goods.
+
+Government's desired consumption is determined against target expected deficit $d$ $$G^T = \frac{d \cdot {GDP}_{t-1} + T_{t-1} - UB_{t-1}}{p_{t-1}}$$
+
+Given the desired total consumption $Y^T = C^T + G^T$, firms aim to hire a number of workers equal to $N = Y^T/\beta$.
 The number of households, or equivalently the number of available workers, is normalized in the $[0,1]$ interval.
 
 Desired consumption are reduced proportionally to match the realized production $Y = \beta N$.
 
-Finally, firms distributed any resulting money to households as profits (or receive money from the households to cover the losses), netting their deposit to 0 at the end of each period.
+Finally, firms distributed any resulting money to households as profits (P) (or receive money from the households to cover the losses), netting their deposit to 0 at the end of each period.
+
+The other equations simply mirror the sum of the rows and columns of the matrices of the model (\ref{tab:bs} and \ref{tab:fof}).
 
 The exact implementation and the values used for the parameters and the initialization are reported in appendix.
 
@@ -72,7 +89,7 @@ The exact implementation and the values used for the parameters and the initiali
 \end{figure}
 
 Diagram \ref{fig:00_san} represents the flows of the model at the steady state.
-The distribution of the flows of values among the sector has the right sign and macroscopically realistic magnitudes.
+The distribution of the flows (accounted by their nominal value rather than their real quantity) among the sector has the right sign and macroscopically realistic magnitudes\footnote{The only unusual value is the net transfer of money from the households to the government rather than the opposite: it is an artefact of the representation, the value of the associate flow is close to zero.}.
 
 \begin{figure}
     \centering
