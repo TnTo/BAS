@@ -147,6 +147,12 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         rB <- array(NA, c(TMAX))
         rL <- array(NA, c(TMAX))
         cr <- array(NA, c(TMAX))
+        DefMFC <- array(NA, c(TMAX, NFC))
+        DefMFK <- array(NA, c(TMAX, NFK))
+        DefM <- array(NA, c(TMAX))
+        DefLFC <- array(NA, c(TMAX, NFC))
+        DefLFK <- array(NA, c(TMAX, NFK))
+        DefL <- array(NA, c(TMAX))
     }
 
     # Initial values
@@ -469,16 +475,26 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             V[t] <- sum(VH[t, ]) + sum(VFK[t, ]) + sum(VFC[t, ]) + VB[t] + VG[t] # System Total Wealth
 
             # Defaulting
+            DefLFC[t, ] <- 0
+            DefLFC[t, which(VFC[t, ] < -tol)] <- LFC[t, which(VFC[t, ] < -tol)]
             LFC[t, which(VFC[t, ] < -tol)] <- 0
+            DefMFC[t,]<-0
+            DefMFC[t, which(VFC[t, ] < -tol)] <- MFC[t, which(VFC[t, ] < -tol)]
             MFC[t, which(VFC[t, ] < -tol)] <- 0
             muC[t, which(VFC[t, ] < -tol)] <- mu0
             VFC[t, which(VFC[t, ] < -tol)] <- pKC[t, which(VFC[t, ] < -tol)] * KC[t, which(VFC[t, ] < -tol)]
+            DefLFK[t, ] <- 0
+            DefLFK[t, which(VFK[t, ] < -tol)] <- LFK[t, which(VFK[t, ] < -tol)]
             LFK[t, which(VFK[t, ] < -tol)] <- 0
+            DefMFK[t,]<-0
+            DefMFK[t, which(VFK[t, ] < -tol)] <- MFK[t, which(VFK[t, ] < -tol)]
             MFK[t, which(VFK[t, ] < -tol)] <- 0
             muK[t, which(VFK[t, ] < -tol)] <- mu0
             VFK[t, which(VFK[t, ] < -tol)] <- pK[t, which(VFK[t, ] < -tol)] * KK[t, which(VFK[t, ] < -tol)]
 
+            DefM[t] <- sum(DefMFC[t,]) + sum(DefMFK[t,])
             M[t] <- sum(MH[t, ]) + sum(MFC[t, ]) + sum(MFK[t, ]) # Bank's Money
+            DefL[t]<- sum(DefLFC[t,])+sum(DefLFK[t,])
             L[t] <- sum(LFC[t, ]) + sum(LFK[t, ])
             VB[t] <- -M[t] + L[t] + B[t]
             V[t] <- sum(VH[t, ]) + sum(VFK[t, ]) + sum(VFC[t, ]) + VB[t] + VG[t] # System Total Wealth
@@ -490,50 +506,50 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     }
 }
 
-{{        if (any(rowSums(MH[2:TMAX, ]) + rowSums(MFC[2:TMAX, ]) + rowSums(MFK[2:TMAX, ]) - M[2:TMAX] > tol)) {
+{{        if (any(abs(rowSums(MH[2:TMAX, ]) + rowSums(MFC[2:TMAX, ]) + rowSums(MFK[2:TMAX, ]) - M[2:TMAX]) > tol)) {
     print("M row in BS not consistent")
 }
-if (any(rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]) + rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) - (rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ])) > tol)) {
+if (any(abs(rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]) + rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) - (rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]))) > tol)) {
     print("K row in BS not consistent")
 } # Tautology, but keeping track of the value of each K Good is not suitable in this setting
-if (any(B[2:TMAX] - B[2:TMAX] > tol)) {
+if (any(abs(B[2:TMAX] - B[2:TMAX]) > tol)) {
     print("B row in BS not consistent")
 } # Ops, Tautology again
-if (any(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VB[2:TMAX] + VG[2:TMAX] - V[2:TMAX] > tol)) {
+if (any(abs(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VB[2:TMAX] + VG[2:TMAX] - V[2:TMAX]) > tol)) {
     print("V row in BS not consistent")
 }
-if (any(MH[2:TMAX, ] - VH[2:TMAX, ] > tol)) {
+if (any(abs(MH[2:TMAX, ] - VH[2:TMAX, ]) > tol)) {
     print("H column in BS not consistent (checked at agent level)")
 }
-if (any(MFC[2:TMAX, ] + (KC[2:TMAX, ] * pKC[2:TMAX, ]) - LFC[2:TMAX, ] - VFC[2:TMAX, ] > tol)) {
+if (any(abs(MFC[2:TMAX, ] + (KC[2:TMAX, ] * pKC[2:TMAX, ]) - LFC[2:TMAX, ] - VFC[2:TMAX, ]) > tol)) {
     print("FC column in BS not consistent (checked at agent level)")
 }
-if (any(MFK[2:TMAX, ] + (KK[2:TMAX, ] * pK[2:TMAX, ]) - LFK[2:TMAX, ] - VFK[2:TMAX, ] > tol)) {
+if (any(abs(MFK[2:TMAX, ] + (KK[2:TMAX, ] * pK[2:TMAX, ]) - LFK[2:TMAX, ] - VFK[2:TMAX, ]) > tol)) {
     print("FK column in BS not consistent (checked at agent level)")
 }
-if (any(-M[2:TMAX] + L[2:TMAX] + B[2:TMAX] - VB[2:TMAX] > tol)) {
+if (any(abs(-M[2:TMAX] + L[2:TMAX] + B[2:TMAX] - VB[2:TMAX]) > tol)) {
     print("B column in BS not consistent")
 }
-if (any(-B[2:TMAX] - VG[2:TMAX] > tol)) {
+if (any(abs(-B[2:TMAX] - VG[2:TMAX]) > tol)) {
     print("G column in BS not consistent")
 }
-if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]) - V[2:TMAX] > tol)) {
+if (any(abs(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX, ]) - V[2:TMAX]) > tol)) {
     print("Total column in BS not consistent")
 }    }
 
 {
-    if (any(
+    if (any(abs(
         -rowSums(sweep(C[2:TMAX, , ], c(1, 3), pC[2:TMAX, ], "*"), dims = 2)
         + UB[2:TMAX, ]
             + W[2:TMAX, ]
             + P[2:TMAX, ]
             - T[2:TMAX, ]
             - (MH[2:TMAX, ] - MH[1:TMAX - 1, ])
-        > tol
+      )  > tol
     )) {
         print("H column in TFM not consistent (checked ad agent level)")
     }
-    if (any(
+    if (any(abs(
         (rowSums(aperm(C[2:TMAX, , ], c(1, 3, 2)), dim = 2) * pC[2:TMAX, ])
         + (G[2:TMAX, ] * pC[2:TMAX, ])
             - rowSums(sweep(IC[2:TMAX, , ], c(1, 3), pK[2:TMAX, ], "*"), dims = 2)
@@ -541,40 +557,46 @@ if (any(rowSums(KK[2:TMAX, ] * pK[2:TMAX, ]) + rowSums(KC[2:TMAX, ] * pKC[2:TMAX
             - rowSums(aperm(PFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - sweep(DLFC[2:TMAX, ] + LFC[1:TMAX - 1, ], 1, rL[2:TMAX], "*")
             - (MFC[2:TMAX, ] - MFC[1:TMAX - 1, ])
+            - DefMFC[2:TMAX,]
             + (LFC[2:TMAX, ] - LFC[1:TMAX - 1, ])
-        > tol
+            + DefLFC[2:TMAX,]
+     ) > tol
     )) {
         print("FC column in TFM not consistent (checked ad agent level)")
     }
-    if (any(
+    if (any(abs(
         rowSums(aperm(IC[2:TMAX, , ], c(1, 3, 2)), dims = 2) * pK[2:TMAX, ]
             - rowSums(aperm(WFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - sweep(DLFK[2:TMAX, ] + LFK[1:TMAX - 1, ], 1, rL[2:TMAX], "*")
             - (MFK[2:TMAX, ] - MFK[1:TMAX - 1, ])
+            - DefMFK[2:TMAX,]
             + (LFK[2:TMAX, ] - LFK[1:TMAX - 1, ])
-        > tol
+            + DefLFK[2:TMAX,]
+    )> tol
     )) {
         print("FK column in TFM not consistent (checked ad agent level)")
     }
-    if (any(
+    if (any(abs(
         -rowSums(PB[2:TMAX, ])
         + rL[2:TMAX] * (DL[2:TMAX] + L[1:TMAX - 1])
             + rB[2:TMAX] * B[2:TMAX]
             + (M[2:TMAX] - M[1:TMAX - 1])
+            + DefM[2:TMAX]
             - (L[2:TMAX] - L[1:TMAX - 1])
+            - DefL[2:TMAX]
             - (B[2:TMAX] - B[1:TMAX - 1])
-        > tol
+     ) > tol
     )) {
         print("B column in TFM not consistent")
     }
-    if (any(
+    if (any(abs(
         -rowSums(G[2:TMAX, ] * pC[2:TMAX, ])
         - rowSums(UB[2:TMAX, ])
             + rowSums(T[2:TMAX, ])
             - rB[2:TMAX] * B[2:TMAX]
             + (B[2:TMAX] - B[1:TMAX - 1])
-        > tol
+     ) > tol
     )) {
         print("G column in TFM not consistent")
     }

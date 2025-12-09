@@ -197,7 +197,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             )
             T[t, ] <- tW * rowSums(W[t, , ]) + tP * rowSums(P[t, , ]) + tC * rowSums(sweep(C[t, , ], 2, p[t], "*")) # Taxes
             MH[t, ] <- MH[t - 1, ] + rowSums(P[t, , ]) + rowSums(W[t, , ]) + UB[t, ] - rowSums(sweep(C[t, , ], 2, p[t], "*")) - T[t, ] # Households' Money
-            MF[t, ] <- MF[t - 1, ] + p[t] * Y[t, ] - colSums(W[t, , ]) - colSums(P[t, , ]) # Firms' Money
+            MF[t, ] <- MF[t - 1, ] + p[t] * S[t, ] - colSums(W[t, , ]) - colSums(P[t, , ]) # Firms' Money
             M[t] <- M[t - 1] - (sum(T[t, ]) - sum(p[t] * G[t, ]) - sum(UB[t, ])) # Gvt's Money
             VH[t, ] <- MH[t, ] # Households' Net Wealth
             VF[t, ] <- MF[t, ] # Firms' Net Wealth
@@ -210,51 +210,51 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     }
 
     {
-        if (any(rowSums(MH[2:TMAX, ]) + rowSums(MF[2:TMAX, ]) - M[2:TMAX] > tol)) {
+        if (any(abs(rowSums(MH[2:TMAX, ]) + rowSums(MF[2:TMAX, ]) - M[2:TMAX]) > tol)) {
             print("M row in BS not consistent")
         }
-        if (any(rowSums(VH[2:TMAX, ]) + rowSums(VF[2:TMAX, ]) + VG[2:TMAX] - V[2:TMAX] > tol)) {
+        if (any(abs(rowSums(VH[2:TMAX, ]) + rowSums(VF[2:TMAX, ]) + VG[2:TMAX] - V[2:TMAX]) > tol)) {
             print("V row in BS not consistent")
         }
-        if (any(MH[2:TMAX, ] - VH[2:TMAX, ] > tol)) {
+        if (any(abs(MH[2:TMAX, ] - VH[2:TMAX, ]) > tol)) {
             print("H column in BS not consistent (checked at agent level)")
         }
-        if (any(MF[2:TMAX, ] - VF[2:TMAX, ] > tol)) {
+        if (any(abs(MF[2:TMAX, ] - VF[2:TMAX, ]) > tol)) {
             print("F column in BS not consistent (checked at agent level)")
         }
-        if (any(-M[2:TMAX] - VG[2:TMAX] > tol)) {
+        if (any(abs(-M[2:TMAX] - VG[2:TMAX]) > tol)) {
             print("G column in BS not consistent")
         }
     }
 
     {
-        if (any(
+        if (any(abs(
             -rowSums(sweep(C[2:TMAX, , ], 1, p[2:TMAX], "*"), dims = 2)
             + UB[2:TMAX, ]
                 + rowSums(W[2:TMAX, , ], dims = 2)
                 + rowSums(P[2:TMAX, , ], dims = 2)
                 - T[2:TMAX, ]
                 - (MH[2:TMAX, ] - MH[1:TMAX - 1, ])
-            > tol
+        )> tol
         )) {
             print("H column in TFM not consistent (checked ad agent level)")
         }
-        if (any(
+        if (any(abs(
             sweep(rowSums(aperm(C[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, p[2:TMAX], "*")
             + sweep(G[2:TMAX, ], 1, p[2:TMAX], "*")
                 - rowSums(aperm(W[2:TMAX, , ], c(1, 3, 2)), dims = 2)
                 - rowSums(aperm(P[2:TMAX, , ], c(1, 3, 2)), dims = 2)
                 - (MF[2:TMAX, ] - MF[1:TMAX - 1, ])
-            > tol
+        )> tol
         )) {
             print("F column in TFM not consistent (checked ad agent level)")
         }
-        if (any(
+        if (any(abs(
             -rowSums(sweep(G[2:TMAX, ], 1, p[2:TMAX], "*"))
             - rowSums(UB[2:TMAX, ])
                 + rowSums(T[2:TMAX, ])
                 + (M[2:TMAX] - M[1:TMAX - 1])
-            > tol
+        )> tol
         )) {
             print("G column in TFM not consistent")
         }

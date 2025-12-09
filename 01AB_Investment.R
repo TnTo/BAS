@@ -340,66 +340,66 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
     }
 }
 
-{{        if (any(rowSums(MH[2:TMAX, ]) + rowSums(MFC[2:TMAX, ]) + rowSums(MFK[2:TMAX, ]) - M[2:TMAX] > tol)) {
+{{        if (any(abs(rowSums(MH[2:TMAX, ]) + rowSums(MFC[2:TMAX, ]) + rowSums(MFK[2:TMAX, ]) - M[2:TMAX]) > tol)) {
     print("M row in BS not consistent")
 }
-if (any(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VG[2:TMAX] - V[2:TMAX] > tol)) {
+if (any(abs(rowSums(VH[2:TMAX, ]) + rowSums(VFC[2:TMAX, ]) + rowSums(VFK[2:TMAX, ]) + VG[2:TMAX] - V[2:TMAX]) > tol)) {
     print("V row in BS not consistent")
 }
-if (any(MH[2:TMAX, ] - VH[2:TMAX, ] > tol)) {
+if (any(abs(MH[2:TMAX, ] - VH[2:TMAX, ]) > tol)) {
     print("H column in BS not consistent (checked at agent level)")
 }
-if (any(MFC[2:TMAX, ] + sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*") - VFC[2:TMAX, ] > tol)) {
+if (any(abs(MFC[2:TMAX, ] + sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*") - VFC[2:TMAX, ]) > tol)) {
     print("FC column in BS not consistent (checked at agent level)")
 }
-if (any(MFK[2:TMAX, ] - VFK[2:TMAX, ] > tol)) {
+if (any(abs(MFK[2:TMAX, ] - VFK[2:TMAX, ]) > tol)) {
     print("FK column in BS not consistent (checked at agent level)")
 }
-if (any(-M[2:TMAX] - VG[2:TMAX] > tol)) {
+if (any(abs(-M[2:TMAX] - VG[2:TMAX]) > tol)) {
     print("G column in BS not consistent")
 }
-if (any(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX] > tol)) {
+if (any(abs(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX]) > tol)) {
     print("Total column in BS not consistent")
 }    }
 
 {
-    if (any(
+    if (any(abs(
         -rowSums(sweep(C[2:TMAX, , ], 1, pC[2:TMAX], "*"), dims = 2)
         + UB[2:TMAX, ]
             + W[2:TMAX, ]
             + P[2:TMAX, ]
             - T[2:TMAX, ]
             - (MH[2:TMAX, ] - MH[1:TMAX - 1, ])
-        > tol
+     ) > tol
     )) {
         print("H column in TFM not consistent (checked ad agent level)")
     }
-    if (any(
+    if (any(abs(
         sweep(rowSums(aperm(C[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, pC[2:TMAX], "*")
         + sweep(G[2:TMAX, ], 1, pC[2:TMAX], "*")
             - rowSums(sweep(I[2:TMAX, , ], 1, pK[2:TMAX], "*"), dims = 2)
             - rowSums(aperm(WFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFC[2:TMAX, ] - MFC[1:TMAX - 1, ])
-        > tol
+    )> tol
     )) {
         print("FC column in TFM not consistent (checked ad agent level)")
     }
-    if (any(
+    if (any(abs(
         sweep(rowSums(aperm(I[2:TMAX, , ], c(1, 3, 2)), dims = 2), 1, pK[2:TMAX], "*")
         - rowSums(aperm(WFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFK[2:TMAX, ] - MFK[1:TMAX - 1, ])
-        > tol
+    )> tol
     )) {
         print("FK column in TFM not consistent (checked ad agent level)")
     }
-    if (any(
+    if (any(abs(
         -rowSums(sweep(G[2:TMAX, ], 1, pC[2:TMAX], "*"))
         - rowSums(UB[2:TMAX, ])
             + rowSums(T[2:TMAX, ])
             + (M[2:TMAX] - M[1:TMAX - 1])
-        > tol
+    )> tol
     )) {
         print("G column in TFM not consistent")
     }
