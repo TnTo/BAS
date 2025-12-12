@@ -14,7 +14,7 @@ The first model is very simple and the unusual elements (like the unemployment b
     \label{tab:bs}
 \end{table}
 
-As shown in the balance sheet for the model there is only one financial asset (money) issued by the consolidated public sector (including both the government and the central bank) as a debt for itself and a credit for the other sector, which bearing no interests.
+As shown in the balance sheet (matrix \ref{tab:bs}) for the model there is only one financial asset (money) issued by the consolidated public sector (including both the government and the central bank) as a debt for itself and a credit for the other sector, which bearing no interests.
 
 Additionally, there is one real homogenous good consumed by both the households and the government that is depleted at the end of each period.
 As such there is no accumulation of the good between periods and it is not relevant to include it in the balance sheet (which represent the state of the system at the end of each period).
@@ -41,12 +41,15 @@ As such there is no accumulation of the good between periods and it is not relev
     \label{tab:fof}
 \end{table}
 
-In this version of the model the single good is produced by firms and sold to the households and the government.
-The households receive a wage from the firms if they are employed or a money transfer from the government otherwise, and the profits distributed by the firms.
-Taxes are paid only by the households.
+The flow of funds matrix (\ref{tab:fof}) summurizes the events of the model, with the associated flows of value.
+First two rows (Consumption and Government Spending) relates to the goods market: the homogeneus good is sold to both the households and the government.
+The third row (Benefits) indicates the unemployment benefits paid by the government to the households that do not receive a wage.
+The fourth row (Wages) summirizes the labor market, in which firms employ households and pay them a wage.
+The fifth and sixth rows (Profits and Taxes) clean up the time-step: firms transfer to the households their remaining liquidity as distributed profits, and households pay taxes on wages, consumption and profits.
 
 \section{The aggregate version}
 \subsection{Behavioural equations}
+\label{sec:behave}
 The behavioural equations of the aggregate version are written such there is no simultaneity among equations, making it easier to extend to the agent based version later: while the set of equation of an SFC can be solved iteratively for each time-step, ignoring the order and allowing for simultaneity and interdependency among equations, and refining the result on each iteration until the system converges, the same strategy is not feasible for an ABM.
 
 The feasibility of the iterative method is due the low number of variables that are preserved from the previous time period as input for the following one and the relative low number of operations implied by the equations: in an ABM each variable is replicated for each agent, each equation is repeated for each agent and, often, the necessity to disaggregate the behaviour requires to introduce many operations, often including choices and conditional checks.
@@ -143,6 +146,7 @@ The sankey diagram for this variant is shown in figure \ref{fig:00_san_EC}: the 
 
 The model dynamics is slower and no output gap appears (see figure \ref{fig:00_Y_EC}): the exogenous government spending limits the influx of money in the system; as a consequence the cash flow of the households is limited and their consumption as well.
 In such a scenario the goods market is short on the demand side rather than on the supply side and, as a consequence, not all the production capacity of the system is required, leading to unemployment.
+The choice to make good perishable and not keep them into inventories prevent the model to develop explosive cyclical dynamics in which the good are stocked into the inventories which are later sold interrupting the production and reducing the employment, leading to a further reduction of the demand.
 
 \section{The agent-based extension}
 To adapt the aggregate model to an Agent-Based one there are few choices to be made about the distribution and the discretization of some variables.
@@ -151,13 +155,28 @@ First, the households and firms sectors are now a set of agents rather than bein
 Second, the non-zero values at the beginning of the model (in our case the stock of money held by the households) have to be divided among the agent.
 Third, each interaction among non-aggregate sectors now requires a matching procedure.
 
+As stated at the beginning of section \ref{sec:behave}, in an ABM actions have to happen in a specific order, to ensure that there are not decision that agents have to take relies on of future actions or choices.
+The sequence of the events of the model is:
+\begin{enumerate}[label=\textbf{\Alph*}]
+    \item Households determinate the desired consumption (expressed as units of good) based on the wealth and the disposable income of the previous period
+    \item Government determinate the desired consumption (expressed as units of good) based on the target deficit computed on the accounting of the previous period
+    \item Firms fire and hire workers in order to match the labour input required to match the desired consumption
+    \item The realized output is determined
+    \item Wages and unemployment benefits are paid
+    \item Prices are set
+    \item The goods are sold to households and the government
+    \item Profits are distributed
+    \item Taxes are paid
+    \item Accounting variables are updated
+\end{enumerate}
+
 The model is initialized by attributing the same amount of money to each household: in this way is easier to observe if and how inequalities emerge.
 
 All the matching procedures present a strong path-dependency to reduce the computational cost: each period the resulting matching of the previous one is refined instead to be reconstructed from scratch (as if all the working contracts were permanent and the good market show a kind of monopolistic competition that sticks together producers and consumers).
 
 The job market matching is random: if the aggregate desired consumption by both the households and the government is higher than the output related to the current level of employment a random firm employs a random unemployed household; otherwise if the current level of employment overshoots the target demand a random firm fires a random household.
 
-To distribute the consumption between the households and the public sector, the two sectors get the same fraction of the desired consumption such that all the produced goods are bought (or the entire desired consumption is matched and the over-production is lost).
+To distribute the consumption between the households and the public sector, the two sectors get the same fraction of the desired consumption such that all the produced goods are bought (or the entire desired consumption is matched and the over-production is lost). The unsatisfied consumption of the households is distributed randomly among them (or, in fact, the matching for the consumption goods is random).
 
 Profits are distributed from all firms to all households proportionally to the stock of money held by each household at the end of the previous period. This resembles a homogenous return on wealth, as in modern ETFs.
 

@@ -235,8 +235,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
                 + rowSums(P[2:TMAX, , ], dims = 2)
                 - T[2:TMAX, ]
                 - (MH[2:TMAX, ] - MH[1:TMAX - 1, ])
-        )> tol
-        )) {
+        ) > tol)) {
             print("H column in TFM not consistent (checked ad agent level)")
         }
         if (any(abs(
@@ -245,8 +244,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
                 - rowSums(aperm(W[2:TMAX, , ], c(1, 3, 2)), dims = 2)
                 - rowSums(aperm(P[2:TMAX, , ], c(1, 3, 2)), dims = 2)
                 - (MF[2:TMAX, ] - MF[1:TMAX - 1, ])
-        )> tol
-        )) {
+        ) > tol)) {
             print("F column in TFM not consistent (checked ad agent level)")
         }
         if (any(abs(
@@ -254,8 +252,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
             - rowSums(UB[2:TMAX, ])
                 + rowSums(T[2:TMAX, ])
                 + (M[2:TMAX] - M[1:TMAX - 1])
-        )> tol
-        )) {
+        ) > tol)) {
             print("G column in TFM not consistent")
         }
     }

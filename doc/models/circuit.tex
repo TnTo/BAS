@@ -116,7 +116,25 @@ The model is rooted in the production side of the economy, labour and goods are 
 To tame the complexity of the model we choose to consider the financial sector as a very stylized aggregate sector rather than a detailed sector with multiple agents.
 
 The agent based follows closely the aggregate version with endogenous government spending, including the absence of constrains on credit.
-The only relevant difference is a consequence of the heterogeneity of the firms: as a consequence of the random matching, some firms accumulate enough debt to reach negative wealth.
+The sequence of the events of the model is updated as:
+\begin{enumerate}[label=\textbf{\Alph*}]
+    \item Households determinate the desired consumption (expressed as units of good) based on the wealth and the disposable income of the previous period
+    \item Government determinate the desired consumption (expressed as units of good) based on the target deficit computed on the accounting of the previous period
+    \item Investments are ordered by the consumption firms to the capital ones
+    \item Firms fire and hire workers in order to match the labour input required to match the desired consumption
+    \item The realized output is determined for both capital and consumption goods
+    \item Wages and unemployment benefits are paid
+    \item Prices are set
+    \item Consumption goods are sold to households and the government
+    \item Capital goods are sold to consumption firms
+    \item Loans are written down to cover wages and investments
+    \item Loans are repaid in their principal and interests
+    \item Profits are distributed
+    \item Taxes are paid
+    \item Accounting variables are updated, including government bonds' interest
+\end{enumerate}
+
+The only relevant difference is a consequence of the heterogeneity of the firms: as a consequence of the random matching, some firms accumulate enough debt to reach negative net wealth.
 Those firms are considered bankrupted, their stock of loans is cancelled (the loss is absorbed by the bank) and they restart the production the following period with their stock of capital.
 
 \subsection{Results}

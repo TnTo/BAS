@@ -50,7 +50,7 @@ When the government spending is set exogenous the behaviour is still cyclical bu
 \section{The agent-based extension}
 The only substantial difference in this version of the AB model is in the capital goods market.
 
-First each capital firms produces its own capital goods and not enters the market as a buyer from other firms.
+First, each capital firms produces its own capital goods and does not enter the market as a buyer from other firms.
 
 Consumption firms order all the capital goods to match their desired investments up to the potential output of capital firms (i.e. number of capital goods times their productivity). Then the ordered investments and the desired production for self-investment are proportionally scaled down to match the realized production.
 
@@ -66,10 +66,10 @@ Consumption firms order all the capital goods to match their desired investments
     \begin{subfigure}[t]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{02AB_box}
-        \caption{Distribution for some variables for the households at the end of the distribution}
+        \caption{Distribution for some variables for the households at the end of the simulation}
         \label{fig:02AB_box}
     \end{subfigure}
     \caption{Dynamics of the AB model with capital goods in both sectors}
 \end{figure}
 
-The dynamics is overall still very stable and at full employment, but the gap between the demand for consumption goods and the supply is wide, compressing the consumption which results right skewed with regard to households wealth rather than left skewed as in the previous version. The demand of consumption firms for capital goods is still matched (figures \ref{fig:02AB_out} and \ref{fig:02AB_box}).
+The dynamics is overall still very stable and at full employment, but the gap between the demand for consumption goods and the supply is wide. To stabilize the model, the mark-up rate has been increased compared to the aggregate version and the previous agent-based one, to compensate for the self-production of capital goods; otherwise the capital good sector would require a constant influx of monetary capital by the households. The demand of consumption firms for capital goods is no more matched and the rich-get-richer dynamics is amplified, since an economy short on the demand side forces a higher saving rate (figures \ref{fig:02AB_out} and \ref{fig:02AB_box}).

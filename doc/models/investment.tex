@@ -123,8 +123,23 @@ Particularly, when the lower-bound is reached, demand decreases slower than avai
 
 \section{The agent-based extension}
 Most of the changing in the AB version mirrors the one in the aggregate version, using the same equations.
+The sequence of the events of the model is updated as:
+\begin{enumerate}[label=\textbf{\Alph*}]
+    \item Households determinate the desired consumption (expressed as units of good) based on the wealth and the disposable income of the previous period
+    \item Government determinate the desired consumption (expressed as units of good) based on the target deficit computed on the accounting of the previous period
+    \item Investments are ordered by the consumption firms to the capital ones
+    \item Firms fire and hire workers in order to match the labour input required to match the desired consumption
+    \item The realized output is determined for both capital and consumption goods
+    \item Wages and unemployment benefits are paid
+    \item Prices are set
+    \item Consumption goods are sold to households and the government
+    \item Capital goods are sold to consumption firms
+    \item Profits are distributed
+    \item Taxes are paid
+    \item Accounting variables are updated
+\end{enumerate}
 
-As in other models, capital goods are "ordered" at the beginning of the sequence of events, matching the desired investment of the consumption goods firms to the so determined desired production of the capital goods firms.
+Capital goods are "ordered" at the beginning of the sequence of events, matching the desired investment of the consumption goods firms to the so determined desired production of the capital goods firms.
 After the consumption goods and labour markets transactions are concluded, consumption goods firms buys the ordered capital goods as long as they have the liquidity needed.
 In the eventuality that some firms are able to buy less goods than the amount ordered, other firms with unmatched demand and enough liquidity buys additional capital goods.
 After this process the remaining excess of production is lost.

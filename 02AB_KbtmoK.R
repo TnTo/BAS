@@ -54,7 +54,7 @@ sample.vec <- function(x, ...) x[sample.int(length(x), ...)]
         av <- 0.2 # Desired share of consumptio out of wealth
         betaC <- 2.0 # Output per worker in units of goods in Consumption Goods Firms
         betaK <- 1.0 # Output per worker in units of goods in Capital Goods Firms
-        mu <- 0.2 # Firms' mark-up
+        mu <- 0.5 # Firms' mark-up
         dG <- 0.03 # Target Gvt deficit
         tW <- 0.35 # Tax rate on wages
         tP <- 0.2 # Tax rate on profits
@@ -384,8 +384,7 @@ if (any(abs(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX]) > tol)) {
             + P[2:TMAX, ]
             - T[2:TMAX, ]
             - (MH[2:TMAX, ] - MH[1:TMAX - 1, ])
-    )> tol
-    )) {
+    ) > tol)) {
         print("H column in TFM not consistent (checked ad agent level)")
     }
     if (any(abs(
@@ -395,8 +394,7 @@ if (any(abs(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX]) > tol)) {
             - rowSums(aperm(WFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFC[2:TMAX, ] - MFC[1:TMAX - 1, ])
-     ) > tol
-    )) {
+    ) > tol)) {
         print("FC column in TFM not consistent (checked ad agent level)")
     }
     if (any(abs(
@@ -404,8 +402,7 @@ if (any(abs(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX]) > tol)) {
         - rowSums(aperm(WFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFK[2:TMAX, ] - MFK[1:TMAX - 1, ])
-    )> tol
-    )) {
+    ) > tol)) {
         print("FK column in TFM not consistent (checked ad agent level)")
     }
     if (any(abs(
@@ -413,8 +410,7 @@ if (any(abs(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX]) > tol)) {
         - rowSums(UB[2:TMAX, ])
             + rowSums(T[2:TMAX, ])
             + (M[2:TMAX] - M[1:TMAX - 1])
-    )> tol
-    )) {
+    ) > tol)) {
         print("G column in TFM not consistent")
     }
 }}
@@ -441,6 +437,13 @@ if (any(abs(K[2:TMAX] * pK[2:TMAX] - V[2:TMAX]) > tol)) {
     plot(rowSums(W), type = "l", main = "W")
     plot(rowSums(P), type = "l", main = "P")
     plot(rowSums(T), type = "l", main = "T")
+}
+
+{
+    par(mfrow = c(1, 3))
+    plot(rowSums(P), type = "l", main = "P")
+    plot(rowSums(PFC), type = "l", main = "PFC")
+    plot(rowSums(PFK), type = "l", main = "PFK")
 }
 
 {

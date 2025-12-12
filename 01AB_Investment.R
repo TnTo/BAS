@@ -370,8 +370,7 @@ if (any(abs(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX]) > tol))
             + P[2:TMAX, ]
             - T[2:TMAX, ]
             - (MH[2:TMAX, ] - MH[1:TMAX - 1, ])
-     ) > tol
-    )) {
+    ) > tol)) {
         print("H column in TFM not consistent (checked ad agent level)")
     }
     if (any(abs(
@@ -381,8 +380,7 @@ if (any(abs(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX]) > tol))
             - rowSums(aperm(WFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFC[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFC[2:TMAX, ] - MFC[1:TMAX - 1, ])
-    )> tol
-    )) {
+    ) > tol)) {
         print("FC column in TFM not consistent (checked ad agent level)")
     }
     if (any(abs(
@@ -390,8 +388,7 @@ if (any(abs(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX]) > tol))
         - rowSums(aperm(WFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - rowSums(aperm(PFK[2:TMAX, , ], c(1, 3, 2)), dims = 2)
             - (MFK[2:TMAX, ] - MFK[1:TMAX - 1, ])
-    )> tol
-    )) {
+    ) > tol)) {
         print("FK column in TFM not consistent (checked ad agent level)")
     }
     if (any(abs(
@@ -399,8 +396,7 @@ if (any(abs(rowSums(sweep(K[2:TMAX, ], 1, pK[2:TMAX], "*")) - V[2:TMAX]) > tol))
         - rowSums(UB[2:TMAX, ])
             + rowSums(T[2:TMAX, ])
             + (M[2:TMAX] - M[1:TMAX - 1])
-    )> tol
-    )) {
+    ) > tol)) {
         print("G column in TFM not consistent")
     }
 }}
