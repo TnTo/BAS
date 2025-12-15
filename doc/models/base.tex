@@ -83,6 +83,16 @@ The other equations simply mirror the sum of the rows and columns of the matrice
 
 The exact implementation and the values used for the parameters and the initialization are reported in appendix.
 
+\subsection{A comparison}
+The model presented is close to the SIMEX model proposed by \textcite{godley2012}. This is the only step of our build up in which the two sequences of models are comparable, since their models focus on the financial and monetary side of the economy, while our models on the real side.
+
+The two model are quite similar, sharing the same balance sheet, most of the flows and the equations, including a labour-only Leontief production function, a cost-plus-markup pricing and the standard post-Keynesian consumption function.
+The flows matrix has two more entries in our model: unemployment benefits and profits.
+
+A first difference is the government spending which is endogenous in our model and exogenous in their one (or like modified version presented in section \ref{sec:base_EC}).
+
+A second one is about taxation: in Godley and Lavoie's model only income is taxed, while in our model also consumption and profits are getting taxed.
+
 \subsection{Results}
 \begin{figure}
     \centering
@@ -126,6 +136,7 @@ In this model the government is allowed to influx liquidity each period (the tar
 On the other side, given a fixed productivity and no population dynamics the maximum real output is fixed and is what prevent the economy to grow in real terms. Fixed wages and mark-up prevent a nominal growth.
 
 \section{Exogenous government spending}
+\label{sec:base_EC}
 In a variation of the model (marked with \textit{EC} in the name of R script), we try to fix exogenously the government spending as considering $G^T$ as constant.
 
 \begin{figure}
