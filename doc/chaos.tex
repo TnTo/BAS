@@ -3,9 +3,9 @@
 
 An open problem among researchers who develop (AB-)SFC models is the calibration of the model, i.e. finding the right values for the parameters to make the model fitting data or at least stylized facts \parencite{fagiolo2019a, grazzini2017a, zezza2019}.
 The idea behind it is to increase the realism (and so the reliability) of the predictions. But as discussed in chapter \ref{ch:against} and in a wide literature about neoclassical economics, realism is not always a necessary requirement neither is a feature of models required in Economics today.
-As such it is possible to remain inside the stylemes of the discipline without achieve a "quantitative realism", a mathematical model that fit accurately the real-world data, but rather to use mathematical models as a way to streamline and clarify complex thoughts, achieving a "qualitative realism" that match the general dynamics observed without looking at the exact figures (as in the spirits of many models of the XX century, even from the post-Keynesian school).
+As such it is possible to remain inside the stylemes of the discipline without achieve a "quantitative realism", a mathematical model that fit accurately the real-world data, but rather to use mathematical models as a way to streamline and clarify complex thoughts, achieving a "qualitative realism" that match the general dynamics observed without looking at the exact figures (as in the spirits of many models of the XX\textsuperscript{th} century, even from the post-Keynesian school).
 
-Additionally, SFC models are generally non-linear, with exponential or conditional dynamics (plus effects of discretization if we consider the AB extensions), which leads to chaotic behaviours. I mean chaotic in the strict mathematical sense: a model that change significantly its behaviour for small variations of the initial conditions (or in our case of the parameters).
+Additionally, SFC models are generally non-linear, with exponential or conditional dynamics (plus the effects of discretization if we consider the AB extensions), which leads to chaotic behaviours. I mean chaotic in the strict mathematical sense: a model that change significantly its behaviour for small variations of the initial conditions (or in our case of the parameters).
 This characteristic makes calibration a very difficult exercise that has to rely on stochastic and often black-boxed algorithm to find the right parameters, because it is not possible to assume that the macroscopic behaviours targeted for the calibration change continuously even for small variations of the parameter(s) of interest (even not considering the interactions among them).
 
 \begin{figure}[t]
@@ -29,12 +29,12 @@ This characteristic makes calibration a very difficult exercise that has to rely
 An example is recovered from the SFC version of the model with endogenous mark-ups (see chapter \ref{ch:m3}): the parameter of interest is the depreciation rate of capital, i.e. which share of capital goods have to be replaced each period to maintain the same production capacity, which varies from 0 (the capital goods last forever) to 1 (the capital goods must be substituted each period), while the target variable is the employment share.
 The parameter varies with increments of 0.025 and both the dynamics (figure \ref{fig:chaos_trace}) and the final state of the target variable (figure \ref{fig:chaos_end}) are recorded.
 First thing to be noted is that the model reach either full employment or full unemployment, unable to stabilize on an intermediate state\footnote{This is a feature of this particular model which has few mechanisms to limit consumption and production. Many SFC models rooted in post-Keynesian theory show a macroscopic state with an intermediate share of employment, particularly those with exogenous government expenditure.}.
-This is what in physics is called a phase transition: a rapid macroscopic variation between two caused by a small microscopic change.
+This is what in physics is called a phase transition: a rapid macroscopic variation between two states caused by a small microscopic change.
 Second, the phase transitions are three, and for one of the values of the parameter a cyclical behaviour appears in the middle of the simulation.
 Third, even in each phase the behaviour is not exceptionally continuos, as we can see from the colour sequence that is not uniform in figure \ref{fig:chaos_trace}.
 
 Why this is happening is difficult to say.
-Analysing a dynamics like this even in a simple model often requires to untangle a chain of causal relation that can involve many equations and variable with lagged interactions.
+Analysing a dynamics like this even in a simple model often requires to untangle a chain of causal relation that can involve many equations and variables with lagged interactions.
 
-The model presented here are developed more as a teaching tool, a way to show basic economic interactions and how to think and implement AB-SFC models.
+The model presented here is developed more as a teaching tool, a way to show basic economic interactions and how to think and implement AB-SFC models.
 As such, parameters values are got from literature and when needed roughly tuned by hand to obtain stable and not too much unrealistic dynamics.

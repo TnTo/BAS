@@ -41,10 +41,10 @@ As such there is no accumulation of the good between periods and it is not relev
     \label{tab:fof}
 \end{table}
 
-The flow of funds matrix (\ref{tab:fof}) summurizes the events of the model, with the associated flows of value.
-First two rows (Consumption and Government Spending) relates to the goods market: the homogeneus good is sold to both the households and the government.
+The flow of funds matrix (\ref{tab:fof}) summarizes the events of the model, with the associated flows of value.
+First two rows (Consumption and Government Spending) relates to the goods market: the homogenous good is sold to both the households and the government.
 The third row (Benefits) indicates the unemployment benefits paid by the government to the households that do not receive a wage.
-The fourth row (Wages) summirizes the labor market, in which firms employ households and pay them a wage.
+The fourth row (Wages) summarizes the labour market, in which firms employ households and pay them a wage.
 The fifth and sixth rows (Profits and Taxes) clean up the time-step: firms transfer to the households their remaining liquidity as distributed profits, and households pay taxes on wages, consumption and profits.
 
 \section{The aggregate version}
@@ -52,7 +52,7 @@ The fifth and sixth rows (Profits and Taxes) clean up the time-step: firms trans
 \label{sec:behave}
 The behavioural equations of the aggregate version are written such there is no simultaneity among equations, making it easier to extend to the agent based version later: while the set of equation of an SFC can be solved iteratively for each time-step, ignoring the order and allowing for simultaneity and interdependency among equations, and refining the result on each iteration until the system converges, the same strategy is not feasible for an ABM.
 
-The feasibility of the iterative method is due the low number of variables that are preserved from the previous time period as input for the following one and the relative low number of operations implied by the equations: in an ABM each variable is replicated for each agent, each equation is repeated for each agent and, often, the necessity to disaggregate the behaviour requires to introduce many operations, often including choices and conditional checks.
+The feasibility of the iterative method is due the low number of variables that are preserved from the previous time period as input for the following one and the relative low number of operations implied by the equations: in an ABM each variable is replicated for each agent, each equation is repeated for each agent and, often, the necessity to disaggregate the behaviour requires to introduce many operations, often including choices, random events and conditional checks.
 This increment the time to solve a single iteration of the ABM time-step of some magnitudes, making unfeasible to iterate multiple times to solve a single time-step.
 As a consequence the sequence of the events needs to be clearly defined in the AB version to be sure that each equation depend only on the state at the end of the previous period and equations already solved.
 With this in mind, also in the aggregate version we write the equations such that they can be solved in order, without interdependencies, to more easily adapt them to the AB version later.
@@ -89,7 +89,7 @@ The model presented is close to the SIMEX model proposed by \textcite{godley2012
 The two model are quite similar, sharing the same balance sheet, most of the flows and the equations, including a labour-only Leontief production function, a cost-plus-markup pricing and the standard post-Keynesian consumption function.
 The flows matrix has two more entries in our model: unemployment benefits and profits.
 
-A first difference is the government spending which is endogenous in our model and exogenous in their one (or like modified version presented in section \ref{sec:base_EC}).
+A first difference is the government spending which is endogenous in our model and exogenous in their one (and in the modified version presented in section \ref{sec:base_EC}).
 
 A second one is about taxation: in Godley and Lavoie's model only income is taxed, while in our model also consumption and profits are getting taxed.
 
@@ -123,7 +123,7 @@ The distribution of the flows (accounted by their nominal value rather than thei
     \begin{subfigure}[t]{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{00_Y}
-        \caption{Output and potential output}
+        \caption{Output and desired output}
         \label{fig:00_Y}
     \end{subfigure}
     \caption{Dynamics of the base model}
@@ -146,12 +146,12 @@ In a variation of the model (marked with \textit{EC} in the name of R script), w
     \label{fig:00_san_EC}
 \end{figure}
 
-The sankey diagram for this variant is shown in figure \ref{fig:00_san_EC}: the only macroscopic difference is the emergence of a non-zero value for the unemployment benefits, as a consequence of a non-zero unemployment rate (dependent of the level of government spending within a given range of stable values).
+The Sankey diagram for this variant is shown in figure \ref{fig:00_san_EC}: the only macroscopic difference is the emergence of a non-zero value for the unemployment benefits, as a consequence of a non-zero unemployment rate (dependent of the level of government spending within a given range of stable values).
 
 \begin{figure}
     \centering
     \includegraphics[width=.5\textwidth]{00_Y_EC}
-    \caption{Output, potential output and (exogenous) government spending}
+    \caption{Output, desired output and (exogenous) government spending}
     \label{fig:00_Y_EC}
 \end{figure}
 
