@@ -373,8 +373,15 @@ class Model:
             f.C[h] -= d
             h.C[f] -= d
 
-        while any([sum(h.C.values()) > h.CT for h in m.H]) or any(
-            [sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) > h.M for h in m.H]
+        while (
+            any(
+                [
+                    sum(h.C.values()) > h.CT
+                    or sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) > h.M
+                    and sum(h.C.values()) > 0
+                    for h in m.H
+                ]
+            )
         ):  # M is already increased of DI
             h = choice(
                 [
@@ -382,6 +389,7 @@ class Model:
                     for h in m.H
                     if (sum(h.C.values()) > h.CT)
                     or (sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) > h.M)
+                    and (sum(h.C.values()) > 0)
                 ]
             )
             f = choice([f for f in h.C.keys() if h.C[f] > 0])
