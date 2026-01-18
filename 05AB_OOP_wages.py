@@ -39,6 +39,7 @@ class Household:
         # Other
         h.employer = None
         h.CT = 0
+        h.M0 = 0
 
 
 class CapitalGood:
@@ -75,6 +76,9 @@ class ConsumptionFirm:
         f.Ip = dict()
         f.Y = 0
         f.IT = 0
+        f.M0 = 0
+        f.K0 = 0
+        f.L0 = 0
 
 
 class CapitalFirm:
@@ -103,6 +107,9 @@ class CapitalFirm:
         f.Y = 0
         f.IT = 0
         f.IK = 0
+        f.M0 = 0
+        f.K0 = 0
+        f.L0 = 0
 
 
 class Bank:
@@ -120,6 +127,9 @@ class Bank:
 
         # Other
         b.rL = 0
+        b.M0 = 0
+        b.L0 = 0
+        b.B0 = 0
 
 
 class Government:
@@ -136,6 +146,7 @@ class Government:
         # Other
         g.rB = 0
         g.GT = 0
+        g.B0 = 0
 
 
 class Model:
@@ -191,7 +202,7 @@ class Model:
                 f.W[h] = 0
                 f.P[h] = 0
             for fk in m.FK:
-                f.I[fk] = []
+                f.I[fk] = 0
                 f.Ip[fk] = 0
 
         for f in m.FK:
@@ -199,7 +210,7 @@ class Model:
                 f.W[h] = 0
                 f.P[h] = 0
             for fc in m.FC:
-                f.I[fc] = []
+                f.I[fc] = 0
                 f.Ip[fc] = 0
 
         for f in m.FC + m.FK:
@@ -229,6 +240,21 @@ class Model:
             m.B.M[f] = 0
 
     def step(m):
+
+        # Report Stocks for check purpose
+        for h in m.H:
+            h.M0 = h.M
+
+        for f in m.FC + m.FK:
+            f.M0 = f.M
+            f.K0 = sum([k.p * (1 - m.dK * k.age) for k in f.K])
+            f.L0 = f.L
+
+        m.B.M0 = sum(m.B.M.values())
+        m.B.L0 = sum(m.B.L.values())
+        m.B.B0 = m.B.B
+
+        m.G.B0 = m.G.B
 
         # Set Wage and Price level
         for f in m.FC + m.FK:
@@ -551,6 +577,7 @@ class Model:
                 k.age += 1
             f.K = [k for d in f.K if k.age < 1 / m.dK]
 
+        # Failures
         for f in m.FC + m.FK:
             if f.M - f.L + sum([k.p * (1 - m.dK * k.age) for k in f.K]) < 0:
                 f.detL = f.L
@@ -575,7 +602,7 @@ class Model:
 
 # %%
 m = Model()
-data = [deepcopy(m)]
+data = []
 for _ in trange(m.TMAX):
     m.step()
     data += [deepcopy(m)]
@@ -613,19 +640,105 @@ print(
             any(
                 [
                     abs(
-                        -sum([data[t].H[i].C[f] * f.p for f in data[t].FC])
-                        + data[t].H[i].UB
-                        + data[t].H[i].W
-                        + sum(data[t].H[i].P.values())
-                        - data[t].H[i].T
-                        - (data[t].H[i].M - data[t - 1].H[i].M)
+                        -sum([h.C[f] * f.p for f in m.FC])
+                        + h.UB
+                        + h.W
+                        + sum(h.P.values())
+                        - h.T
+                        - (h.M - h.M0)
                     )
                     > tol
-                    for i in range(len(data[t].H))
+                    for h in m.H
                 ]
             )
-            for t in range(2, len(data))
+            for m in data
         ]
     )
 )
+# FC
+print(
+    any(
+        [
+            any(
+                [
+                    abs(
+                        +sum(f.C.values()) * f.p
+                        + f.G * f.p
+                        - sum([f.I[fk] * fk.p for fk in m.FK])
+                        - sum(f.W.values())
+                        - sum(f.P.values())
+                        - f.intL
+                        - (f.M - f.M0)
+                        + (f.L - f.L0)
+                        + f.detL
+                    )
+                    > tol
+                    for f in m.FC
+                ]
+            )
+            for m in data
+        ]
+    )
+)
+
+# FK
+print(
+    any(
+        [
+            any(
+                [
+                    abs(
+                        +sum(f.I.values()) * f.p
+                        - sum(f.W.values())
+                        - sum(f.P.values())
+                        - f.intL
+                        - (f.M - f.M0)
+                        + (f.L - f.L0)
+                        + f.detL
+                    )
+                    > tol
+                    for f in m.FC
+                ]
+            )
+            for m in data
+        ]
+    )
+)
+
+# B
+print(
+    any(
+        [
+            abs(
+                -sum(m.B.P.values())
+                - sum(m.B.intL.values())
+                - m.B.intB
+                + (sum(m.B.M.values()) - m.B.M0)
+                - (sum(m.B.L.values()) - m.B.L0)
+                - (m.B.B - m.B.B0)
+                - sum(m.B.detL.values())
+            )
+            > tol
+            for m in data
+        ]
+    )
+)
+
+# G
+print(
+    any(
+        [
+            abs(
+                -sum([m.G.G[f] * f.p for f in m.FC])
+                - sum(m.G.UB.values())
+                + sum(m.G.T.values())
+                + m.G.intB
+                - (m.G.B - m.G.B0)
+            )
+            > tol
+            for m in data
+        ]
+    )
+)
+
 # %%
