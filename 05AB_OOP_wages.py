@@ -4,15 +4,14 @@ from random import seed, choice, sample
 from statistics import mean, fmean, StatisticsError
 from math import ceil, floor
 from copy import deepcopy
+import pickle
 
-import jsonpickle
 from tqdm import trange
-import pandas
 
 # %%
 # GLOBAL
 seed(8686)
-tol = 1e-2
+tol = 1e-4
 
 
 def shuffle(x):
@@ -33,7 +32,7 @@ class Household:
         # Flow
         h.C = dict()
         h.W = 0
-        h.UB = 0
+        h.UB = 1
         h.P = dict()
         h.T = 0
 
@@ -142,9 +141,9 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 20  # 500
-        m.NH = 100  # 1000
-        m.NFC = 5  # 50
+        m.TMAX = 500
+        m.NH = 1000
+        m.NFC = 50
         m.NFK = 5
 
         # Pars
@@ -338,17 +337,19 @@ class Model:
 
         ### First Debt Emission and wage and ub payment (EDIT MOVED)
         for f in m.FC + m.FK:
-            Wtot = sum([h.W for h in f.employees])
-            f.L += Wtot
-            m.B.L[f] += Wtot
-            f.M -= Wtot
-            m.B.B -= m.tW * Wtot
-            m.G.B -= m.tW * Wtot
             for h in f.employees:
-                h.M += (1 - m.tW) * h.W
-                m.B.M[h] -= m.tW * h.W
+                f.L += h.W
+                m.B.L[f] += h.W
+                f.M -= h.W
+                m.B.M[f] -= h.W
+                h.M += h.W
+                m.B.M[h] += h.W
                 h.T += m.tW * h.W
                 m.G.T[h] += m.tW * h.W
+                h.M -= h.T
+                m.B.M[h] -= h.T
+                m.B.B -= h.T
+                m.G.B -= h.T
 
         for h in m.H:
             h.M += h.UB
@@ -360,10 +361,16 @@ class Model:
         # NO WORKER - KC matching
         for f in m.FC + m.FK:
             f.Y = sum([k.beta for k in sample(f.K, k=min(len(f.employees), len(f.K)))])
-            f.cu = min(len(f.employees), len(f.K)) / len(f.K)
+            try:
+                f.cu = min(len(f.employees), len(f.K)) / len(f.K)
+            except ZeroDivisionError:
+                f.cu = 0
 
         # Consumpion good market
-        Hsh = sum([h.CT for h in m.H]) / (sum([h.CT for h in m.H]) + m.G.GT)
+        try:
+            Hsh = sum([h.CT for h in m.H]) / (sum([h.CT for h in m.H]) + m.G.GT)
+        except ZeroDivisionError:
+            Hsh = 0
 
         # first set consumption
         while any([sum(f.C.values()) - f.Y * Hsh > tol for f in m.FC]):
@@ -373,15 +380,13 @@ class Model:
             f.C[h] -= d
             h.C[f] -= d
 
-        while (
-            any(
-                [
-                    sum(h.C.values()) > h.CT
-                    or sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) > h.M
-                    and sum(h.C.values()) > 0
-                    for h in m.H
-                ]
-            )
+        while any(
+            [
+                sum(h.C.values()) - h.CT > tol
+                or sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) - h.M > tol
+                and sum(h.C.values()) > tol
+                for h in m.H
+            ]
         ):  # M is already increased of DI
             h = choice(
                 [
@@ -403,10 +408,12 @@ class Model:
             f.C[h] -= d
             h.C[f] -= d
 
-        while (
-            any([sum(f.C.values()) - f.Y * Hsh < tol for f in m.FC])
-            and any([sum(h.C.values()) < h.CT for h in m.H])
-            and [sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) > h.M for h in m.H]
+        while any([sum(f.C.values()) - f.Y * Hsh < tol for f in m.FC]) and any(
+            [
+                sum(h.C.values()) < h.CT
+                and sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) < h.M
+                for h in m.H
+            ]
         ):
             f = choice([f for f in m.FC if sum(f.C.values()) - f.Y * Hsh < tol])
             h = choice(
@@ -429,12 +436,15 @@ class Model:
         for h in m.H:
             for f in m.FC:
                 f.M += f.C[h] * f.p
-                h.M -= h.C[f] * (1 + m.tC) * f.p
+                m.B.M[f] += f.C[h] * f.p
+                h.M -= h.C[f] * f.p
+                m.B.M[h] -= h.C[f] * f.p
                 h.T += h.C[f] * m.tC * f.p
-                m.G.T[h] += h.C[f] * m.tC * f.p
-                m.B.M[h] -= h.C[f] * m.tC * f.p
-                m.B.B -= h.C[f] * m.tC * f.p
-                m.G.B -= h.C[f] * m.tC * f.p
+                m.G.T[h] += h.T
+                h.M -= h.T
+                m.B.M[h] -= h.T
+                m.B.B -= h.T
+                m.G.B -= h.T
 
         # Gvt expenditure
         for f in m.FC:
@@ -485,7 +495,9 @@ class Model:
             for fc in m.FC:
                 fc.K += [CapitalGood(fk.beta, fk.p) for _ in range(fk.I[fc])]
                 fc.M -= fk.p * fk.I[fc]
+                m.B.M[fc] -= fk.p * fk.I[fc]
                 fk.M += fk.p * fk.I[fc]
+                m.B.M[fk] += fk.p * fk.I[fc]
                 fc.L += fk.p * fk.I[fc]
                 m.B.L[fc] += fk.p * fk.I[fc]
 
@@ -518,17 +530,20 @@ class Model:
             h.P[m.B] = PB * h.M / sum([h.M for h in m.H])
             m.B.P[h] = PB * h.M / sum([h.M for h in m.H])
 
-        for f in m.FC + m.FK:
-            f.M -= sum(f.P.values())
-
         for h in m.H:
-            h.M += (1 - m.tP) * sum(h.P.values())
-            h.T += m.tP * sum(h.P.values())
-            m.G.T[h] += m.tP * sum(h.P.values())
-            m.B.M[h] -= m.tP * sum(h.P.values())
+            for f in m.FC + m.FK:
+                f.M -= f.P[h]
+                m.B.M[f] -= f.P[h]
+                h.M += f.P[h]
+                m.B.M[h] += f.P[h]
+            h.M += h.P[m.B]
             m.B.M[h] += h.P[m.B]
-            m.B.B -= m.tP * sum(h.P.values())
-            m.G.B -= m.tP * sum(h.P.values())
+            h.T += m.tP * sum(h.P.values())
+            m.G.T[h] += h.T
+            h.M -= h.T
+            m.B.M[h] -= h.T
+            m.B.B -= h.T
+            m.G.B -= h.T
 
         # Capital depreciation
         for f in m.FC + m.FK:
@@ -542,9 +557,15 @@ class Model:
                 f.L = 0
                 m.B.detL[f] = f.detL
                 m.B.L[f] = 0
-
-        m.i = 1 - fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC]) / m.avgp
-        m.avgp = fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC])
+        try:
+            m.i = (
+                1
+                - fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC]) / m.avgp
+            )
+            m.avgp = fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC])
+        except StatisticsError:
+            m.i = 1 - mean([f.p for f in m.FC]) / m.avgp
+            m.avgp = mean([f.p for f in m.FC])
         m.cu = fmean([f.cu for f in m.FC + m.FK], [len(f.K) for f in m.FC + m.FK])
         m.u = len([h for h in m.H if h.employer is None]) / m.NH
         m.GDP = sum([f.p * (sum(f.C.values()) + f.G) for f in m.FC]) + sum(
@@ -558,7 +579,53 @@ data = [deepcopy(m)]
 for _ in trange(m.TMAX):
     m.step()
     data += [deepcopy(m)]
+pickle.dump(data, open("05_data.pkl", "wb"))
+
 # %%
-df = pandas.DataFrame(
-    [jsonpickle.pickler.Pickler(unpicklable=False).flatten(m) for m in data]
+data = pickle.load(open("05_data.pkl", "rb"))
+
+# %%
+# Consistency check
+print("Consistency checks: they should be false")
+# BS
+# M
+print(
+    any(
+        [
+            abs(sum([a.M for a in m.H + m.FC + m.FK]) - sum(m.B.M.values())) > tol
+            for m in data
+        ]
+    )
 )
+# L
+print(
+    any(
+        [abs(sum([a.L for a in m.FC + m.FK]) - sum(m.B.L.values())) > tol for m in data]
+    )
+)
+# B
+print(any([abs(m.G.B - m.B.B) > tol for m in data]))
+# FOF
+# H
+print(
+    any(
+        [
+            any(
+                [
+                    abs(
+                        -sum([data[t].H[i].C[f] * f.p for f in data[t].FC])
+                        + data[t].H[i].UB
+                        + data[t].H[i].W
+                        + sum(data[t].H[i].P.values())
+                        - data[t].H[i].T
+                        - (data[t].H[i].M - data[t - 1].H[i].M)
+                    )
+                    > tol
+                    for i in range(len(data[t].H))
+                ]
+            )
+            for t in range(2, len(data))
+        ]
+    )
+)
+# %%
