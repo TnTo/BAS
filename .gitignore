@@ -21,3 +21,5 @@ renv/
 *.pdf
 
 *.docx
+
+*.pkl

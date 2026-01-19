@@ -7,6 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
+from matplotlib.pyplot import plot
 
 # %%
 # GLOBAL
@@ -230,7 +231,9 @@ class Model:
 
         # init stocks
         for f in m.FC + m.FK:
-            f.K += [CapitalGood(1, 1)]
+            f.K += [CapitalGood(1, 1) for _ in range(10)]
+            for i in range(len(f.K)):
+                f.K[i].age = i
 
         for h in m.H:
             h.M = 1
@@ -300,11 +303,11 @@ class Model:
                     max(
                         0,
                         min(len(f.K), len(f.employees)) * max(0, 1 / m.cuT - 1 / f.cu)
-                        + m.dK * min(len(f.K), len(f.employees)),
+                        + len([k for k in f.K if (k.age + 1) > 1 / m.dK]),
                     )
                 )
             except ZeroDivisionError:
-                f.IT = ceil(m.dK * min(len(f.K), len(f.employees)))
+                f.IT = ceil(len([k for k in f.K if (k.age + 1) > 1 / m.dK]))
 
         # Capital Goods orders are based only on desired I
 
@@ -315,11 +318,11 @@ class Model:
             fc.Ip[fk] -= d
             fk.Ip[fc] -= d
 
-        while any([sum(fk.Ip.values()) > sum([k.beta for k in fk.K]) for fk in m.FK]):
+        while any([(sum(fk.Ip.values()) > sum([k.beta for k in fk.K])) for fk in m.FK]):
             fk = choice(
                 [fk for fk in m.FK if sum(fk.Ip.values()) > sum([k.beta for k in fk.K])]
             )
-            fc = choice(fk.Ip[fc] > 0)
+            fc = choice([fc for fc in m.FC if fk.Ip[fc] > 0])
             d = min(fk.Ip[fc], sum(fk.Ip.values()) - sum([k.beta for k in fk.K]))
             fc.Ip[fk] -= d
             fk.Ip[fc] -= d
@@ -408,8 +411,8 @@ class Model:
 
         while any(
             [
-                sum(h.C.values()) - h.CT > tol
-                or sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) - h.M > tol
+                (sum(h.C.values()) - h.CT > tol
+                or sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) - h.M > tol)
                 and sum(h.C.values()) > tol
                 for h in m.H
             ]
@@ -418,8 +421,8 @@ class Model:
                 [
                     h
                     for h in m.H
-                    if (sum(h.C.values()) > h.CT)
-                    or (sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) > h.M)
+                    if ((sum(h.C.values()) > h.CT)
+                    or (sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) > h.M))
                     and (sum(h.C.values()) > 0)
                 ]
             )
@@ -434,14 +437,14 @@ class Model:
             f.C[h] -= d
             h.C[f] -= d
 
-        while any([sum(f.C.values()) - f.Y * Hsh < tol for f in m.FC]) and any(
+        while any([f.Y * Hsh - sum(f.C.values()) > tol for f in m.FC]) and any(
             [
                 sum(h.C.values()) < h.CT
                 and sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) < h.M
                 for h in m.H
             ]
         ):
-            f = choice([f for f in m.FC if sum(f.C.values()) - f.Y * Hsh < tol])
+            f = choice([f for f in m.FC if f.Y * Hsh - sum(f.C.values()) < tol])
             h = choice(
                 [
                     h
@@ -450,8 +453,8 @@ class Model:
                     and (sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) < h.M)
                 ]
             )
-            d = max(
-                f.Y - sum(f.C.values()),
+            d = min(
+                f.Y * Hsh - sum(f.C.values()),
                 h.CT - sum(h.C.values()),
                 h.M - sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]),
             )
@@ -575,7 +578,7 @@ class Model:
         for f in m.FC + m.FK:
             for k in f.K:
                 k.age += 1
-            f.K = [k for d in f.K if k.age < 1 / m.dK]
+            f.K = [k for k in f.K if k.age < (1 / m.dK)]
 
         # Failures
         for f in m.FC + m.FK:
@@ -593,7 +596,10 @@ class Model:
         except StatisticsError:
             m.i = 1 - mean([f.p for f in m.FC]) / m.avgp
             m.avgp = mean([f.p for f in m.FC])
-        m.cu = fmean([f.cu for f in m.FC + m.FK], [len(f.K) for f in m.FC + m.FK])
+        try:
+            m.cu = fmean([f.cu for f in m.FC + m.FK], [len(f.K) for f in m.FC + m.FK])
+        except StatisticsError:
+            m.cu = 0
         m.u = len([h for h in m.H if h.employer is None]) / m.NH
         m.GDP = sum([f.p * (sum(f.C.values()) + f.G) for f in m.FC]) + sum(
             [f.p * sum(f.I.values()) for f in m.FK]
@@ -741,4 +747,17 @@ print(
     )
 )
 
+# %%
+plot([sum([sum(f.C.values()) for f in m.FC]) for m in data[0:20]])
+plot([sum([sum(h.C.values()) for h in m.H]) for m in data[0:20]])
+plot([sum([(f.Y) for f in m.FC]) for m in data[0:20]])
+# %%
+plot([sum([(f.IT) for f in m.FC]) for m in data[0:20]])
+plot([sum([(f.IT) for f in m.FK]) for m in data[0:20]])
+plot([sum([sum(f.Ip.values()) for f in m.FK]) for m in data[0:20]])
+# %%
+plot([sum([(f.NT) for f in m.FC]) for m in data[0:20]])
+plot([sum([(f.NT) for f in m.FK]) for m in data[0:20]])
+plot([sum([len(f.employees) for f in m.FC]) for m in data[0:20]])
+plot([sum([len(f.employees) for f in m.FK]) for m in data[0:20]])
 # %%
