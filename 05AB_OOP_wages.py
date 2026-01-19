@@ -33,7 +33,7 @@ class Household:
         # Flow
         h.C = dict()
         h.W = 0
-        h.UB = 1
+        h.UB = 10
         h.P = dict()
         h.T = 0
 
@@ -59,7 +59,7 @@ class ConsumptionFirm:
 
         # Flow
         f.C = dict()
-        f.G = 0
+        f.G = 1
         f.I = dict()
         f.W = dict()
         f.P = dict()
@@ -193,13 +193,13 @@ class Model:
         # init matrices
         for h in m.H:
             for f in m.FC:
-                h.C[f] = 0
+                h.C[f] = 0.01
             for a in m.FC + m.FK + [m.B]:
                 h.P[a] = 0
 
         for f in m.FC:
             for h in m.H:
-                f.C[h] = 0
+                f.C[h] = 0.01
                 f.W[h] = 0
                 f.P[h] = 0
             for fk in m.FK:
@@ -223,7 +223,7 @@ class Model:
             m.B.P[h] = 0
 
         for f in m.FC:
-            m.G.G[f] = 0
+            m.G.G[f] = 1
 
         for h in m.H:
             m.G.UB[h] = 0
@@ -233,11 +233,11 @@ class Model:
         for f in m.FC + m.FK:
             f.K += [CapitalGood(1, 1) for _ in range(10)]
             for i in range(len(f.K)):
-                f.K[i].age = i
+                f.K[i].age = floor(i/2)
 
         for h in m.H:
-            h.M = 1
-            m.B.M[h] = 1
+            h.M = 10
+            m.B.M[h] = 10
 
         for f in m.FC + m.FK:
             m.B.M[f] = 0
@@ -444,7 +444,7 @@ class Model:
                 for h in m.H
             ]
         ):
-            f = choice([f for f in m.FC if f.Y * Hsh - sum(f.C.values()) < tol])
+            f = choice([f for f in m.FC if f.Y * Hsh - sum(f.C.values()) > tol])
             h = choice(
                 [
                     h
@@ -748,16 +748,22 @@ print(
 )
 
 # %%
-plot([sum([sum(f.C.values()) for f in m.FC]) for m in data[0:20]])
-plot([sum([sum(h.C.values()) for h in m.H]) for m in data[0:20]])
-plot([sum([(f.Y) for f in m.FC]) for m in data[0:20]])
+plot([sum([sum(f.C.values()) for f in m.FC]) for m in data])
+plot([sum([sum(h.C.values()) for h in m.H]) for m in data])
+plot([sum([(f.Y) for f in m.FC]) for m in data])
 # %%
-plot([sum([(f.IT) for f in m.FC]) for m in data[0:20]])
-plot([sum([(f.IT) for f in m.FK]) for m in data[0:20]])
-plot([sum([sum(f.Ip.values()) for f in m.FK]) for m in data[0:20]])
+plot([sum([(f.IT) for f in m.FC]) for m in data])
+plot([sum([(f.IT) for f in m.FK]) for m in data])
+plot([sum([sum(f.Ip.values()) for f in m.FK]) for m in data])
 # %%
-plot([sum([(f.NT) for f in m.FC]) for m in data[0:20]])
-plot([sum([(f.NT) for f in m.FK]) for m in data[0:20]])
-plot([sum([len(f.employees) for f in m.FC]) for m in data[0:20]])
-plot([sum([len(f.employees) for f in m.FK]) for m in data[0:20]])
+plot([sum([(f.NT) for f in m.FC]) for m in data])
+plot([sum([(f.NT) for f in m.FK]) for m in data])
+plot([sum([len(f.employees) for f in m.FC]) for m in data])
+plot([sum([len(f.employees) for f in m.FK]) for m in data])
+# %%
+plot([sum([len(f.K) for f in m.FC]) for m in data])
+plot([sum([len(f.K) for f in m.FK]) for m in data])
+# %%
+plot([sum([(h.CT) for h in m.H]) for m in data])
+plot([m.G.GT for m in data])
 # %%
