@@ -33,7 +33,7 @@ class Household:
         # Flow
         h.C = dict()
         h.W = 0
-        h.UB = 10
+        h.UB = 1
         h.P = dict()
         h.T = 0
 
@@ -153,9 +153,9 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 500
-        m.NH = 1000
-        m.NFC = 50
+        m.TMAX = 50
+        m.NH = 500
+        m.NFC = 20
         m.NFK = 5
 
         # Pars
@@ -182,6 +182,7 @@ class Model:
         m.cu = m.cuT
         m.u = m.uT
         m.GDP = 0
+        m.avgW = 1
 
         # Create agents
         m.H = [Household() for _ in range(m.NH)]
@@ -233,7 +234,7 @@ class Model:
         for f in m.FC + m.FK:
             f.K += [CapitalGood(1, 1) for _ in range(10)]
             for i in range(len(f.K)):
-                f.K[i].age = floor(i/2)
+                f.K[i].age = i
 
         for h in m.H:
             h.M = 10
@@ -303,11 +304,11 @@ class Model:
                     max(
                         0,
                         min(len(f.K), len(f.employees)) * max(0, 1 / m.cuT - 1 / f.cu)
-                        + len([k for k in f.K if (k.age + 1) > 1 / m.dK]),
+                        + m.dK * min(len(f.K), len(f.employees)),
                     )
                 )
             except ZeroDivisionError:
-                f.IT = ceil(len([k for k in f.K if (k.age + 1) > 1 / m.dK]))
+                f.IT = ceil(m.dK * min(len(f.K), len(f.employees)))
 
         # Capital Goods orders are based only on desired I
 
@@ -352,7 +353,7 @@ class Model:
             f.employees = [ah for ah in f.employees if ah != h]
             h.employer = None
             h.W = 0
-            h.UB = m.phi * f.W0  ### EDIT from model !!!
+            h.UB = m.phi * m.avgw
 
         while (sum([len(f.employees) for f in (m.FC + m.FK)]) < m.NH) and (
             any([len(f.employees) < f.NT for f in (m.FC + m.FK)])
@@ -375,10 +376,10 @@ class Model:
                 m.B.M[h] += h.W
                 h.T += m.tW * h.W
                 m.G.T[h] += m.tW * h.W
-                h.M -= h.T
-                m.B.M[h] -= h.T
-                m.B.B -= h.T
-                m.G.B -= h.T
+                h.M -= m.tW * h.W
+                m.B.M[h] -= m.tW * h.W
+                m.B.B -= m.tW * h.W
+                m.G.B -= m.tW * h.W
 
         for h in m.H:
             h.M += h.UB
@@ -399,9 +400,11 @@ class Model:
         try:
             Hsh = sum([h.CT for h in m.H]) / (sum([h.CT for h in m.H]) + m.G.GT)
         except ZeroDivisionError:
-            Hsh = 0
+            Hsh = 1
 
         # first set consumption
+
+        # Over selling
         while any([sum(f.C.values()) - f.Y * Hsh > tol for f in m.FC]):
             f = choice([f for f in m.FC if sum(f.C.values()) - f.Y * Hsh > tol])
             h = choice([h for h in f.C.keys() if f.C[h] > 0])
@@ -409,10 +412,13 @@ class Model:
             f.C[h] -= d
             h.C[f] -= d
 
+        # Over buying
         while any(
             [
-                (sum(h.C.values()) - h.CT > tol
-                or sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) - h.M > tol)
+                (
+                    sum(h.C.values()) - h.CT > tol
+                    or sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) - h.M > tol
+                )
                 and sum(h.C.values()) > tol
                 for h in m.H
             ]
@@ -421,9 +427,11 @@ class Model:
                 [
                     h
                     for h in m.H
-                    if ((sum(h.C.values()) > h.CT)
-                    or (sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) > h.M))
-                    and (sum(h.C.values()) > 0)
+                    if (
+                        (sum(h.C.values()) - h.CT > tol)
+                        or (sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) - h.M > tol)
+                    )
+                    and (sum(h.C.values()) > tol)
                 ]
             )
             f = choice([f for f in h.C.keys() if h.C[f] > 0])
@@ -437,6 +445,7 @@ class Model:
             f.C[h] -= d
             h.C[f] -= d
 
+        # Sell Remaining
         while any([f.Y * Hsh - sum(f.C.values()) > tol for f in m.FC]) and any(
             [
                 sum(h.C.values()) < h.CT
@@ -469,23 +478,23 @@ class Model:
                 h.M -= h.C[f] * f.p
                 m.B.M[h] -= h.C[f] * f.p
                 h.T += h.C[f] * m.tC * f.p
-                m.G.T[h] += h.T
-                h.M -= h.T
-                m.B.M[h] -= h.T
-                m.B.B -= h.T
-                m.G.B -= h.T
+                m.G.T[h] += h.C[f] * m.tC * f.p
+                h.M -= h.C[f] * m.tC * f.p
+                m.B.M[h] -= h.C[f] * m.tC * f.p
+                m.B.B -= h.C[f] * m.tC * f.p
+                m.G.B -= h.C[f] * m.tC * f.p
 
         # Gvt expenditure
         for f in m.FC:
             m.G.G[f] = 0
         for f in shuffle(m.FC):
             d = max(0, min(m.G.GT - sum(m.G.G.values()), f.Y - sum(f.C.values())))
-            m.G.G[f] = d
-            f.G = d
-            f.M += d
-            m.B.M[f] += d
-            m.B.B += d
-            m.G.B += d
+            m.G.G[f] = d * f.p
+            f.G = d * f.p
+            f.M += d * f.p
+            m.B.M[f] += d * f.p
+            m.B.B += d * f.p
+            m.G.B += d * f.p
 
         # Investment market
 
@@ -551,13 +560,13 @@ class Model:
         # Profits
         for f in m.FC + m.FK:
             for h in m.H:
-                h.P[f] = f.M * h.M / sum([h.M for h in m.H])
+                h.P[f] = max(0, f.M) * h.M / sum([h.M for h in m.H])
                 f.P[h] = h.P[f]
 
         PB = (m.crT - 1) * sum(m.B.L.values()) + m.B.B + sum(m.B.M.values())
         for f in m.H:
-            h.P[m.B] = PB * h.M / sum([h.M for h in m.H])
-            m.B.P[h] = PB * h.M / sum([h.M for h in m.H])
+            h.P[m.B] = max(0, PB * h.M / sum([h.M for h in m.H]))
+            m.B.P[h] = max(0, PB * h.M / sum([h.M for h in m.H]))
 
         for h in m.H:
             for f in m.FC + m.FK:
@@ -568,11 +577,11 @@ class Model:
             h.M += h.P[m.B]
             m.B.M[h] += h.P[m.B]
             h.T += m.tP * sum(h.P.values())
-            m.G.T[h] += h.T
-            h.M -= h.T
-            m.B.M[h] -= h.T
-            m.B.B -= h.T
-            m.G.B -= h.T
+            m.G.T[h] += m.tP * sum(h.P.values())
+            h.M -= m.tP * sum(h.P.values())
+            m.B.M[h] -= m.tP * sum(h.P.values())
+            m.B.B -= m.tP * sum(h.P.values())
+            m.G.B -= m.tP * sum(h.P.values())
 
         # Capital depreciation
         for f in m.FC + m.FK:
@@ -596,11 +605,19 @@ class Model:
         except StatisticsError:
             m.i = 1 - mean([f.p for f in m.FC]) / m.avgp
             m.avgp = mean([f.p for f in m.FC])
+
         try:
             m.cu = fmean([f.cu for f in m.FC + m.FK], [len(f.K) for f in m.FC + m.FK])
         except StatisticsError:
             m.cu = 0
+
         m.u = len([h for h in m.H if h.employer is None]) / m.NH
+
+        try:
+            m.avgw = fmean([f.W0 for f in m.FC], [len(f.employees) for f in m.FC])
+        except StatisticsError:
+            m.avgw = mean([f.W0 for f in m.FC])
+
         m.GDP = sum([f.p * (sum(f.C.values()) + f.G) for f in m.FC]) + sum(
             [f.p * sum(f.I.values()) for f in m.FK]
         )
@@ -766,4 +783,13 @@ plot([sum([len(f.K) for f in m.FK]) for m in data])
 # %%
 plot([sum([(h.CT) for h in m.H]) for m in data])
 plot([m.G.GT for m in data])
+plot([sum([(f.Y) for f in m.FC]) for m in data])
+# %%
+plot([m.cu for m in data])
+plot([m.i for m in data])
+plot([m.u for m in data])
+# %%
+plot([sum([(h.W) for h in m.H]) for m in data])
+plot([sum([(h.UB) for h in m.H]) for m in data])
+plot([sum([(h.M) for h in m.H]) for m in data])
 # %%
