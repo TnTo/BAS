@@ -7,7 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
-from matplotlib.pyplot import plot
+from matplotlib.pyplot import plot, legend
 
 # %%
 # GLOBAL
@@ -153,9 +153,9 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 50
-        m.NH = 500
-        m.NFC = 20
+        m.TMAX = 250
+        m.NH = 1000
+        m.NFC = 50
         m.NFK = 5
 
         # Pars
@@ -194,13 +194,13 @@ class Model:
         # init matrices
         for h in m.H:
             for f in m.FC:
-                h.C[f] = 0.01
+                h.C[f] = 1
             for a in m.FC + m.FK + [m.B]:
                 h.P[a] = 0
 
         for f in m.FC:
             for h in m.H:
-                f.C[h] = 0.01
+                f.C[h] = 1
                 f.W[h] = 0
                 f.P[h] = 0
             for fk in m.FK:
@@ -224,7 +224,7 @@ class Model:
             m.B.P[h] = 0
 
         for f in m.FC:
-            m.G.G[f] = 1
+            m.G.G[f] = m.NFC
 
         for h in m.H:
             m.G.UB[h] = 0
@@ -232,7 +232,7 @@ class Model:
 
         # init stocks
         for f in m.FC + m.FK:
-            f.K += [CapitalGood(1, 1) for _ in range(10)]
+            f.K += [CapitalGood(1, 1) for _ in range(1)]
             for i in range(len(f.K)):
                 f.K[i].age = i
 
@@ -391,10 +391,8 @@ class Model:
         # NO WORKER - KC matching
         for f in m.FC + m.FK:
             f.Y = sum([k.beta for k in sample(f.K, k=min(len(f.employees), len(f.K)))])
-            try:
-                f.cu = min(len(f.employees), len(f.K)) / len(f.K)
-            except ZeroDivisionError:
-                f.cu = 0
+            f.cu = min(len(f.employees), len(f.K)) / len(f.K)
+            
 
         # Consumpion good market
         try:
@@ -487,14 +485,19 @@ class Model:
         # Gvt expenditure
         for f in m.FC:
             m.G.G[f] = 0
-        for f in shuffle(m.FC):
-            d = max(0, min(m.G.GT - sum(m.G.G.values()), f.Y - sum(f.C.values())))
-            m.G.G[f] = d * f.p
-            f.G = d * f.p
-            f.M += d * f.p
-            m.B.M[f] += d * f.p
-            m.B.B += d * f.p
-            m.G.B += d * f.p
+            f.G = 0
+        while any([f.Y - (sum(f.C.values()) + f.G) > tol for f in m.FC]) and (
+            (m.G.GT - sum(m.G.G.values()) > tol)
+        ):
+            f = choice([f for f in m.FC if f.Y - (sum(f.C.values()) + f.G) > tol])
+            d = min(m.G.GT - sum(m.G.G.values()), f.Y - (sum(f.C.values()) + f.G))
+            m.G.G[f] += d
+            f.G += d
+        for f in m.FC:
+            f.M += f.G * f.p
+            m.B.M[f] += f.G * f.p
+            m.B.B += f.G * f.p
+            m.G.B += f.G * f.p
 
         # Investment market
 
@@ -765,9 +768,12 @@ print(
 )
 
 # %%
-plot([sum([sum(f.C.values()) for f in m.FC]) for m in data])
-plot([sum([sum(h.C.values()) for h in m.H]) for m in data])
-plot([sum([(f.Y) for f in m.FC]) for m in data])
+plot([sum([sum(f.C.values()) for f in m.FC]) for m in data], label="C")
+plot([sum([sum(f.C.values()) + f.G for f in m.FC]) for m in data], label="C+G")
+plot([sum([f.G for f in m.FC]) for m in data], label="G")
+plot([sum([(f.Y) for f in m.FC]) for m in data], label="Y")
+# plot([m.G.GT for m in data], label="GT")
+legend()
 # %%
 plot([sum([(f.IT) for f in m.FC]) for m in data])
 plot([sum([(f.IT) for f in m.FK]) for m in data])
@@ -785,11 +791,16 @@ plot([sum([(h.CT) for h in m.H]) for m in data])
 plot([m.G.GT for m in data])
 plot([sum([(f.Y) for f in m.FC]) for m in data])
 # %%
-plot([m.cu for m in data])
-plot([m.i for m in data])
-plot([m.u for m in data])
+plot([m.cu for m in data], label="cu")
+plot([m.i for m in data], label="i")
+plot([m.u for m in data], label="u")
+legend()
 # %%
 plot([sum([(h.W) for h in m.H]) for m in data])
 plot([sum([(h.UB) for h in m.H]) for m in data])
 plot([sum([(h.M) for h in m.H]) for m in data])
+# %%
+plot([m.avgp for m in data], label="p")
+plot([m.avgw for m in data], label="w")
+legend()
 # %%
