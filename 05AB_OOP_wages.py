@@ -71,7 +71,7 @@ class ConsumptionFirm:
         f.W0 = 1
         f.p = 1
         f.mu = 0.2
-        f.beta = 2
+        f.beta = 1
         f.NT = 0
         f.cu = 1
         f.Ip = dict()
@@ -153,9 +153,9 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 250
-        m.NH = 1000
-        m.NFC = 50
+        m.TMAX = 100 # 500
+        m.NH = 200 # 1000
+        m.NFC = 20 # 50
         m.NFK = 5
 
         # Pars
@@ -391,8 +391,10 @@ class Model:
         # NO WORKER - KC matching
         for f in m.FC + m.FK:
             f.Y = sum([k.beta for k in sample(f.K, k=min(len(f.employees), len(f.K)))])
-            f.cu = min(len(f.employees), len(f.K)) / len(f.K)
-            
+            try:
+                f.cu = min(len(f.employees), len(f.K)) / len(f.K)
+            except ZeroDivisionError:
+                f.cu = 0.1 # To still trigger inv !!!
 
         # Consumpion good market
         try:
@@ -677,7 +679,7 @@ print(
                     for h in m.H
                 ]
             )
-            for m in data
+            for m in data[2:]
         ]
     )
 )
@@ -702,7 +704,7 @@ print(
                     for f in m.FC
                 ]
             )
-            for m in data
+            for m in data[2:]
         ]
     )
 )
@@ -726,7 +728,7 @@ print(
                     for f in m.FC
                 ]
             )
-            for m in data
+            for m in data[2:]
         ]
     )
 )
@@ -745,7 +747,7 @@ print(
                 - sum(m.B.detL.values())
             )
             > tol
-            for m in data
+            for m in data[2:]
         ]
     )
 )
@@ -762,7 +764,7 @@ print(
                 - (m.G.B - m.G.B0)
             )
             > tol
-            for m in data
+            for m in data[2:]
         ]
     )
 )
@@ -789,6 +791,9 @@ plot([sum([len(f.K) for f in m.FK]) for m in data])
 # %%
 plot([sum([(h.CT) for h in m.H]) for m in data])
 plot([m.G.GT for m in data])
+# %%
+plot([sum([len(f.employees) for f in m.FC]) for m in data])
+plot([sum([len(f.K) for f in m.FC]) for m in data])
 plot([sum([(f.Y) for f in m.FC]) for m in data])
 # %%
 plot([m.cu for m in data], label="cu")
