@@ -71,7 +71,7 @@ class ConsumptionFirm:
         f.employees = []
         f.W0 = 1
         f.p = 1
-        f.mu = 1.0
+        f.mu = 0.5
         f.beta = 1
         f.NT = 0
         f.cu = 1
@@ -102,7 +102,7 @@ class CapitalFirm:
         f.employees = []
         f.W0 = 1
         f.p = 1
-        f.mu = 1.0
+        f.mu = 0.5
         f.beta = 1
         f.NT = 0
         f.cu = 1
@@ -156,7 +156,7 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 250  # 500
+        m.TMAX = 500  # 500
         m.NH = 250  # 1000
         m.NFC = 20  # 50
         m.NFK = 5
@@ -175,7 +175,7 @@ class Model:
         m.cuT = 0.8
         m.uT = 0.05
         m.iT = 0.02
-        m.thetaMu = 0.5
+        m.thetaMu = 0.1
         m.DrL = 0.05
         m.crT = 0.08
 
@@ -271,7 +271,7 @@ class Model:
             except ZeroDivisionError:
                 f.W0 = f.W0
 
-            f.mu = f.mu * (1 + m.thetaMu * (f.cu - m.cuT) / m.cuT)
+            f.mu = max(0.5, f.mu * (1 + m.thetaMu * (f.cu - m.cuT) / m.cuT))
             f.p = (1 + f.mu) * f.W0 / f.beta
 
         for h in m.H:
@@ -373,10 +373,14 @@ class Model:
         for h in m.H:
             h.T = 0
             m.G.T[h] = 0
+            f.W[h] = 0
         for f in m.FC + m.FK:
             for h in f.employees:
+                f.W[h] = h.W
                 f.L += h.W
                 m.B.L[f] += h.W
+                f.M += h.W
+                m.B.M[f] += h.W
                 f.M -= h.W
                 m.B.M[f] -= h.W
                 h.M += h.W
@@ -539,18 +543,20 @@ class Model:
             fc.I[fk] += 1
 
         for fk in m.FK:
-            fk.IK += fk.Y - sum(fk.I.values()) - fk.IT
+            fk.IK = fk.Y - sum(fk.I.values())
 
         for fk in m.FK:
             fk.K += [CapitalGood(fk.beta, fk.p) for _ in range(fk.IK)]
             for fc in m.FC:
                 fc.K += [CapitalGood(fk.beta, fk.p) for _ in range(fk.I[fc])]
+                fc.L += fk.p * fk.I[fc]
+                m.B.L[fc] += fk.p * fk.I[fc]
+                fc.M += fk.p * fk.I[fc]
+                m.B.M[fc] += fk.p * fk.I[fc]
                 fc.M -= fk.p * fk.I[fc]
                 m.B.M[fc] -= fk.p * fk.I[fc]
                 fk.M += fk.p * fk.I[fc]
                 m.B.M[fk] += fk.p * fk.I[fc]
-                fc.L += fk.p * fk.I[fc]
-                m.B.L[fc] += fk.p * fk.I[fc]
 
         # Chiusura del circuito
         for f in m.FC + m.FK:
@@ -661,7 +667,7 @@ data = pickle.load(open("05_data.pkl", "rb"))
 print("Consistency checks: they should be false")
 # BS
 # M
-print(
+print("M",
     any(
         [
             abs(sum([a.M for a in m.H + m.FC + m.FK]) - sum(m.B.M.values())) > tol
@@ -670,16 +676,16 @@ print(
     )
 )
 # L
-print(
+print("L",
     any(
         [abs(sum([a.L for a in m.FC + m.FK]) - sum(m.B.L.values())) > tol for m in data]
     )
 )
 # B
-print(any([abs(m.G.B - m.B.B) > tol for m in data]))
+print("B",any([abs(m.G.B - m.B.B) > tol for m in data]))
 # FOF
 # H
-print(
+print("H",
     any(
         [
             any(
@@ -701,7 +707,7 @@ print(
     )
 )
 # FC
-print(
+print("FC",
     any(
         [
             any(
@@ -728,7 +734,7 @@ print(
 )
 
 # FK
-print(
+print("FK",
     any(
         [
             any(
@@ -753,7 +759,7 @@ print(
 )
 
 # B
-print(
+print("B",
     any(
         [
             abs(
@@ -773,7 +779,7 @@ print(
 )
 
 # G
-print(
+print("G",
     any(
         [
             abs(
@@ -881,15 +887,44 @@ plot([-sum(m.B.detL.values()) for m in data], label="detL")
 legend()
 
 # %%
-plot([sum([+sum(f.C.values()) * f.p for f in m.FC]) for m in data],label="pC")
-plot([sum([+ f.G * f.p for f in m.FC]) for m in data],label="pG")
-plot([sum([- sum([f.I[fk] * fk.p for fk in m.FK]) for f in m.FC]) for m in data],label="pI")
-plot([sum([- sum(f.W.values())for f in m.FC]) for m in data],label="W")
-plot([sum([- sum(f.P.values())for f in m.FC]) for m in data],label="P")
-plot([sum([- f.intL for f in m.FC]) for m in data],label="iL")
-plot([sum([- (f.M - f.M0)for f in m.FC]) for m in data],label="dM")
-plot([sum([+ (f.L - f.L0)for f in m.FC]) for m in data],label="dL")
+plot([sum([+sum(f.C.values()) * f.p for f in m.FC]) for m in data], label="pC")
+plot([sum([+f.G * f.p for f in m.FC]) for m in data], label="pG")
+plot(
+    [sum([-sum([f.I[fk] * fk.p for fk in m.FK]) for f in m.FC]) for m in data],
+    label="pI",
+)
+plot([sum([-sum(f.W.values()) for f in m.FC]) for m in data], label="W")
+plot([sum([-sum(f.P.values()) for f in m.FC]) for m in data], label="P")
+plot([sum([-f.intL for f in m.FC]) for m in data], label="iL")
+plot([sum([-(f.M - f.M0) for f in m.FC]) for m in data], label="dM")
+plot([sum([+(f.L - f.L0) for f in m.FC]) for m in data], label="dL")
 plot([sum([+ f.detL for f in m.FC]) for m in data],label="detL")
 plot([sum([- f.detM for f in m.FC]) for m in data],label="detM")
+# plot(
+#     [
+#         -sum(
+#             [
+#                 +sum(f.C.values()) * f.p
+#                 + f.G * f.p
+#                 - sum([f.I[fk] * fk.p for fk in m.FK])
+#                 - sum(f.W.values())
+#                 - sum(f.P.values())
+#                 - f.intL
+#                 - (f.M - f.M0)
+#                 + (f.L - f.L0)
+#                 for f in m.FC
+#             ]
+#         )
+#         for m in data
+#     ], label = "delta"
+# )
+legend()
+# %%
+plot([mean([f.p for f in m.FC]) for m in data], label="pc")
+plot([mean([f.p for f in m.FK]) for m in data], label="pk")
+plot([mean([f.W0 for f in m.FC]) for m in data], label="wc")
+plot([mean([f.W0 for f in m.FK]) for m in data], label="wk")
+plot([mean([f.mu for f in m.FC]) for m in data], label="mc")
+plot([mean([f.mu for f in m.FK]) for m in data], label="mk")
 legend()
 # %%
