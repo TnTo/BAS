@@ -15,12 +15,6 @@ seed(8686)
 tol = 1e-4
 
 
-def shuffle(x):
-    x = x.copy()
-    random.shuffle(x)
-    return x
-
-
 # %%
 # CLASS DEFINITION
 
@@ -181,6 +175,7 @@ class Model:
 
         # Others vars
         m.avgp = 1
+        m.avgw = 1
         m.i = m.iT
         m.cu = m.cuT
         m.u = m.uT
@@ -278,6 +273,9 @@ class Model:
             if h.employer is not None:
                 h.W = h.employer.W0
                 h.UB = 0
+            else:
+                h.W = 0
+                h.UB = m.phi * m.avgw
 
         # Set interest rates
         m.G.rB = max(
@@ -373,8 +371,9 @@ class Model:
         for h in m.H:
             h.T = 0
             m.G.T[h] = 0
-            f.W[h] = 0
         for f in m.FC + m.FK:
+            for h in m.H:
+                f.W[h]=0
             for h in f.employees:
                 f.W[h] = h.W
                 f.L += h.W
@@ -582,7 +581,7 @@ class Model:
             f.detM = 0
             m.B.detL[f] = 0
             m.B.detM[f] = 0
-            if f.M - f.L + sum([max(0,k.p * (1 - m.dK * k.age)) for k in f.K]) < 0:
+            if f.M - f.L + sum([max(0, k.p * (1 - m.dK * k.age)) for k in f.K]) < 0:
                 f.detL = f.L
                 f.detM = f.M
                 f.L = 0
@@ -667,25 +666,28 @@ data = pickle.load(open("05_data.pkl", "rb"))
 print("Consistency checks: they should be false")
 # BS
 # M
-print("M",
+print(
+    "M",
     any(
         [
             abs(sum([a.M for a in m.H + m.FC + m.FK]) - sum(m.B.M.values())) > tol
             for m in data
         ]
-    )
+    ),
 )
 # L
-print("L",
+print(
+    "L",
     any(
         [abs(sum([a.L for a in m.FC + m.FK]) - sum(m.B.L.values())) > tol for m in data]
-    )
+    ),
 )
 # B
-print("B",any([abs(m.G.B - m.B.B) > tol for m in data]))
+print("B", any([abs(m.G.B - m.B.B) > tol for m in data]))
 # FOF
 # H
-print("H",
+print(
+    "H",
     any(
         [
             any(
@@ -704,10 +706,11 @@ print("H",
             )
             for m in data[2:]
         ]
-    )
+    ),
 )
 # FC
-print("FC",
+print(
+    "FC",
     any(
         [
             any(
@@ -730,11 +733,12 @@ print("FC",
             )
             for m in data[2:]
         ]
-    )
+    ),
 )
 
 # FK
-print("FK",
+print(
+    "FK",
     any(
         [
             any(
@@ -755,11 +759,12 @@ print("FK",
             )
             for m in data[2:]
         ]
-    )
+    ),
 )
 
 # B
-print("B",
+print(
+    "B",
     any(
         [
             abs(
@@ -775,11 +780,12 @@ print("B",
             > tol
             for m in data[2:]
         ]
-    )
+    ),
 )
 
 # G
-print("G",
+print(
+    "G",
     any(
         [
             abs(
@@ -792,7 +798,7 @@ print("G",
             > tol
             for m in data[2:]
         ]
-    )
+    ),
 )
 
 # %%
@@ -898,26 +904,29 @@ plot([sum([-sum(f.P.values()) for f in m.FC]) for m in data], label="P")
 plot([sum([-f.intL for f in m.FC]) for m in data], label="iL")
 plot([sum([-(f.M - f.M0) for f in m.FC]) for m in data], label="dM")
 plot([sum([+(f.L - f.L0) for f in m.FC]) for m in data], label="dL")
-plot([sum([+ f.detL for f in m.FC]) for m in data],label="detL")
-plot([sum([- f.detM for f in m.FC]) for m in data],label="detM")
-# plot(
-#     [
-#         -sum(
-#             [
-#                 +sum(f.C.values()) * f.p
-#                 + f.G * f.p
-#                 - sum([f.I[fk] * fk.p for fk in m.FK])
-#                 - sum(f.W.values())
-#                 - sum(f.P.values())
-#                 - f.intL
-#                 - (f.M - f.M0)
-#                 + (f.L - f.L0)
-#                 for f in m.FC
-#             ]
-#         )
-#         for m in data
-#     ], label = "delta"
-# )
+plot([sum([+f.detL for f in m.FC]) for m in data], label="detL")
+plot([sum([-f.detM for f in m.FC]) for m in data], label="detM")
+plot(
+    [
+        sum(
+            [
+                +sum(f.C.values()) * f.p
+                + f.G * f.p
+                - sum([f.I[fk] * fk.p for fk in m.FK])
+                - sum(f.W.values())
+                - sum(f.P.values())
+                - f.intL
+                - (f.M - f.M0)
+                + (f.L - f.L0)
+                + f.detL
+                - f.detM
+                for f in m.FC
+            ]
+        )
+        for m in data
+    ],
+    label="delta",
+)
 legend()
 # %%
 plot([mean([f.p for f in m.FC]) for m in data], label="pc")
@@ -928,3 +937,44 @@ plot([mean([f.mu for f in m.FC]) for m in data], label="mc")
 plot([mean([f.mu for f in m.FK]) for m in data], label="mk")
 legend()
 # %%
+plot([sum([h.W for h in m.H]) for m in data], label="WH")
+plot([sum([sum(f.W.values()) for f in m.FC + m.FK]) for m in data], label="WF")
+plot([m.NH * (1 - m.u) for m in data], label="N")
+legend()
+# %%
+plot([sum([h.employer is not None for h in m.H]) for m in data])
+plot([sum([len(f.employees) for f in m.FC + m.FK]) for m in data])
+# %%
+# %%
+plot(
+    [sum([sum(fk.I.values()) * fk.p for f in m.FK]) for m in data],
+    label="pI",
+)
+plot([sum([-sum(f.W.values()) for f in m.FC]) for m in data], label="W")
+plot([sum([-sum(f.P.values()) for f in m.FC]) for m in data], label="P")
+plot([sum([-f.intL for f in m.FC]) for m in data], label="iL")
+plot([sum([-(f.M - f.M0) for f in m.FC]) for m in data], label="dM")
+plot([sum([+(f.L - f.L0) for f in m.FC]) for m in data], label="dL")
+plot([sum([+f.detL for f in m.FC]) for m in data], label="detL")
+plot([sum([-f.detM for f in m.FC]) for m in data], label="detM")
+plot(
+    [
+        sum(
+            [
+                +sum(f.C.values()) * f.p
+                + f.G * f.p
+                - sum([f.I[fk] * fk.p for fk in m.FK])
+                - sum(f.W.values())
+                - sum(f.P.values())
+                - f.intL
+                - (f.M - f.M0)
+                + (f.L - f.L0)
+                + f.detL
+                - f.detM
+                for f in m.FC
+            ]
+        )
+        for m in data
+    ],
+    label="delta",
+)
