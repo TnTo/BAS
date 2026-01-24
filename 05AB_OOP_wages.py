@@ -150,9 +150,9 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 500  # 500
-        m.NH = 250  # 1000
-        m.NFC = 20  # 50
+        m.TMAX = 500  
+        m.NH = 1000
+        m.NFC = 50
         m.NFK = 5
 
         # Pars
