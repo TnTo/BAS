@@ -754,7 +754,7 @@ print(
                         - f.detM
                     )
                     > tol
-                    for f in m.FC
+                    for f in m.FK
                 ]
             )
             for m in data[2:]
@@ -809,34 +809,40 @@ plot([sum([(f.Y) for f in m.FC]) for m in data], label="Y")
 # plot([m.G.GT for m in data], label="GT")
 legend()
 # %%
-plot([sum([(f.IT) for f in m.FC]) for m in data])
-plot([sum([(f.IT) for f in m.FK]) for m in data])
-plot([sum([sum(f.Ip.values()) for f in m.FK]) for m in data])
+plot([sum([(f.IT) for f in m.FC]) for m in data], label="ITC")
+plot([sum([(f.IT) for f in m.FK]) for m in data], label="ITK")
+plot([sum([sum(f.I.values()) for f in m.FK]) for m in data], label="IC")
+legend()
 # %%
-plot([sum([(f.NT) for f in m.FC]) for m in data])
-plot([sum([(f.NT) for f in m.FK]) for m in data])
-plot([sum([len(f.employees) for f in m.FC]) for m in data])
-plot([sum([len(f.employees) for f in m.FK]) for m in data])
+plot([sum([(f.NT) for f in m.FC]) for m in data], label="NTC")
+plot([sum([(f.NT) for f in m.FK]) for m in data], label="NTK")
+plot([sum([len(f.employees) for f in m.FC]) for m in data], label="NC")
+plot([sum([len(f.employees) for f in m.FK]) for m in data], label="NK")
+legend()
 # %%
-plot([sum([len(f.K) for f in m.FC]) for m in data])
-plot([sum([len(f.K) for f in m.FK]) for m in data])
+plot([sum([len(f.K) for f in m.FC]) for m in data], label="KC")
+plot([sum([len(f.K) for f in m.FK]) for m in data], label="KK")
+legend()
 # %%
 plot([sum([(h.CT) for h in m.H]) for m in data], label="CT")
 plot([m.G.GT for m in data], label="GT")
 legend()
 # %%
-plot([sum([len(f.employees) for f in m.FC]) for m in data])
-plot([sum([len(f.K) for f in m.FC]) for m in data])
-plot([sum([(f.Y) for f in m.FC]) for m in data])
+plot([sum([len(f.employees) for f in m.FC]) for m in data], label="NC")
+plot([sum([len(f.K) for f in m.FC]) for m in data], label="KC")
+plot([sum([(f.Y) for f in m.FC]) for m in data], label="Y")
+legend()
 # %%
 plot([m.cu for m in data], label="cu")
 plot([m.i for m in data], label="i")
 plot([m.u for m in data], label="u")
 legend()
 # %%
-plot([sum([(h.W) for h in m.H]) for m in data])
-plot([sum([(h.UB) for h in m.H]) for m in data])
-plot([sum([(h.M) for h in m.H]) for m in data])
+plot([sum([(h.W) for h in m.H]) for m in data], label="W")
+plot([sum([(h.UB) for h in m.H]) for m in data], label="UB")
+plot([sum([sum(h.P.values()) for h in m.H]) for m in data], label="P")
+plot([sum([(h.M) for h in m.H]) for m in data], label="M")
+legend()
 # %%
 plot([m.avgp for m in data], label="p")
 plot([m.avgw for m in data], label="w")
@@ -861,8 +867,9 @@ plot([sum(m.B.L.values()) for m in data], label="L")
 plot([sum(m.B.M.values()) for m in data], label="M")
 legend()
 # %%
-plot([sum([f.M for f in m.FC]) for m in data])
-plot([sum([f.M for f in m.FK]) for m in data])
+plot([sum([f.M for f in m.FC]) for m in data], label="MFC")
+plot([sum([f.M for f in m.FK]) for m in data], label="MFK")
+legend()
 # %%
 plot([-sum([m.G.G[f] * f.p for f in m.FC]) for m in data], label="pG")
 plot([-sum(m.G.UB.values()) for m in data], label="UB")
@@ -942,28 +949,22 @@ plot([sum([sum(f.W.values()) for f in m.FC + m.FK]) for m in data], label="WF")
 plot([m.NH * (1 - m.u) for m in data], label="N")
 legend()
 # %%
-plot([sum([h.employer is not None for h in m.H]) for m in data])
-plot([sum([len(f.employees) for f in m.FC + m.FK]) for m in data])
-# %%
-# %%
 plot(
-    [sum([sum(fk.I.values()) * fk.p for f in m.FK]) for m in data],
+    [sum([sum(f.I.values()) * f.p for f in m.FK]) for m in data],
     label="pI",
 )
-plot([sum([-sum(f.W.values()) for f in m.FC]) for m in data], label="W")
-plot([sum([-sum(f.P.values()) for f in m.FC]) for m in data], label="P")
-plot([sum([-f.intL for f in m.FC]) for m in data], label="iL")
-plot([sum([-(f.M - f.M0) for f in m.FC]) for m in data], label="dM")
-plot([sum([+(f.L - f.L0) for f in m.FC]) for m in data], label="dL")
-plot([sum([+f.detL for f in m.FC]) for m in data], label="detL")
-plot([sum([-f.detM for f in m.FC]) for m in data], label="detM")
+plot([sum([-sum(f.W.values()) for f in m.FK]) for m in data], label="W")
+plot([sum([-sum(f.P.values()) for f in m.FK]) for m in data], label="P")
+plot([sum([-f.intL for f in m.FK]) for m in data], label="iL")
+plot([sum([-(f.M - f.M0) for f in m.FK]) for m in data], label="dM")
+plot([sum([+(f.L - f.L0) for f in m.FK]) for m in data], label="dL")
+plot([sum([+f.detL for f in m.FK]) for m in data], label="detL")
+plot([sum([-f.detM for f in m.FK]) for m in data], label="detM")
 plot(
     [
         sum(
             [
-                +sum(f.C.values()) * f.p
-                + f.G * f.p
-                - sum([f.I[fk] * fk.p for fk in m.FK])
+                +sum(f.I.values()) * f.p
                 - sum(f.W.values())
                 - sum(f.P.values())
                 - f.intL
@@ -971,10 +972,12 @@ plot(
                 + (f.L - f.L0)
                 + f.detL
                 - f.detM
-                for f in m.FC
+                for f in m.FK
             ]
         )
         for m in data
     ],
     label="delta",
 )
+legend()
+# %%
