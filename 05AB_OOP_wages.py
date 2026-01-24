@@ -65,12 +65,13 @@ class ConsumptionFirm:
         f.P = dict()
         f.intL = 0
         f.detL = 0
+        f.detM = 0
 
         # Other
         f.employees = []
         f.W0 = 1
         f.p = 1
-        f.mu = 0.2
+        f.mu = 1.0
         f.beta = 1
         f.NT = 0
         f.cu = 1
@@ -95,12 +96,13 @@ class CapitalFirm:
         f.P = dict()
         f.intL = 0
         f.detL = 0
+        f.detM = 0
 
         # Other
         f.employees = []
         f.W0 = 1
         f.p = 1
-        f.mu = 0.2
+        f.mu = 1.0
         f.beta = 1
         f.NT = 0
         f.cu = 1
@@ -125,6 +127,7 @@ class Bank:
         b.intL = dict()
         b.intB = 0
         b.detL = dict()
+        b.detM = dict()
 
         # Other
         b.rL = 0
@@ -153,9 +156,9 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 100 # 500
-        m.NH = 200 # 1000
-        m.NFC = 20 # 50
+        m.TMAX = 250  # 500
+        m.NH = 250  # 1000
+        m.NFC = 20  # 50
         m.NFK = 5
 
         # Pars
@@ -172,7 +175,7 @@ class Model:
         m.cuT = 0.8
         m.uT = 0.05
         m.iT = 0.02
-        m.thetaMu = 0.1
+        m.thetaMu = 0.5
         m.DrL = 0.05
         m.crT = 0.08
 
@@ -219,6 +222,7 @@ class Model:
             m.B.L[f] = 0
             m.B.intL[f] = 0
             m.B.detL[f] = 0
+            m.B.detM[f] = 0
 
         for h in m.H:
             m.B.P[h] = 0
@@ -366,6 +370,9 @@ class Model:
             h.UB = 0
 
         ### First Debt Emission and wage and ub payment (EDIT MOVED)
+        for h in m.H:
+            h.T = 0
+            m.G.T[h] = 0
         for f in m.FC + m.FK:
             for h in f.employees:
                 f.L += h.W
@@ -382,6 +389,7 @@ class Model:
                 m.G.B -= m.tW * h.W
 
         for h in m.H:
+            m.G.UB[h] = h.UB
             h.M += h.UB
             m.B.M[h] += h.UB
             m.B.B += h.UB
@@ -394,7 +402,7 @@ class Model:
             try:
                 f.cu = min(len(f.employees), len(f.K)) / len(f.K)
             except ZeroDivisionError:
-                f.cu = 0.1 # To still trigger inv !!!
+                f.cu = 0.1  # To still trigger inv !!!
 
         # Consumpion good market
         try:
@@ -562,14 +570,30 @@ class Model:
         m.B.B += m.B.intB
         m.G.B += m.G.intB
 
+        # Failures
+        for f in m.FC + m.FK:
+            f.detL = 0
+            f.detM = 0
+            m.B.detL[f] = 0
+            m.B.detM[f] = 0
+            if f.M - f.L + sum([max(0,k.p * (1 - m.dK * k.age)) for k in f.K]) < 0:
+                f.detL = f.L
+                f.detM = f.M
+                f.L = 0
+                f.M = 0
+                m.B.detL[f] = f.detL
+                m.B.detM[f] = f.detM
+                m.B.L[f] = 0
+                m.B.M[f] = 0
+
         # Profits
         for f in m.FC + m.FK:
             for h in m.H:
                 h.P[f] = max(0, f.M) * h.M / sum([h.M for h in m.H])
                 f.P[h] = h.P[f]
 
-        PB = (m.crT - 1) * sum(m.B.L.values()) + m.B.B + sum(m.B.M.values())
-        for f in m.H:
+        PB = max(0, (1 - m.crT) * sum(m.B.L.values()) + m.B.B - sum(m.B.M.values()))
+        for h in m.H:
             h.P[m.B] = max(0, PB * h.M / sum([h.M for h in m.H]))
             m.B.P[h] = max(0, PB * h.M / sum([h.M for h in m.H]))
 
@@ -594,13 +618,6 @@ class Model:
                 k.age += 1
             f.K = [k for k in f.K if k.age < (1 / m.dK)]
 
-        # Failures
-        for f in m.FC + m.FK:
-            if f.M - f.L + sum([k.p * (1 - m.dK * k.age) for k in f.K]) < 0:
-                f.detL = f.L
-                f.L = 0
-                m.B.detL[f] = f.detL
-                m.B.L[f] = 0
         try:
             m.i = (
                 1
@@ -699,6 +716,7 @@ print(
                         - (f.M - f.M0)
                         + (f.L - f.L0)
                         + f.detL
+                        - f.detM
                     )
                     > tol
                     for f in m.FC
@@ -723,6 +741,7 @@ print(
                         - (f.M - f.M0)
                         + (f.L - f.L0)
                         + f.detL
+                        - f.detM
                     )
                     > tol
                     for f in m.FC
@@ -739,11 +758,12 @@ print(
         [
             abs(
                 -sum(m.B.P.values())
-                - sum(m.B.intL.values())
-                - m.B.intB
+                + sum(m.B.intL.values())
+                + m.B.intB
                 + (sum(m.B.M.values()) - m.B.M0)
                 - (sum(m.B.L.values()) - m.B.L0)
                 - (m.B.B - m.B.B0)
+                + sum(m.B.detM.values())
                 - sum(m.B.detL.values())
             )
             > tol
@@ -760,8 +780,8 @@ print(
                 -sum([m.G.G[f] * f.p for f in m.FC])
                 - sum(m.G.UB.values())
                 + sum(m.G.T.values())
-                + m.G.intB
-                - (m.G.B - m.G.B0)
+                - m.G.intB
+                + (m.G.B - m.G.B0)
             )
             > tol
             for m in data[2:]
@@ -789,8 +809,9 @@ plot([sum([len(f.employees) for f in m.FK]) for m in data])
 plot([sum([len(f.K) for f in m.FC]) for m in data])
 plot([sum([len(f.K) for f in m.FK]) for m in data])
 # %%
-plot([sum([(h.CT) for h in m.H]) for m in data])
-plot([m.G.GT for m in data])
+plot([sum([(h.CT) for h in m.H]) for m in data], label="CT")
+plot([m.G.GT for m in data], label="GT")
+legend()
 # %%
 plot([sum([len(f.employees) for f in m.FC]) for m in data])
 plot([sum([len(f.K) for f in m.FC]) for m in data])
@@ -807,5 +828,68 @@ plot([sum([(h.M) for h in m.H]) for m in data])
 # %%
 plot([m.avgp for m in data], label="p")
 plot([m.avgw for m in data], label="w")
+legend()
+# %%
+plot([sum([-sum([h.C[f] * f.p for f in m.FC]) for h in m.H]) for m in data], label="pC")
+plot([sum([+h.UB for h in m.H]) for m in data], label="UB")
+plot([sum([+h.W for h in m.H]) for m in data], label="W")
+plot([sum([+sum(h.P.values()) for h in m.H]) for m in data], label="P")
+plot([sum([-h.T for h in m.H]) for m in data], label="T")
+plot([sum([-(h.M - h.M0) for h in m.H]) for m in data], label="dM")
+legend()
+# %%
+plot([sum(m.B.P.values()) for m in data], label="B")
+plot([sum([sum(f.P.values()) for f in m.FC]) for m in data], label="FC")
+plot([sum([sum(f.P.values()) for f in m.FK]) for m in data], label="FK")
+legend()
+# %%
+plot([m.crT for m in data], label="tgt")
+plot([m.B.B for m in data], label="B")
+plot([sum(m.B.L.values()) for m in data], label="L")
+plot([sum(m.B.M.values()) for m in data], label="M")
+legend()
+# %%
+plot([sum([f.M for f in m.FC]) for m in data])
+plot([sum([f.M for f in m.FK]) for m in data])
+# %%
+plot([-sum([m.G.G[f] * f.p for f in m.FC]) for m in data], label="pG")
+plot([-sum(m.G.UB.values()) for m in data], label="UB")
+plot([sum(m.G.T.values()) for m in data], label="T")
+plot([m.G.intB for m in data], label="iB")
+plot([m.G.B - m.G.B0 for m in data], label="dB")
+plot(
+    [
+        -sum([m.G.G[f] * f.p for f in m.FC])
+        - sum(m.G.UB.values())
+        + sum(m.G.T.values())
+        + m.G.intB
+        + (m.G.B - m.G.B0)
+        for m in data
+    ],
+    label="delta",
+)
+legend()
+# %%
+plot([-sum(m.B.P.values()) for m in data], label="P")
+plot([sum(m.B.intL.values()) for m in data], label="iL")
+plot([m.B.intB for m in data], label="iB")
+plot([(sum(m.B.M.values()) - m.B.M0) for m in data], label="dM")
+plot([-(sum(m.B.L.values()) - m.B.L0) for m in data], label="dL")
+plot([-(m.B.B - m.B.B0) for m in data], label="dB")
+plot([sum(m.B.detM.values()) for m in data], label="detM")
+plot([-sum(m.B.detL.values()) for m in data], label="detL")
+legend()
+
+# %%
+plot([sum([+sum(f.C.values()) * f.p for f in m.FC]) for m in data],label="pC")
+plot([sum([+ f.G * f.p for f in m.FC]) for m in data],label="pG")
+plot([sum([- sum([f.I[fk] * fk.p for fk in m.FK]) for f in m.FC]) for m in data],label="pI")
+plot([sum([- sum(f.W.values())for f in m.FC]) for m in data],label="W")
+plot([sum([- sum(f.P.values())for f in m.FC]) for m in data],label="P")
+plot([sum([- f.intL for f in m.FC]) for m in data],label="iL")
+plot([sum([- (f.M - f.M0)for f in m.FC]) for m in data],label="dM")
+plot([sum([+ (f.L - f.L0)for f in m.FC]) for m in data],label="dL")
+plot([sum([+ f.detL for f in m.FC]) for m in data],label="detL")
+plot([sum([- f.detM for f in m.FC]) for m in data],label="detM")
 legend()
 # %%
