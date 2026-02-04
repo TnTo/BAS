@@ -45,7 +45,7 @@ The model shows the expected features: the dynamics is very close to the previou
 Additionally, we observe a differentiation in wages among firms very right skewed, i.e. with a prominent right tail (figure \ref{fig:05AB_whist}).
 
 \section{An agent-based extension of the constrained model}
-Finally, an AB version of the model with constrained government spending and credit lines has been made.
+Additionally, an AB version of the model with constrained government spending and credit lines has been made.
 The results are in line with the aggregate version and the unconstrained AB version.
 
 \begin{figure}
@@ -101,3 +101,18 @@ Particularly:
     \item There is no differentiation of wages (figure \ref{fig:05ABe_whist})
     \item The stable dynamics prevents the emergence of strong inequalities in wealth. The heterogeneity among agents is small (everyone satisfies its demand entirely and still most of them are employed) and so the final distribution of wealth resemble a Gaussian distribution for the central limit theorem (figure \ref{fig:05ABe_mhist})
 \end{itemize}
+
+\section{An Object-Oriented version}
+Finally, this last version of the model with endogenous spending has been rewritten following an object-oriented logic as detailed in chapter \ref{ch:implementation}.
+The code is reported in the appendix and it's written in python rather than in R.
+
+The variables are gathered by agent, with each agent collecting all the flows, stocks and other variables relevant to them.
+
+The order of the events is almost identical but the stock of each agent are updated continuosly and agents remains the same through the time-steps, while in the matrix-based approach the stock are computed only at the end and each time-step corresponds to a different column.
+
+Additionally, each capital good is now represented by a different object, allowing heterogeneity among them and a more precise computation of the depreciation.
+
+This approach highlight the double and quadruple entries principle: all the stocks and the flows must be update in both the agents involved, which results in two lines of code each updating the information for one of the two.
+Moreover, each flow requires the update of two stocks, one for each agent involved.
+
+The dynamic of the model is very similar, with some little tweaks on the initial conditions to stabilize the model.
