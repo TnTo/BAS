@@ -2,7 +2,7 @@
 import random
 from random import seed, choice, sample
 from statistics import mean, fmean, StatisticsError
-from math import ceil, floor
+from math import ceil, floor, log
 from copy import deepcopy
 import pickle
 
@@ -153,7 +153,7 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 500
+        m.TMAX = 100
         m.NH = 1000
         m.NFC = 50
         m.NFK = 5
@@ -176,9 +176,9 @@ class Model:
         m.DrL = 0.05
         m.crT = 0.08
         m.ds = 0.05
-        m.inn1 = 0.05
-        m.inn2 = 0.05
-        m.inn3 = 0.05
+        m.inn1 = 0.01
+        m.inn2 = 0.01
+        m.inn3 = 0.01
 
         # Others vars
         m.avgp = 1
@@ -273,19 +273,19 @@ class Model:
                 f.beta = f.beta + max(
                     0,
                     m.inn1 * mean([h.skill for h in f.employees])
-                    - m.inn2 * age
+                    - m.inn2 * f.age
                     + m.inn3
                     * (f.p * sum(f.I.values()))
                     / (sum([f.p * sum(f.I.values()) for f in m.FK])),
                 )
-            except StatisticsError:
+            except (StatisticsError, ZeroDivisionError):
                 f.beta = f.beta
 
         for h in m.H:
             if h.employer is None:
-                h.skill -= m.ds
+                h.skill = max(1, h.skill / (1 + m.ds))
             else:
-                h.skill += m.ds
+                h.skill = h.skill * (1 + m.ds)
 
         # Set Wage and Price level
         for f in m.FC + m.FK:
@@ -295,7 +295,15 @@ class Model:
                 f.W0 = f.W0
 
             f.mu = max(0.5, f.mu * (1 + m.thetaMu * (f.cu - m.cuT) / m.cuT))
-            f.p = (1 + f.mu) * f.W0 / mean([k.beta for k in f.K])
+            try:
+                f.p = (
+                    (1 + f.mu)
+                    * f.W0
+                    * mean([h.skill for h in f.employees])
+                    / mean([k.beta for k in f.K])
+                )
+            except StatisticsError:
+                f.p = f.p
 
         for h in m.H:
             if h.employer is not None:
@@ -393,19 +401,25 @@ class Model:
         # Labour Market
 
         for fc in m.FC:
-            fc.NT = min(
-                len(fc.K),
-                ceil(
-                    (1 + m.rhoC)
-                    * (fc.G + sum(fc.C.values()))
-                    / mean([k.beta for k in fc.K])
-                ),
-            )
+            try:
+                fc.NT = min(
+                    len(fc.K),
+                    ceil(
+                        (1 + m.rhoC)
+                        * (fc.G + sum(fc.C.values()))
+                        / mean([k.beta for k in fc.K])
+                    ),
+                )
+            except StatisticsError:
+                fc.NT = 0
         for fk in m.FK:
-            fk.NT = min(
-                len(fk.K),
-                ceil((sum(fk.Ip.values()) + fk.IT) / mean([k.beta for k in fk.K])),
-            )
+            try:
+                fk.NT = min(
+                    len(fk.K),
+                    ceil((sum(fk.Ip.values()) + fk.IT) / mean([k.beta for k in fk.K])),
+                )
+            except StatisticsError:
+                fk.NT = 0
 
         while len([f for f in (m.FC + m.FK) if len(f.employees) > f.NT]) > 0:
             f = choice([f for f in (m.FC + m.FK) if len(f.employees) > f.NT])
@@ -424,7 +438,7 @@ class Model:
             ]
             f.employees += [h]
             h.employer = f
-            h.skill += m.ds
+            h.skill = h.skill * (1 + m.ds)
             h.W = f.W0 * h.skill
             h.UB = 0
 
@@ -477,7 +491,7 @@ class Model:
                     ],
                     key=lambda h: h.skill,
                 )
-                if len(hs)>0:
+                if len(hs) > 0:
                     h = hs[0]
                     k.worker = h
                     h.machine = k
@@ -617,21 +631,7 @@ class Model:
         for fk in m.FK:
             fk.IK = min(ceil(fk.IT / fk.beta), fk.Y - sum(fk.I.values()))
 
-            fc = choice(
-                [fc for fc in m.FC if sum([fc.Ip[fk] * fk.beta for fk in m.FK]) < fc.IT]
-            )
-            fk = sorted(
-                [
-                    fk
-                    for fk in m.FK
-                    if sum(fk.Ip.values()) < floor(sum([k.beta for k in fk.K]))
-                ],
-                key=lambda fk: fk.p / fk.beta,
-            )[0]
-            fc.Ip[fk] += 1
-            fk.Ip[fc] += 1
-
-        while any([sum(fk.I.values()) + fk.IK < fk.Y for fk in m.FK]) and (
+        while any([sum(fk.I.values()) + fk.IK < fk.Y for fk in m.FK]) and any(
             [sum([fc.I[fk] * fk.beta for fk in m.FK]) < fc.IT for fc in m.FC]
         ):
             fc = choice(
@@ -761,10 +761,10 @@ data = []
 for _ in trange(m.TMAX):
     m.step()
     data += [deepcopy(m)]
-pickle.dump(data, open("05_data.pkl", "wb"))
+pickle.dump(data, open("06_data.pkl", "wb"))
 
 # %%
-data = pickle.load(open("05_data.pkl", "rb"))
+data = pickle.load(open("06_data.pkl", "rb"))
 
 # %%
 # Consistency check
@@ -1084,5 +1084,10 @@ plot(
     ],
     label="delta",
 )
+legend()
+# %%
+plot([mean(f.beta for f in m.FK) for m in data], label="beta")
+plot([log(mean(f.beta for f in m.FK)) for m in data], label="logbeta")
+plot([mean(h.skill for h in m.H) for m in data], label="skill")
 legend()
 # %%
