@@ -153,7 +153,7 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 100
+        m.TMAX = 250
         m.NH = 1000
         m.NFC = 50
         m.NFK = 5
@@ -175,10 +175,10 @@ class Model:
         m.thetaMu = 0.1
         m.DrL = 0.05
         m.crT = 0.08
-        m.ds = 0.05
-        m.inn1 = 0.01
+        m.ds = 0.01
+        m.inn1 = 0.005
         m.inn2 = 0.01
-        m.inn3 = 0.01
+        m.inn3 = 0.005
 
         # Others vars
         m.avgp = 1
