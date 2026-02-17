@@ -63,7 +63,6 @@ class ConsumptionFirm:
 
         # Other
         f.employees = []
-        f.W0 = 1
         f.p = 1
         f.mu = 0.5
         f.beta = 1
@@ -94,7 +93,6 @@ class CapitalFirm:
 
         # Other
         f.employees = []
-        f.W0 = 1
         f.p = 1
         f.mu = 0.5
         f.beta = 1
@@ -156,7 +154,7 @@ class Model:
         m.NFK = 5
 
         # Pars
-        m.thetaW = 0.01
+        m.W0 = 1
         m.ay = 0.6
         m.av = 0.2
         m.dG = 0.03
@@ -175,12 +173,10 @@ class Model:
 
         # Others vars
         m.avgp = 1
-        m.avgw = 1
         m.i = m.iT
         m.cu = m.cuT
         m.u = m.uT
         m.GDP = 0
-        m.avgW = 1
 
         # Create agents
         m.H = [Household() for _ in range(m.NH)]
@@ -261,21 +257,16 @@ class Model:
 
         # Set Wage and Price level
         for f in m.FC + m.FK:
-            try:
-                f.W0 = f.W0 * (1 + m.thetaW * (f.NT - len(f.employees)) / f.NT)
-            except ZeroDivisionError:
-                f.W0 = f.W0
-
             f.mu = max(0.5, f.mu * (1 + m.thetaMu * (f.cu - m.cuT) / m.cuT))
-            f.p = (1 + f.mu) * f.W0 / f.beta
+            f.p = (1 + f.mu) * m.W0 / f.beta
 
         for h in m.H:
             if h.employer is not None:
-                h.W = h.employer.W0
+                h.W = m.W0
                 h.UB = 0
             else:
                 h.W = 0
-                h.UB = m.phi * m.avgw
+                h.UB = m.phi * m.W0
 
         # Set interest rates
         m.G.rB = max(
@@ -360,7 +351,7 @@ class Model:
             f.employees = [ah for ah in f.employees if ah != h]
             h.employer = None
             h.W = 0
-            h.UB = m.phi * m.avgw
+            h.UB = m.phi * m.W0
 
         while (sum([len(f.employees) for f in (m.FC + m.FK)]) < m.NH) and (
             any([len(f.employees) < f.NT for f in (m.FC + m.FK)])
@@ -369,7 +360,7 @@ class Model:
             h = choice([h for h in m.H if h.employer is None])
             f.employees += [h]
             h.employer = f
-            h.W = f.W0
+            h.W = m.W0
             h.UB = 0
 
         ### First Debt Emission and wage and ub payment (EDIT MOVED)
@@ -651,11 +642,6 @@ class Model:
 
         m.u = len([h for h in m.H if h.employer is None]) / m.NH
 
-        try:
-            m.avgw = fmean([f.W0 for f in m.FC], [len(f.employees) for f in m.FC])
-        except StatisticsError:
-            m.avgw = mean([f.W0 for f in m.FC])
-
         m.GDP = sum([f.p * (sum(f.C.values()) + f.G) for f in m.FC]) + sum(
             [f.p * sum(f.I.values()) for f in m.FK]
         )
@@ -667,10 +653,10 @@ data = []
 for _ in trange(m.TMAX):
     m.step()
     data += [deepcopy(m)]
-pickle.dump(data, open("05_data.pkl", "wb"))
+pickle.dump(data, open("04_data.pkl", "wb"))
 
 # %%
-data = pickle.load(open("05_data.pkl", "rb"))
+data = pickle.load(open("04_data.pkl", "rb"))
 
 # %%
 # Consistency check
@@ -856,7 +842,7 @@ plot([sum([(h.M) for h in m.H]) for m in data], label="M")
 legend()
 # %%
 plot([m.avgp for m in data], label="p")
-plot([m.avgw for m in data], label="w")
+plot([m.W0 for m in data], label="w")
 legend()
 # %%
 plot([sum([-sum([h.C[f] * f.p for f in m.FC]) for h in m.H]) for m in data], label="pC")
@@ -949,8 +935,7 @@ legend()
 # %%
 plot([mean([f.p for f in m.FC]) for m in data], label="pc")
 plot([mean([f.p for f in m.FK]) for m in data], label="pk")
-plot([mean([f.W0 for f in m.FC]) for m in data], label="wc")
-plot([mean([f.W0 for f in m.FK]) for m in data], label="wk")
+plot([mean([m.W0 for f in m.FC]) for m in data], label="w")
 plot([mean([f.mu for f in m.FC]) for m in data], label="mc")
 plot([mean([f.mu for f in m.FK]) for m in data], label="mk")
 legend()

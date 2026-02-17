@@ -562,7 +562,6 @@ class Model:
                 for h in m.H
             ]
         ):
-            f = choice([f for f in m.FC if f.Y * Hsh - sum(f.C.values()) > tol])
             h = choice(
                 [
                     h
@@ -571,6 +570,10 @@ class Model:
                     and (sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) < h.M)
                 ]
             )
+            f = sorted(
+                [f for f in m.FC if f.Y * Hsh - sum(f.C.values()) > tol],
+                key=lambda f: f.p,
+            )[0]
             d = min(
                 f.Y * Hsh - sum(f.C.values()),
                 h.CT - sum(h.C.values()),
