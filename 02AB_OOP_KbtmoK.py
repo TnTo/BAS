@@ -263,11 +263,7 @@ class Model:
         ):
             fc = choice([fc for fc in m.FC if sum(fc.Ip.values()) < fc.IT])
             fk = choice(
-                [
-                    fk
-                    for fk in m.FK
-                    if sum(fk.Ip.values()) < sum([k.beta for k in fk.K])
-                ]
+                [fk for fk in m.FK if sum(fk.Ip.values()) < sum([k.beta for k in fk.K])]
             )
             fc.Ip[fk] += 1
             fk.Ip[fc] += 1
@@ -394,9 +390,7 @@ class Model:
                     and (sum([h.C[f] * (1 + m.tC) * f.p for f in m.FC]) < h.M)
                 ]
             )
-            f = choice(
-                [f for f in m.FC if f.Y * Hsh - sum(f.C.values()) > tol]
-            )
+            f = choice([f for f in m.FC if f.Y * Hsh - sum(f.C.values()) > tol])
             d = min(
                 f.Y * Hsh - sum(f.C.values()),
                 h.CT - sum(h.C.values()),
@@ -454,33 +448,12 @@ class Model:
             fk.IK = min(fk.IT, fk.Y - sum(fk.I.values()))
 
         while any([sum(fk.I.values()) + fk.IK < fk.Y for fk in m.FK]) and any(
-            [
-                (sum(fc.I.values()) < fc.IT)
-                and (
-                    fc.M - sum([fc.I[fk] * fk.p for fk in m.FK])
-                    > min(
-                        [
-                            fk.p
-                            for fk in [
-                                fk for fk in m.FK if sum(fk.I.values()) + fk.IK < fk.Y
-                            ]
-                        ]
-                    )
-                )
-            ]
+            [sum(fc.I.values()) < fc.IT]
         ):
-            fk = sorted(
+            fk = choice(
                 [fk for fk in m.FK if sum(fk.I.values()) + fk.IK < fk.Y],
-                key=lambda f: f.p,
-            )[0]
-            fc = choice(
-                [
-                    fc
-                    for fc in m.FC
-                    if (sum(fc.I.values()) < fc.IT)
-                    and (fc.M - sum([fc.I[fk] * fk.p for fk in m.FK]) > fk.p)
-                ]
             )
+            fc = choice([fc for fc in m.FC if (sum(fc.I.values()) < fc.IT)])
             fk.I[fc] += 1
             fc.I[fk] += 1
 
