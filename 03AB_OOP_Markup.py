@@ -7,7 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
-from matplotlib.pyplot import plot, legend
+from matplotlib.pyplot import plot, legend, hist
 
 # %%
 # GLOBAL
@@ -332,7 +332,7 @@ class Model:
             try:
                 f.cu = min(len(f.employees), len(f.K)) / len(f.K)
             except ZeroDivisionError:
-                f.cu = 0.1  # To still trigger inv !!!
+                f.cu = 0 
 
         # Consumpion good market
         try:
@@ -505,7 +505,7 @@ class Model:
         # Profits
         for f in m.FC + m.FK:
             for h in m.H:
-                h.P[f] = max(0, f.M) * h.M / sum([h.M for h in m.H])
+                h.P[f] = f.M * h.M / sum([h.M for h in m.H])
                 f.P[h] = h.P[f]
 
         for h in m.H:
@@ -695,7 +695,8 @@ plot([sum([sum(h.P.values()) for h in m.H]) for m in data], label="P")
 plot([sum([(h.M) for h in m.H]) for m in data], label="M")
 legend()
 # %%
-plot([m.avgp for m in data], label="p")
+plot([mean(f.p for f in m.FC) for m in data], label="pC")
+plot([mean(f.p for f in m.FK) for m in data], label="pK")
 plot([m.W0 for m in data], label="w")
 legend()
 # %%
@@ -749,5 +750,26 @@ plot([sum([-sum(f.W.values()) for f in m.FK]) for m in data], label="W")
 plot([sum([-sum(f.P.values()) for f in m.FK]) for m in data], label="P")
 plot([sum([-(f.M - f.M0) for f in m.FK]) for m in data], label="dM")
 plot([sum([-f.detM for f in m.FK]) for m in data], label="detM")
+legend()
+# %%
+hist([h.M for h in data[-1].H])
+# %%
+plot([m.G.GT for m in data], label="GT")
+plot([sum([h.CT for h in m.H]) for m in data], label="CT")
+plot([sum([h.CT for h in m.H]) + m.G.GT for m in data], label="YT")
+plot([sum([f.Y for f in m.FC]) for m in data], label="Y")
+plot(
+    [sum([sum(h.C.values()) for h in m.H]) + sum(m.G.G.values()) for m in data],
+    label="S",
+)
+plot([sum(m.G.G.values()) for m in data], label="G")
+plot([sum([sum(h.C.values()) for h in m.H]) for m in data], label="C")
+legend()
+# %%
+plot([sum([sum(f.Ip.values()) for f in m.FK]) for m in data], label="Ip")
+plot([sum([f.IT for f in m.FC]) for m in data], label="IT")
+plot([sum([sum(f.I.values()) for f in m.FC]) for m in data], label="I")
+plot([sum([len(f.employees) for f in m.FK]) for m in data], label="NK")
+plot([sum([f.Y for f in m.FK]) for m in data], label="YK")
 legend()
 # %%

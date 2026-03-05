@@ -7,7 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
-from matplotlib.pyplot import plot, legend
+from matplotlib.pyplot import plot, legend, hist, show
 
 # %%
 # GLOBAL
@@ -466,10 +466,7 @@ plot([sum([-h.T for h in m.H]) for m in data], label="T")
 plot([sum([-(h.M - h.M0) for h in m.H]) for m in data], label="dM")
 legend()
 # %%
-plot([sum([sum(f.P.values()) for f in m.FC]) for m in data], label="FC")
-plot([sum([sum(f.P.values()) for f in m.FK]) for m in data], label="FK")
-legend()
-# %%
+plot([sum([sum(f.P.values()) for f in m.FC]) for m in data], label="PFC")
 plot([sum([f.M for f in m.FC]) for m in data], label="MFC")
 legend()
 # %%
@@ -491,5 +488,18 @@ legend()
 plot([mean([f.p for f in m.FC]) for m in data], label="pc")
 plot([mean([m.W0 for f in m.FC]) for m in data], label="w")
 plot([m.mu for m in data], label="mu")
+legend()
+# %%
+hist([h.M for h in data[-1].H], label="MH")
+legend()
+#
+# %%
+plot([m.G.GT for m in data], label="GT")
+plot([sum([h.CT for h in m.H]) for m in data], label="CT")
+plot([sum([h.CT for h in m.H]) + m.G.GT for m in data], label="YT")
+plot([sum([f.Y for f in m.FC]) for m in data], label="Y")
+plot([sum([sum(h.C.values()) for h in m.H]) + sum(m.G.G.values()) for m in data], label="S")
+plot([sum(m.G.G.values()) for m in data], label="G")
+plot([sum([sum(h.C.values()) for h in m.H]) for m in data], label="C")
 legend()
 # %%

@@ -7,7 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
-from matplotlib.pyplot import plot, legend
+from matplotlib.pyplot import plot, legend, hist
 
 # %%
 # GLOBAL
@@ -175,10 +175,10 @@ class Model:
         m.thetaMu = 0.1
         m.DrL = 0.05
         m.crT = 0.08
-        m.ds = 0.01
+        m.ds = 0.005
         m.inn1 = 0.005
-        m.inn2 = 0.01
-        m.inn3 = 0.005
+        m.inn2 = 0.035
+        m.inn3 = 0.01
 
         # Others vars
         m.avgp = 1
@@ -285,7 +285,7 @@ class Model:
             if h.employer is None:
                 h.skill = max(1, h.skill / (1 + m.ds))
             else:
-                h.skill = h.skill * (1 + m.ds)
+                h.skill = h.skill * (1 + m.ds / 10)
 
         # Set Wage and Price level
         for f in m.FC + m.FK:
@@ -503,7 +503,7 @@ class Model:
             try:
                 f.cu = len([k for k in f.K if k.worker is not None]) / len(f.K)
             except ZeroDivisionError:
-                f.cu = 0.1  # To still trigger inv !!!
+                f.cu = 0
 
         # Consumpion good market
         try:
@@ -684,12 +684,12 @@ class Model:
 
         # Failures
         for f in m.FC + m.FK:
-            f.age = 0
             f.detL = 0
             f.detM = 0
             m.B.detL[f] = 0
             m.B.detM[f] = 0
             if f.M - f.L + sum([max(0, k.p * (1 - m.dK * k.age)) for k in f.K]) < 0:
+                f.age = 0
                 f.detL = f.L
                 f.detM = f.M
                 f.L = 0
@@ -1094,3 +1094,29 @@ plot([log(mean(f.beta for f in m.FK)) for m in data], label="logbeta")
 plot([mean(h.skill for h in m.H) for m in data], label="skill")
 legend()
 # %%
+hist([h.M for h in data[-1].H])
+# %%
+plot([m.G.GT for m in data], label="GT")
+plot([sum([h.CT for h in m.H]) for m in data], label="CT")
+plot([sum([h.CT for h in m.H]) + m.G.GT for m in data], label="YT")
+plot([sum([f.Y for f in m.FC]) for m in data], label="Y")
+plot(
+    [sum([sum(h.C.values()) for h in m.H]) + sum(m.G.G.values()) for m in data],
+    label="S",
+)
+plot([sum(m.G.G.values()) for m in data], label="G")
+plot([sum([sum(h.C.values()) for h in m.H]) for m in data], label="C")
+legend()
+# %%
+plot([sum([sum(f.Ip.values()) for f in m.FK]) for m in data], label="Ip")
+plot([sum([f.IT for f in m.FC]) for m in data], label="IT")
+plot([sum([sum(f.I.values()) for f in m.FC]) for m in data], label="I")
+plot([sum([len(f.employees) for f in m.FK]) for m in data], label="NK")
+plot([sum([f.Y for f in m.FK]) for m in data], label="YK")
+legend()
+# %%
+hist([f.p for f in data[-1].FC+data[-1].FK])
+#%% 
+hist([f.beta for f in data[-1].FK])
+#%%
+hist([f.age for f in data[-1].FK])

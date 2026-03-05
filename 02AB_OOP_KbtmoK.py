@@ -7,7 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
-from matplotlib.pyplot import plot, legend
+from matplotlib.pyplot import plot, legend, hist
 
 # %%
 # GLOBAL
@@ -271,8 +271,11 @@ class Model:
         # Labour Market
 
         for fc in m.FC:
-            fc.NT = min(
-                len(fc.K), ceil((1 + m.rhoC) * (fc.G + sum(fc.C.values())) / fc.beta)
+            fc.NT = ceil(
+                min(
+                    len(fc.K),
+                    ceil((1 + m.rhoC) * (fc.G + sum(fc.C.values())) / fc.beta),
+                )
             )
         for fk in m.FK:
             fk.NT = min(len(fk.K), ceil((sum(fk.Ip.values()) + fk.IT) / fk.beta))
@@ -323,7 +326,7 @@ class Model:
             try:
                 f.cu = min(len(f.employees), len(f.K)) / len(f.K)
             except ZeroDivisionError:
-                f.cu = 0.1  # To still trigger inv !!!
+                f.cu = 0  # To still trigger inv !!!
 
         # Consumpion good market
         try:
@@ -448,7 +451,7 @@ class Model:
             fk.IK = min(fk.IT, fk.Y - sum(fk.I.values()))
 
         while any([sum(fk.I.values()) + fk.IK < fk.Y for fk in m.FK]) and any(
-            [sum(fc.I.values()) < fc.IT]
+            [sum(fc.I.values()) < fc.IT for fc in m.FC]
         ):
             fk = choice(
                 [fk for fk in m.FK if sum(fk.I.values()) + fk.IK < fk.Y],
@@ -472,7 +475,7 @@ class Model:
         # Profits
         for f in m.FC + m.FK:
             for h in m.H:
-                h.P[f] = max(0, f.M) * h.M / sum([h.M for h in m.H])
+                h.P[f] =  f.M * h.M / sum([h.M for h in m.H])
                 f.P[h] = h.P[f]
 
         for h in m.H:
@@ -629,9 +632,9 @@ plot([sum([(f.Y) for f in m.FC]) for m in data], label="Y")
 # plot([m.G.GT for m in data], label="GT")
 legend()
 # %%
-plot([sum([(f.IT) for f in m.FC]) for m in data], label="ITC")
-plot([sum([(f.IT) for f in m.FK]) for m in data], label="ITK")
-plot([sum([sum(f.I.values()) for f in m.FK]) for m in data], label="IC")
+plot([sum([(f.IT) for f in m.FC]) for m in data], label="IT")
+plot([sum([sum(f.Ip.values()) for f in m.FK]) for m in data], label="Ip")
+plot([sum([sum(f.I.values()) for f in m.FK]) for m in data], label="I")
 legend()
 # %%
 plot([sum([(f.NT) for f in m.FC]) for m in data], label="NTC")
@@ -715,5 +718,26 @@ plot([sum([-sum(f.W.values()) for f in m.FK]) for m in data], label="W")
 plot([sum([-sum(f.P.values()) for f in m.FK]) for m in data], label="P")
 plot([sum([-(f.M - f.M0) for f in m.FK]) for m in data], label="dM")
 plot([sum([-f.detM for f in m.FK]) for m in data], label="detM")
+legend()
+# %%
+hist([h.M for h in data[-1].H])
+# %%
+plot([m.G.GT for m in data], label="GT")
+plot([sum([h.CT for h in m.H]) for m in data], label="CT")
+plot([sum([h.CT for h in m.H]) + m.G.GT for m in data], label="YT")
+plot([sum([f.Y for f in m.FC]) for m in data], label="Y")
+plot(
+    [sum([sum(h.C.values()) for h in m.H]) + sum(m.G.G.values()) for m in data],
+    label="S",
+)
+plot([sum(m.G.G.values()) for m in data], label="G")
+plot([sum([sum(h.C.values()) for h in m.H]) for m in data], label="C")
+legend()
+# %%
+plot([sum([sum(f.Ip.values()) for f in m.FK]) for m in data], label="Ip")
+plot([sum([f.IT for f in m.FC]) for m in data], label="IT")
+plot([sum([sum(f.I.values()) for f in m.FC]) for m in data], label="I")
+plot([sum([len(f.employees) for f in m.FK]) for m in data], label="NK")
+plot([sum([f.Y for f in m.FK]) for m in data], label="YK")
 legend()
 # %%
