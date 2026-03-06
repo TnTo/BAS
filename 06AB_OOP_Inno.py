@@ -176,9 +176,9 @@ class Model:
         m.DrL = 0.05
         m.crT = 0.08
         m.ds = 0.005
-        m.inn1 = 0.005
-        m.inn2 = 0.035
-        m.inn3 = 0.01
+        m.inn1 = 0.05
+        m.inn2 = 0.05
+        m.inn3 = 0.5
 
         # Others vars
         m.avgp = 1
