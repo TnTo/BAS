@@ -627,12 +627,11 @@ class Model:
 
         try:
             m.i = (
-                1
-                - fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC]) / m.avgp
+                fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC]) / m.avgp - 1
             )
             m.avgp = fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC])
         except StatisticsError:
-            m.i = 1 - mean([f.p for f in m.FC]) / m.avgp
+            m.i = mean([f.p for f in m.FC]) / m.avgp - 1
             m.avgp = mean([f.p for f in m.FC])
 
         try:
