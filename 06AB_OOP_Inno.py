@@ -8,11 +8,24 @@ import pickle
 
 from tqdm import trange
 from matplotlib.pyplot import plot, legend, hist
+import numpy as np
+import pandas
 
 # %%
 # GLOBAL
 seed(8686)
 tol = 1e-4
+
+
+# https://stackoverflow.com/a/39513799
+def gini(x):
+    # Mean absolute difference
+    mad = np.abs(np.subtract.outer(x, x)).mean()
+    # Relative mean absolute difference
+    rmad = mad / np.mean(x)
+    # Gini coefficient
+    g = 0.5 * rmad
+    return g
 
 
 # %%
@@ -733,7 +746,8 @@ class Model:
 
         try:
             m.i = (
-                fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC]) / m.avgp - 1
+                fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC]) / m.avgp
+                - 1
             )
             m.avgp = fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC])
         except StatisticsError:
@@ -758,12 +772,37 @@ class Model:
 
 
 # %%
-m = Model()
-data = []
-for _ in trange(m.TMAX):
-    m.step()
-    data += [deepcopy(m)]
-pickle.dump(data, open("06_data.pkl", "wb"))
+for s in range(1, 6):
+    seed(s)
+    m = Model()
+    data = []
+    for _ in trange(m.TMAX):
+        m.step()
+        data += [deepcopy(m)]
+    pickle.dump(data, open(f"06_data_{s}.pkl", "wb"))
+
+# %%
+rec = []
+for s in range(1, 6):
+    data = pickle.load(open(f"06_data_{s}.pkl", "rb"))
+    for t in range(0, 250):
+        rec += [("MGini", 'Inno', s, t, gini([h.M for h in data[t].H]))]
+        rec += [("WGini", 'Inno', s, t, gini([h.W for h in data[t].H]))]
+        rec += [
+            (
+                "PubExpShare",
+                'Inno',
+                s,
+                t,
+                sum([f.G for f in data[t].FC])
+                / (sum([sum(f.C.values()) for f in data[t].FC]) + sum([f.G for f in data[t].FC])),
+            )
+        ]
+        rec += [("u", 'Inno', s, t, data[t].u)]
+        rec += [("i", 'Inno', s, t, data[t].i)]
+        rec += [("GDP", 'Inno', s, t, data[t].GDP)]
+pandas.DataFrame(rec, columns=('Var', 'Model', 'seed','t', 'Val')).to_pickle("06_res.pkl")
+
 
 # %%
 data = pickle.load(open("06_data.pkl", "rb"))
@@ -1114,9 +1153,9 @@ plot([sum([len(f.employees) for f in m.FK]) for m in data], label="NK")
 plot([sum([f.Y for f in m.FK]) for m in data], label="YK")
 legend()
 # %%
-hist([f.p for f in data[-1].FC+data[-1].FK])
-#%% 
+hist([f.p for f in data[-1].FC + data[-1].FK])
+# %%
 hist([f.beta for f in data[-1].FK])
-#%%
+# %%
 hist([f.age for f in data[-1].FK])
 # %%

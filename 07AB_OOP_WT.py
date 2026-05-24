@@ -8,11 +8,23 @@ import pickle
 
 from tqdm import trange
 from matplotlib.pyplot import plot, legend, hist
+import numpy as np
+import pandas
 
 # %%
 # GLOBAL
 seed(8686)
 tol = 1e-4
+
+# https://stackoverflow.com/a/39513799
+def gini(x):
+    # Mean absolute difference
+    mad = np.abs(np.subtract.outer(x, x)).mean()
+    # Relative mean absolute difference
+    rmad = mad / np.mean(x)
+    # Gini coefficient
+    g = 0.5 * rmad
+    return g
 
 
 # %%
@@ -768,12 +780,37 @@ class Model:
 
 
 # %%
-m = Model()
-data = []
-for _ in trange(m.TMAX):
-    m.step()
-    data += [deepcopy(m)]
-pickle.dump(data, open("07_data.pkl", "wb"))
+for s in range(1,6):
+    seed(s)
+    m = Model()
+    data = []
+    for _ in trange(m.TMAX):
+        m.step()
+        data += [deepcopy(m)]
+    pickle.dump(data, open(f"07_data_{s}.pkl", "wb"))
+
+# %%
+rec = []
+for s in range(1, 6):
+    data = pickle.load(open(f"07_data_{s}.pkl", "rb"))
+    for t in range(0, 250):
+        rec += [("MGini", 'WT', s, t, gini([h.M for h in data[t].H]))]
+        rec += [("WGini", 'WT', s, t, gini([h.W for h in data[t].H]))]
+        rec += [
+            (
+                "PubExpShare",
+                'WT',
+                s,
+                t,
+                sum([f.G for f in data[t].FC])
+                / (sum([sum(f.C.values()) for f in data[t].FC]) + sum([f.G for f in data[t].FC])),
+            )
+        ]
+        rec += [("u", 'WT', s, t, data[t].u)]
+        rec += [("i", 'WT', s, t, data[t].i)]
+        rec += [("GDP", 'WT', s, t, data[t].GDP)]
+pandas.DataFrame(rec, columns=('Var', 'Model', 'seed','t', 'Val')).to_pickle("07_res.pkl")
+
 
 # %%
 data = pickle.load(open("07_data.pkl", "rb"))
