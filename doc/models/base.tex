@@ -229,3 +229,14 @@ The AB extension introduces some volatility in the macro variables as consequenc
 
 Finally, even such a simple model is able to produce a fat tail distribution of wealth (see figure \ref{fig:00AB_hist}): this is not a guarantee result since many previous versions in which all the households demand was fulfilled before the public one, were not able to get such a dynamics for the effects of the central limit theorem.
 Introducing path dependency and limited consumption allow for some agents to under consume (and so having a higher saving rate) and to accumulate an initial stock of money. The proportional distribution of profits amplifies this dynamics, but it is not necessary: even by dividing the profits equally among agents, the same initial inequality appears.
+
+\subsection{Matrix-based vs OOP comparison}
+In this version of the model (and in the next one) the qualitative behaviour of the two implementations (matrix-based in R and OOP-based in Python) is almost identical.
+The OOP version is significantly slower, because the agents are simulated one-by-one, rather than all toghether as a single row in the matrix.
+This will allow for more complex behavioural equations and interactions at the cost, as said, of increased computational time and resources.
+
+Another difference to be noted is that the matrix-based approach allows for updating the stocks at the and of the period, while the OOP version updates them continously.
+This highlights the double and quadruple entries principle: all the stocks and the flows must be update in both the agents involved, which results in two lines of code each updating the information for one of the two.
+Moreover, each flow requires the update of two stocks, one for each agent involved.
+
+The graphs above are taken from the R version.

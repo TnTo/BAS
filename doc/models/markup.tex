@@ -37,7 +37,7 @@ Allowing prices to rise makes the profit share grows macroscopically when lookin
 
 Figure \ref{fig:03_macro} shows how real variables in the model remains relatively stable in the model (consumption is expressed in units of goods) while profits and the nominal variables (as the stock of money) grow exponentially as the prices (figure \ref{fig:03_p}).
 
-\section{The agent based extension}
+\section{The matrix-based agent based extension}
 The new price and mark-up equation are used also for each agent.
 As a consequence the prices are no more homogenous and each firm sells its goods at a different price.
 The matching is still path-dependent and each buyer keep buying from the same seller if the transaction is still possible, otherwise the new seller is no more chose at random but by choosing the one offering the lower price.
@@ -86,3 +86,26 @@ In other words, all the surplus value is extracted at the end of the supply chai
 Comparing to previous versions some households accumulate negative net wealth (figure \ref{fig:03AB_hist}), effectively consuming by debt, a common feature in many economies in the North Atlantic.
 
 The AB extension shows some fluctuation and cycles that the aggregate model does not show, providing already an interesting playground.
+
+\section{The OOP agent based extension}
+In this version of the model the two AB implementations slightly diverge: the OOP one shows a less regular behaviour both in the real side of the economy (figure \ref{fig:03ABO_Y}) and in the nominal one (figure \ref{fig:03ABO_p}).
+This is probably due to the different matching mechanisms in the two implementations, since they are the only meaningfull difference.
+The OOP version, as already pointed out in chapter \ref{ch:implementation}, relies more often on ordered actions by the agents, while the matrix-based one is often able to parallelize such choices without increase the complexity of the code.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{03ABO_Y}
+        \caption{Dynamics of some real flows}
+        \label{fig:03ABO_Y}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{03ABO_p}
+        \caption{Dynamics of prices and wages}
+        \label{fig:03ABO_p}
+    \end{subfigure}
+    \caption{Dynamics of the AB model with investments and exogenous government spending}
+\end{figure}

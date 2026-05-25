@@ -7,7 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
-from matplotlib.pyplot import plot, legend, hist, savefig
+from matplotlib.pyplot import plot, legend, hist
 import numpy as np
 import pandas
 
@@ -177,7 +177,7 @@ class Model:
         m.av = 0.2
         m.dG = 0.03
         m.tW = 0.35
-        m.tP = 0.2
+        m.tP = 0.5
         m.tC = 0.2
         m.phi = 0.7
         m.dK = 0.1
@@ -779,33 +779,33 @@ for s in range(1, 6):
     for _ in trange(m.TMAX):
         m.step()
         data += [deepcopy(m)]
-    pickle.dump(data, open(f"06_data_{s}.pkl", "wb"))
+    pickle.dump(data, open(f"10_data_{s}.pkl", "wb"))
 
 # %%
 rec = []
 for s in range(1, 6):
-    data = pickle.load(open(f"06_data_{s}.pkl", "rb"))
+    data = pickle.load(open(f"10_data_{s}.pkl", "rb"))
     for t in range(0, 250):
-        rec += [("MGini", 'Inno', s, t, gini([h.M for h in data[t].H]))]
-        rec += [("WGini", 'Inno', s, t, gini([h.W for h in data[t].H]))]
+        rec += [("MGini", 'PT', s, t, gini([h.M for h in data[t].H]))]
+        rec += [("WGini", 'PT', s, t, gini([h.W for h in data[t].H]))]
         rec += [
             (
                 "PubExpShare",
-                'Inno',
+                'PT',
                 s,
                 t,
                 sum([f.G for f in data[t].FC])
                 / (sum([sum(f.C.values()) for f in data[t].FC]) + sum([f.G for f in data[t].FC])),
             )
         ]
-        rec += [("u", 'Inno', s, t, data[t].u)]
-        rec += [("i", 'Inno', s, t, data[t].i)]
-        rec += [("GDP", 'Inno', s, t, data[t].GDP)]
-pandas.DataFrame(rec, columns=('Var', 'Model', 'seed','t', 'Val')).to_pickle("06_res.pkl")
+        rec += [("u", 'PT', s, t, data[t].u)]
+        rec += [("i", 'PT', s, t, data[t].i)]
+        rec += [("GDP", 'PT', s, t, data[t].GDP)]
+pandas.DataFrame(rec, columns=('Var', 'Model', 'seed','t', 'Val')).to_pickle("10_res.pkl")
 
 
 # %%
-data = pickle.load(open("06_data_1.pkl", "rb"))
+data = pickle.load(open("10_data_1.pkl", "rb"))
 
 # %%
 # Consistency check
@@ -1089,7 +1089,6 @@ plot([mean([f.W0 for f in m.FK]) for m in data], label="wk")
 plot([mean([f.mu for f in m.FC]) for m in data], label="mc")
 plot([mean([f.mu for f in m.FK]) for m in data], label="mk")
 legend()
-savefig("plot/06ABO_pwm.pdf")
 # %%
 plot([sum([h.W for h in m.H]) for m in data], label="WH")
 plot([sum([sum(f.W.values()) for f in m.FC + m.FK]) for m in data], label="WF")
@@ -1129,9 +1128,9 @@ plot(
 legend()
 # %%
 plot([mean(f.beta for f in m.FK) for m in data], label="beta")
+plot([log(mean(f.beta for f in m.FK)) for m in data], label="logbeta")
 plot([mean(h.skill for h in m.H) for m in data], label="skill")
 legend()
-savefig("plot/06ABO_sb.pdf")
 # %%
 hist([h.M for h in data[-1].H])
 # %%
@@ -1157,16 +1156,6 @@ legend()
 hist([f.p for f in data[-1].FC + data[-1].FK])
 # %%
 hist([f.beta for f in data[-1].FK])
-savefig("plot/06ABO_bdist.pdf")
 # %%
 hist([f.age for f in data[-1].FK])
-# %%
-hist([h.skill for h in data[-1].H])
-savefig("plot/06ABO_sdist.pdf")
-# %%
-hist([h.W for h in data[-1].H])
-savefig("plot/06ABO_wdist.pdf")
-# %%
-plot([sum([(f.Y) for f in m.FC]) for m in data[100:]], label="Y")
-savefig("plot/06ABO_Y.pdf")
 # %%

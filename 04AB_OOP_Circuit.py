@@ -7,7 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
-from matplotlib.pyplot import plot, legend, hist
+from matplotlib.pyplot import plot, legend, hist, savefig
 
 # %%
 # GLOBAL
@@ -996,4 +996,9 @@ plot([sum([sum(f.I.values()) for f in m.FC]) for m in data], label="I")
 plot([sum([len(f.employees) for f in m.FK]) for m in data], label="NK")
 plot([sum([f.Y for f in m.FK]) for m in data], label="YK")
 legend()
+# %%
+plot([sum([f.L for f in m.FC]) for m in data], label="LFC")
+plot([sum([f.L for f in m.FK]) for m in data], label="LFK")
+legend()
+savefig("plot/04ABO_L.pdf")
 # %%

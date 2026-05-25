@@ -107,7 +107,7 @@ It is possible to either adjust the price equation or to fix a minimum value for
 
 By adding these further restrictions the model preserve its features: it still does not reach full employment, the demand for consumption goods is fully satisfied, and it presents cyclical behaviour.
 
-\section{The agent-based extension}
+\section{The matrix-based agent-based extension}
 By adding another sector, it is necessary to choose with how many agents it should be represented.
 For realism, financial sector can be populated by competing banks, financial firms that manage savings and trade in bonds and equities.
 But this would increase the complexity of the model (by adding many new interactions).
@@ -141,7 +141,7 @@ Those firms are considered bankrupted, their stock of loans is cancelled (the lo
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{04AB_L}
-    \caption{Dynamics of the AB model with the circuit}
+    \caption{Dynamics of the matrix-based AB model with the circuit}
     \label{fig:04AB_L}
 \end{figure}
 
@@ -149,3 +149,12 @@ In figure \ref{fig:04AB_L} we can observe the spike in the stock of loans held b
 
 Finally, the fat-tail distribution of wealth among households becomes even more skewed, resembling a one-gets-all dynamics.
 
+\section{The OOP agent-based extension}
+As in previous iterations, the OOP version is less regular in its behaviour, here creating short term fluctations in debt dynamics which however smooth out the medium term dynamics (figure \ref{fig:04ABO_L}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{04ABO_L}
+    \caption{Dynamics of the OOP AB model with the circuit}
+    \label{fig:04ABO_L}
+\end{figure}

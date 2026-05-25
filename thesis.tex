@@ -4,7 +4,7 @@
 \usepackage[margin=2.5cm]{geometry}
 \usepackage[style=apa, backend=biber, sorting=ynt, sortcites=true, useprefix=true]{biblatex}
 \usepackage[autostyle=false, style=english]{csquotes}
-\MakeOuterQuote{"}
+	\MakeOuterQuote{"}
 \usepackage[british]{babel}
 \usepackage[modulo]{lineno}
 \linenumbers
@@ -123,8 +123,10 @@
 \input{doc/models/markup.tex}
 \input{doc/models/circuit.tex}
 \input{doc/models/wages.tex}
+\input{doc/models/inno.tex}
+\input{doc/models/policy.tex}
 % What is missing? Possible improvements
-\input{doc/next.tex}
+% \input{doc/next.tex}
 
 \begin{refcontext}[sorting=nyt]
     \printbibliography
@@ -136,7 +138,7 @@
 
 \input{doc/eq.tex}
 
-\iftrue
+\iffalse
     \chapter{R code}
     \label{app:code}
     \section{Base}

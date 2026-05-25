@@ -1,0 +1,66 @@
+\chapter{Innovation}
+The last feature added to the model is a very simple innovation dynamics, which involves both the capital firms (which increase the productivity of their produced capital) and the workers (which accumulate "skills" ($\sigma$) to be able to used more advanced -i.e. productive- capital goods).
+
+This iteration is developed only in the OOP-based agent based version, because it requires to both specialize the capital goods (here represented as an object with its own properties rather than an integer in the matrix based version or a decimal number in the aggregate one) and match each capital good with a single worker (easier to be done as an object to object pairing).
+
+Innovation is defined as a increasing of the productivity of the capital goods produced by capital firms.
+It is stylized as increasing in the average skill of employees (as a proxy for the human capital) and the market share, and decreasing in the age of the firm, as:
+$$\beta = \beta_{t-1} + \iota_1 <\sigma> - \iota_2 \frac{p_\mathbf{K}I_{\mathcal{F}_\mathbf{C}}}{\Sigma p_\mathbf{K}I_{\mathcal{F}_\mathbf{C}}} + \iota_3 age$$
+
+Workers' skills are updated asymmetrically as 
+$$\sigma_{t-1} = \sigma (1+\frac{\delta_\sigma}{D})$$
+if the worker is employed (where D is a deflator of the dynamics and $\delta_\sigma$ is the rate of variation), and
+$$\sigma_{t-1} = \max(1,\sigma / (1+\delta_\sigma))$$.
+
+Additionally, wages are further diferentiated inside each firm by multiply the firm base wage level (as defined in chapter \ref{ch:wages}) by the individual skill.
+
+\section{Results}
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{06ABO_Y}
+        \caption{Dynamics of some GDP after the first 100 periods}
+        \label{fig:06ABO_Y}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{06ABO_pwm}
+        \caption{Wages, prices and mark-ups}
+        \label{fig:06ABO_pwm}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{06ABO_sb}
+        \caption{Skills and productivity dynamics}
+        \label{fig:06ABO_sb}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{06ABO_wdist}
+        \caption{Distribution of wages among workers}
+        \label{fig:06ABO_wd}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{06ABO_sdist}
+        \caption{Distribution of skills among workers}
+        \label{fig:06ABO_sdist}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{06ABO_bdist}
+        \caption{Distribution of productivity of new capital goods among firms}
+        \label{fig:06ABO_bdist}
+    \end{subfigure}
+    \caption{Dynamics of the AB model with innovation}
+\end{figure}
+
+The real output of the previous models is stable in the long run while in this version it presents an increasing trend (figure \ref{fig:06ABO_Y}), given by the increase in productivity of the capital goods' stock (figure \ref{fig:06ABO_sb}).
+Figure \ref{fig:06ABO_pwm} shows an interesting segmentation of the labour market: capital firms show low mark-up and high wages (probably driven by a faster turnover in the capital stock, requiring higher skilled workers); consumption firms rely on low wages and high mark-ups, distributing the biggest share of profits. 
+
+This model creates heterogeneity both in households and firms sectors, through wages, productivity, and skills distributions.
