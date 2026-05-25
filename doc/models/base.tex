@@ -17,7 +17,7 @@ The first model is very simple and the unusual elements (like the unemployment b
 As shown in the balance sheet (matrix \ref{tab:bs}) for the model there is only one financial asset (money) issued by the consolidated public sector (including both the government and the central bank) as a debt for itself and a credit for the other sector, which bearing no interests.
 
 Additionally, there is one real homogenous good consumed by both the households and the government that is depleted at the end of each period.
-As such there is no accumulation of the good between periods and it is not relevant to include it in the balance sheet (which represent the state of the system at the end of each period).
+As such there is no accumulation of the good between periods, and it is not relevant to include it in the balance sheet (which represent the state of the system at the end of each period).
 
 \begin{table}
     \centering
@@ -45,14 +45,14 @@ The flow of funds matrix (\ref{tab:fof}) summarizes the events of the model, wit
 First two rows (Consumption and Government Spending) relates to the goods market: the homogenous good is sold to both the households and the government.
 The third row (Benefits) indicates the unemployment benefits paid by the government to the households that do not receive a wage.
 The fourth row (Wages) summarizes the labour market, in which firms employ households and pay them a wage.
-The fifth and sixth rows (Profits and Taxes) clean up the time-step: firms transfer to the households their remaining liquidity as distributed profits, and households pay taxes on wages, consumption and profits.
+The fifth and sixth rows (Profits and Taxes) clean up the time-step: firms transfer to the households their remaining liquidity as distributed profits, and households pay taxes on wages, consumption, and profits.
 
 \section{The aggregate version}
 \subsection{Behavioural equations}
 \label{sec:behave}
 The behavioural equations of the aggregate version are written such there is no simultaneity among equations, making it easier to extend to the agent based version later: while the set of equation of an SFC can be solved iteratively for each time-step, ignoring the order and allowing for simultaneity and interdependency among equations, and refining the result on each iteration until the system converges, the same strategy is not feasible for an ABM.
 
-The feasibility of the iterative method is due the low number of variables that are preserved from the previous time period as input for the following one and the relative low number of operations implied by the equations: in an ABM each variable is replicated for each agent, each equation is repeated for each agent and, often, the necessity to disaggregate the behaviour requires to introduce many operations, often including choices, random events and conditional checks.
+The feasibility of the iterative method is due the low number of variables that are preserved from the previous time period as input for the following one and the relative low number of operations implied by the equations: in an ABM each variable is replicated for each agent, each equation is repeated for each agent and, often, the necessity to disaggregate the behaviour requires introducing many operations, often including choices, random events and conditional checks.
 This increment the time to solve a single iteration of the ABM time-step of some magnitudes, making unfeasible to iterate multiple times to solve a single time-step.
 As a consequence the sequence of the events needs to be clearly defined in the AB version to be sure that each equation depend only on the state at the end of the previous period and equations already solved.
 With this in mind, also in the aggregate version we write the equations such that they can be solved in order, without interdependencies, to more easily adapt them to the AB version later.
@@ -62,13 +62,13 @@ Wages (W) are set exogenously and are the only input of the production, and so t
 Prices (p) are so determined by a cost plus mark-up strategy like $$p = (1 + \mu) \frac{W}{Y}$$ where Y is the total output and $\mu$ is the mark-up rate.
 By employing a Leontief production function the production ($\beta$) is the ratio between the single input and the output, and so prices can also be written as $$p= (1+\mu) \beta$$ which results in constant prices when productivity is constant.
 
-Unemployment benefits (UB) are a exogenous and constant fraction $\phi$ of the wages.
+Unemployment benefits (UB) are an exogenous and constant fraction $\phi$ of the wages.
 
 Taxes (T) are paid with a flat rate on wages ($\tau_W$), distributed profits ($\tau_P$) and consumption ($\tau_C$).
 
 Desired consumption in units of good for households is defined in a classic post-Keynesian way as $$C^T = \frac{a_Y ((1 - \tau_W) W + UB) + a_V {\mathbf{M}_\mathcal{H}}_{t-1}}{(1 + \tau_C) p_{t-1}}$$
 where $a_Y$ and $a_V$ are the marginal propensity to consume out of disposable income (wages and unemployment benefits) and wealth (money, $\mathbf{M}_\mathcal{H}$).
-Additionally, at the denominator appears $(1 + \tau_C) p_{t-1}$ which is the price of the good for the consumers (including VAT) and allows to convert the desired expenditures for consumption into the desired units of goods.
+Additionally, at the denominator appears $(1 + \tau_C) p_{t-1}$ which is the price of the good for the consumers (including VAT) and allows converting the desired expenditures for consumption into the desired units of goods.
 
 Government's desired consumption is determined against target expected deficit $d$ $$G^T = \frac{d \cdot {GDP}_{t-1} + T_{t-1} - UB_{t-1}}{p_{t-1}}$$
 
@@ -87,7 +87,7 @@ The exact implementation and the values used for the parameters and the initiali
 The model presented is close to the SIMEX model proposed by \textcite{godley2012}. This is the only step of our build up in which the two sequences of models are comparable, since their models focus on the financial and monetary side of the economy, while our models on the real side.
 
 The two model are quite similar, sharing the same balance sheet, most of the flows and the equations, including a labour-only Leontief production function, a cost-plus-markup pricing and the standard post-Keynesian consumption function.
-The flows matrix has two more entries in our model: unemployment benefits and profits.
+The flows' matrix has two more entries in our model: unemployment benefits and profits.
 
 A first difference is the government spending which is endogenous in our model and exogenous in their one (and in the modified version presented in section \ref{sec:base_EC}).
 
@@ -232,11 +232,11 @@ Introducing path dependency and limited consumption allow for some agents to und
 
 \subsection{Matrix-based vs OOP comparison}
 In this version of the model (and in the next one) the qualitative behaviour of the two implementations (matrix-based in R and OOP-based in Python) is almost identical.
-The OOP version is significantly slower, because the agents are simulated one-by-one, rather than all toghether as a single row in the matrix.
-This will allow for more complex behavioural equations and interactions at the cost, as said, of increased computational time and resources.
+The OOP version is significantly slower, because the agents are simulated one-by-one, rather than all together as a single row in the matrix.
+This allows for more complex behavioural equations and interactions at the cost, as said, of increased computational time and resources.
 
-Another difference to be noted is that the matrix-based approach allows for updating the stocks at the and of the period, while the OOP version updates them continously.
-This highlights the double and quadruple entries principle: all the stocks and the flows must be update in both the agents involved, which results in two lines of code each updating the information for one of the two.
+Another difference to be noted is that the matrix-based approach allows for updating the stocks at the end of the period, while the OOP version updates them continuously.
+This highlights the double and quadruple entries' principle: all the stocks and the flows must be updated in both the agents involved, which results in two lines of code each updating the information for one of the two.
 Moreover, each flow requires the update of two stocks, one for each agent involved.
 
 The graphs above are taken from the R version.

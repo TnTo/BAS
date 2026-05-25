@@ -40,7 +40,7 @@ Figure \ref{fig:03_macro} shows how real variables in the model remains relative
 \section{The matrix-based agent based extension}
 The new price and mark-up equation are used also for each agent.
 As a consequence the prices are no more homogenous and each firm sells its goods at a different price.
-The matching is still path-dependent and each buyer keep buying from the same seller if the transaction is still possible, otherwise the new seller is no more chose at random but by choosing the one offering the lower price.
+The matching is still path-dependent, and each buyer keep buying from the same seller if the transaction is still possible, otherwise the new seller is no more chose at random but by choosing the one offering the lower price.
 
 Additionally, some households start to show negative net wealth, so additional constraints on available liquidity were added also in the consumption goods market.
 
@@ -89,7 +89,7 @@ The AB extension shows some fluctuation and cycles that the aggregate model does
 
 \section{The OOP agent based extension}
 In this version of the model the two AB implementations slightly diverge: the OOP one shows a less regular behaviour both in the real side of the economy (figure \ref{fig:03ABO_Y}) and in the nominal one (figure \ref{fig:03ABO_p}).
-This is probably due to the different matching mechanisms in the two implementations, since they are the only meaningfull difference.
+This is probably due to the different matching mechanisms in the two implementations, since they are the only meaningful difference.
 The OOP version, as already pointed out in chapter \ref{ch:implementation}, relies more often on ordered actions by the agents, while the matrix-based one is often able to parallelize such choices without increase the complexity of the code.
 
 \begin{figure}
