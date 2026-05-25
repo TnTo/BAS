@@ -17,6 +17,7 @@ renv/
 *.log
 *.synctex.gz
 *.blg
+*.bbl
 
 *.pdf
 
