@@ -5,12 +5,12 @@ The last feature added to the model is a very simple innovation dynamics, which 
 This iteration is developed only in the OOP-based agent based version, because it requires to both specialize the capital goods (here represented as an object with its own properties rather than an integer in the matrix based version or a decimal number in the aggregate one) and match each capital good with a single worker (easier to be done as an object to object pairing).
 
 Innovation is modeled as an increase in the productivity of capital goods produced by capital firms. It is assumed to rise with the average skill level of employees (used as a proxy for human capital) and with market share, and to decline with firm age, as:
-$$\beta = \beta_{t-1} + \iota_1 <\sigma> - \iota_2 \frac{p_\mathbf{K}I_{\mathcal{F}_\mathbf{C}}}{\Sigma p_\mathbf{K}I_{\mathcal{F}_\mathbf{C}}} + \iota_3 age$$
+$$\beta = \beta_{t-1} + \iota_1 <\sigma> + \iota_2 \frac{p_\mathbf{K}I_{\mathcal{F}_\mathbf{C}}}{\Sigma p_\mathbf{K}I_{\mathcal{F}_\mathbf{C}}} - \iota_3 age$$
 
 Workers' skills are updated asymmetrically as 
 $$\sigma_{t-1} = \sigma (1+\frac{\delta_\sigma}{D})$$
 if the worker is employed (where D is a deflator of the dynamics and $\delta_\sigma$ is the rate of variation), and
-$$\sigma_{t-1} = \max(1,\sigma / (1+\delta_\sigma))$$.
+$$\sigma_{t-1} = \max(1,\sigma / (1+\delta_\sigma))$$ if they is unemployed.
 
 Additionally, wages are further differentiated inside each firm by multiply the firm base wage level (as defined in chapter \ref{ch:wages}) by the individual skill.
 

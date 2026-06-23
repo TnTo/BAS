@@ -1,0 +1,422 @@
+% !TeX spellcheck = en_GB
+\documentclass[]{beamer}
+
+\usepackage[style=authoryear]{biblatex}
+\usepackage{hyperref}
+
+\usetheme{CambridgeUS}
+\usecolortheme{beaver}
+
+\usepackage{graphicx}
+\graphicspath{{plot/}}
+\usepackage{subcaption}
+
+\usepackage{booktabs}
+
+\setbeamerfont{caption}{size=\tiny}
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+
+\AtBeginEnvironment{tabular}{\small}
+
+\title[On Agent-Based Models and Complexity]{
+	On Agent-Based Models and Complexity:\\ a methodological note and a step-by-step model
+}
+\author[Ciruzzi, M.]{Margherita Ciruzzi}
+\institute[UnInsubria]{Università degli Studi dell'Insubria}
+\date{}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section*{Introduction}
+\begin{frame}
+    \begin{enumerate}
+    	\item Research Question
+    	\item Complexity
+    	\item Phenomenology
+    	\item The Hypothesis of the Model
+    	\item The Models
+    	\item A Policy Experiment
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Initial Research Question}
+	\centering
+	Which are the macroeconomic effects of a Universal Basic Income (UBI)?
+\end{frame}
+
+\section*{Complexity}
+\begin{frame}
+	\frametitle{An History}
+	\begin{itemize}
+		\item The mathematical methods of complexity begun to be developed in the '70s of the XIX century
+		\item The idea of complexity (the whole is more than its parts) appeared in the '70s of the XX century
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{A Definition}
+	\centering
+	A system is complex if and only if it must be described differently on different levels of one or more scales
+\end{frame}
+
+\begin{frame}
+	\frametitle{On Complexity and Economics}
+	\begin{itemize}
+		\item A Neo-Empirical Complexity
+		\item A Post-Neoclassical Complexity
+		\item A Meta-Theoretical Complexity
+	\end{itemize}
+\end{frame}
+
+\section*{Phenomenology}
+\begin{frame}
+	\centering
+	A meta-theoretical complexity requires a phenomenological approach
+\end{frame}
+
+\section*{The Models}
+\begin{frame}
+	\frametitle{The Hypothesis of the Model}
+	\begin{itemize}
+		\item Stock-Flow Consistent (SFC)
+		\item Agent-Based (AB)
+		\item Focus on the real side (Leontief production function)
+		\item Stylized financial sector (Circuit)
+		\item Public Sector with both pro-cyclical and anti-cyclical policies
+		\item Different kind of taxation
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Calibration}
+	\begin{figure}
+		\centering
+		\includegraphics[width=.7\linewidth]{chaos_trace}
+		\caption{Employment share at the end of the simulation for different values of the capital depreciation rate}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Implementation}
+	\begin{itemize}
+		\item SFC: E-Views, R
+		\item AB (matrix-based): R, Python
+		\item AB (Object-Oriented): Python, C++
+		\item AB (Domain-Specific Languages): LSD, NetLogo
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Base Model}
+	\begin{table}
+		\centering
+		\begin{tabular}{l|ccc|l}
+			& $\mathcal{H}$             & $\mathcal{F}$               & $\mathcal{G}$    & $\Sigma$ \\
+			\midrule
+			Money    & $+\mathbf{M}_\mathcal{H}$ & $+\mathbf{M}_{\mathcal{F}}$ & $-\mathbf{M}$    & 0        \\
+			\midrule
+			$\Sigma$ & $+V_\mathcal{H}$          & $+V_{\mathcal{F}}$          & $+V_\mathcal{G}$ & 0        \\
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}
+		\centering
+		\begin{tabular}{l|ccc|l}
+			
+			& $\mathcal{H}$                   & $\mathcal{F} $                  & $\mathcal{G}$       & $\Sigma$ \\
+			\midrule
+			Consumption    & $-p C$                          & $+p C$                          &                     & 0        \\
+			Gvt Spending   &                                 & $+p G$                          & $-p G$              & 0        \\
+			Benefits       & $+UB$                           &                                 & $-UB$               & 0        \\
+			Wages          & $+W$                            & $-W$                            &                     & 0        \\
+			Profits        & $+P$                            & $-P$                            &                     & 0        \\
+			Taxes          &
+			$-T$           &                                 & $+T$                            & 0                              \\
+			\midrule
+			$\Delta$ Money & $-\Delta\mathbf{M}_\mathcal{H}$ & $-\Delta\mathbf{M}_\mathcal{F}$ & $+\Delta\mathbf{M}$ & 0        \\
+			\midrule
+			$\Sigma$       & 0                               & 0                               & 0                   & 0        \\
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Base Model}
+	$$p = (1 + \mu) \frac{W}{Y} = (1+\mu)\beta$$
+	$$C^T = \frac{a_Y ((1 - \tau_W) W + UB) + a_V {\mathbf{M}_\mathcal{H}}_{t-1}}{(1 + \tau_C) p_{t-1}}$$
+	$$G^T = \frac{d \cdot {GDP}_{t-1} + T_{t-1} - UB_{t-1}}{p_{t-1}}$$
+	$$N = Y^T/\beta$$
+	$$Y = \beta N$$
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Base Model}
+	\centering
+	\includegraphics[width=.8\linewidth]{00_sankey}
+\end{frame}
+
+\begin{frame}
+	\frametitle{The Base Model (AB)}
+	\centering
+	\includegraphics[width=.8\linewidth]{00AB_hist}
+\end{frame}
+
+\begin{frame}
+	\frametitle{A Model with Investment}
+	$$I^T = {\mathbf{K}^u}_{t-1} (\frac{1}{{cu}^T} - \frac{1}{{cu}}) + \delta_\mathbf{K} \mathbf{K}_{t-1}$$
+\end{frame}
+
+\begin{frame}
+	\frametitle{A Model with Investment}
+	\begin{table}
+		\centering
+		\begin{tabular}{l|cccc|l}
+			& $\mathcal{H}$             & $\mathcal{F}_\mathbf{C}$               & $\mathcal{F}_\mathbf{K}$               & $\mathcal{G}$    & $\Sigma$                   \\
+			\midrule
+			Money    & $+\mathbf{M}_\mathcal{H}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{C}}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{K}}$ & $-\mathbf{M}$    & 0                          \\
+			\midrule
+			Capital  &                           & $+p_\mathbf{K} \mathbf{K}_\mathbf{C}$  & $+p_\mathbf{K} \mathbf{K}_\mathbf{K}$  &                  & $+p_\mathbf{K} \mathbf{K}$ \\
+			\midrule
+			$\Sigma$ & $+V_\mathcal{H}$          & $+V_{\mathcal{F}_\mathbf{C}}$          & $+V_{\mathcal{F}_\mathbf{K}}$          & $+V_\mathcal{G}$ & $+p_\mathbf{K} \mathbf{K}$ \\
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}
+		\centering
+		\begin{tabular}{l|cccc|l}
+			
+			& $\mathcal{H}$                   & $\mathcal{F}_\mathbf{C}$                     & $\mathcal{F}_\mathbf{K}$                     & $\mathcal{G}$       & $\Sigma$ \\
+			\midrule
+			Consumption    & $-p C$                          & $+p C$                                       &                                              &                     & 0        \\
+			Gvt Spending   &                                 & $+p G$                                       &                                              & $-p G$              & 0        \\
+			Investments    &                                 & $-p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}} $  & $+p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}} $  &                     & 0        \\
+			Benefits       & $+UB$                           &                                              &                                              & $-UB$               & 0        \\
+			Wages          & $+W$                            & $-W_{\mathcal{F}_\mathbf{C}}$                & $-W_{\mathcal{F}_\mathbf{K}}$                &                     & 0        \\
+			Profits        & $+P$                            & $-P_{\mathcal{F}_\mathbf{C}}$                & $-P_{\mathcal{F}_\mathbf{K}}$                &                     & 0        \\
+			Taxes          &
+			$-T$           &                                 &                                              & $+T$                                         & 0                              \\
+			\midrule
+			$\Delta$ Money & $-\Delta\mathbf{M}_\mathcal{H}$ & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{C}}$ & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{K}}$ & $+\Delta\mathbf{M}$ & 0        \\
+			\midrule
+			$\Sigma$       & 0                               & 0                                            & 0                                            & 0                   & 0        \\
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}
+	\frametitle{A Model with Investment}
+	\centering
+	\includegraphics[width=.8\linewidth]{01_sankey}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Dynamic Mark-Up}
+	$$\mu = \mu_{t-1} (1 + \Theta \frac{{cu}_{t-1} - {cu}^T}{{cu}^T})$$
+\end{frame}
+
+\begin{frame}
+	\frametitle{Dynamic Mark-Up}
+	\centering
+	\includegraphics[width=.8\linewidth]{03_sankey}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Dynamic Mark-Up (AB)}
+	\centering
+	\begin{figure}
+		\centering
+		\begin{subfigure}[t]{0.47\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{03AB_pN}
+		\end{subfigure}
+		~
+		\begin{subfigure}[t]{0.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{03ABO_p}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Circuit}
+	$$\Delta^+ \mathbf{L}_{\mathcal{F}_\mathbf{C}} = W_{\mathcal{F}_\mathbf{C}} + p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$$ $$\Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{K}} = W_{\mathcal{F}_\mathbf{K}}$$
+	$$\mathbf{L}_{\mathcal{F}_\mathbf{C}} = {\mathbf{L}_{\mathcal{F}_\mathbf{C}}}_{t-1} + \Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{C}} - {\mathbf{M}_{\mathcal{F}_\mathbf{C}}} - p_\mathbf{C} (C + G)$$ $$\mathbf{L}_{\mathcal{F}_\mathbf{K}} = {\mathbf{L}_{\mathcal{F}_\mathbf{K}}}_{t-1} + \Delta^+\mathbf{L}_{\mathcal{F}_\mathbf{K}} - {\mathbf{M}_{\mathcal{F}_\mathbf{K}}} - p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$$
+	$$\mathbf{B} = \frac{\mathbf{B}_{t-1} - (T - p_\mathbf{C}G - UB)}{1-r_\mathbf{B}}$$
+	$$r_\mathbf{B} = i_{t-1} + \alpha_i (i_{i-1} - i^T) + \alpha_{cu} ({cu}_{t-1} - {cu}^T) - \alpha_u (u_{t-1} - u^T)$$ 
+\end{frame}
+
+\begin{frame}
+	\frametitle{Circuit}
+	\begin{table}
+		\centering
+		\begin{tabular}{l|ccccc|l}
+			& $\mathcal{H}$             & $\mathcal{F}_\mathbf{C}$               & $\mathcal{F}_\mathbf{K}$               & $\mathcal{B}$    & $\mathcal{G}$    & $\Sigma$                   \\
+			\midrule
+			Money    & $+\mathbf{M}_\mathcal{H}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{C}}$ & $+\mathbf{M}_{\mathcal{F}_\mathbf{K}}$ & $-\mathbf{M}$    &                  & 0                          \\
+			Loans    &                           & $-\mathbf{L}_{\mathcal{F}_\mathbf{C}}$ & $-\mathbf{L}_{\mathcal{F}_\mathbf{K}}$ & $+\mathbf{L}$    &                  & 0                          \\
+			Bonds    &                           &                                        &                                        & $+\mathbf{B}$    & $-\mathbf{B}$    & 0                          \\
+			\midrule
+			Capital  &                           & $+p_\mathbf{K} \mathbf{K}_\mathbf{C}$  & $+p_\mathbf{K} \mathbf{K}_\mathbf{K}$  &                  &                  & $+p_\mathbf{K} \mathbf{K}$ \\
+			\midrule
+			$\Sigma$ & $+V_\mathcal{H}$          & $+V_{\mathcal{F}_\mathbf{C}}$          & $+V_{\mathcal{F}_\mathbf{K}}$          & $+V_\mathcal{B}$ & $+V_\mathcal{G}$ & $+p_\mathbf{K} \mathbf{K}$ \\
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Circuit}
+	\begin{table}
+		\centering
+		\begin{tabular}{l|ccccc|l}
+			
+			& $\mathcal{H}$                   & $\mathcal{F}_\mathbf{C}$                                                                                    & $\mathcal{F}_\mathbf{K}$                                                                                    & $\mathcal{B}$                                             & $\mathcal{G}$       & $\Sigma$ \\
+			\midrule
+			Consumption            & $-p C$                          & $+p C$                                                                                                      &                                                                                                             &                                                           &                     & 0        \\
+			Gvt Spending           &                                 & $+p G$                                                                                                      &                                                                                                             &                                                           & $-p G$              & 0        \\
+			Investments            &                                 & $-p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$                                                                  & $+p_\mathbf{K} I_{\mathcal{F}_\mathbf{C}}$                                                                  &                                                           &                     & 0        \\
+			Benefits               & $+UB$                           &                                                                                                             &                                                                                                             &                                                           & $-UB$               & 0        \\
+			Wages                  & $+W$                            & $-W_{\mathcal{F}_\mathbf{C}}$                                                                               & $-W_{\mathcal{F}_\mathbf{K}}$                                                                               &                                                           &                     & 0        \\
+			Profits                & $+P$                            & $-P_{\mathcal{F}_\mathbf{C}}$                                                                               & $-P_{\mathcal{F}_\mathbf{K}}$                                                                               & $-P_\mathcal{B}$                                          &                     & 0        \\
+			Taxes                  &
+			$-T$                   &                                 &                                                                                                             &                                                                                                             & $+T$                                                      & 0                              \\
+			\midrule
+			$\mathbf{L}$ interests &                                 & $-r_\mathbf{L} \mathbf{L}^T_{\mathcal{F}_\mathbf{C}}$ & $-r_\mathbf{L} \mathbf{L}^T_{\mathcal{F}_\mathbf{K}}$ & $+r_\mathbf{L} \mathbf{L}^T$ &                     & 0        \\
+			$\mathbf{B}$ interests &
+			&                                 &                                                                                                             & $+r_\mathbf{B}\mathbf{B}$                                                                                   & $-r_\mathbf{B}\mathbf{B}$                                 & 0                              \\
+			\midrule
+			$\Delta$ Money         & $-\Delta\mathbf{M}_\mathcal{H}$ & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{C}}$                                                                & $-\Delta\mathbf{M}_{\mathcal{F}_\mathbf{K}}$                                                                & $+\Delta\mathbf{M}$                                       &                     & 0        \\
+			$\Delta$ Loans         &                                 & $+\Delta\mathbf{L}_{\mathcal{F}_\mathbf{C}}$                                                                & $+\Delta\mathbf{L}_{\mathcal{F}_\mathbf{K}}$                                                                & $-\Delta\mathbf{L}_{\mathcal{B}}$                         &                     & 0        \\
+			$\Delta$ Bonds         &                                 &                                                                                                             &                                                                                                             & $-\Delta\mathbf{B}$                                       & $+\Delta\mathbf{B}$ & 0        \\
+			\midrule
+			$\Sigma$               & 0                               & 0                                                                                                           & 0                                                                                                           & 0                                                         & 0                   & 0        \\
+		\end{tabular}
+	\end{table}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Circuit}
+	\centering
+	\includegraphics[width=.8\linewidth]{04_sankey}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Innovation}
+	\centering
+	$$W_0 =  {W_0}_{t-1} (1 + \Theta_W \frac{N^T_{t-1} - N_{t-1}}{N^T_{t-1}})$$
+	$$\beta = \beta_{t-1} + \iota_1 <\sigma> + \iota_2 \frac{p_\mathbf{K}I_{\mathcal{F}_\mathbf{C}}}{\Sigma p_\mathbf{K}I_{\mathcal{F}_\mathbf{C}}} - \iota_3 age$$
+	$\sigma_{t-1} = \sigma (1+\frac{\delta_\sigma}{D})$
+	if the worker is employed \\
+	$\sigma_{t-1} = \max(1,\sigma / (1+\delta_\sigma))$ if the worker is unemployed
+	$$W = W_0 \sigma$$
+\end{frame}
+
+\begin{figure}
+	\frametitle{Innovation}
+	\centering
+	\begin{subfigure}[t]{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{06ABO_Y}
+		\caption{Dynamics of real GDP after the first 100 periods}
+	\end{subfigure}%
+	~
+	\begin{subfigure}[t]{0.49\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{06ABO_pwm}
+		\caption{Wages, prices and mark-ups}
+	\end{subfigure}
+\end{figure}
+
+\section*{Policy}
+\begin{frame}
+	\frametitle{A Policy Experiment}
+	\begin{itemize}
+		\item Baseline
+		\item UBI
+		\item Higher Profit Tax
+		\item Wealth Tax
+		\item UBI + Wealth Tax
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{A Policy Experiment}
+	\centering
+	\begin{figure}
+		\centering
+		\begin{subfigure}[t]{0.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{pol_i}
+			\caption{Dynamics of inflation after the first few periods}
+			\label{fig:pol_i}
+		\end{subfigure}%
+		~
+		\begin{subfigure}[t]{0.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{pol_u}
+			\caption{Dynamics of unemployment after the first few periods}
+			\label{fig:pol_u}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{A Policy Experiment}
+\centering
+\begin{figure}
+		\begin{subfigure}[t]{0.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{pol_gdp}
+			\caption{Dynamics of nominal GDP}
+			\label{fig:pol_sb}
+		\end{subfigure}%
+		~
+		\begin{subfigure}[t]{0.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{pol_g}
+			\caption{Dynamics of the share of public consumption}
+			\label{fig:pol_wd}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{A Policy Experiment}
+\begin{figure}
+		\begin{subfigure}[t]{0.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{pol_wgini}
+			\caption{Dynamics of Gini index calculated on wages}
+			\label{fig:pol_sdist}
+		\end{subfigure}%
+		~
+		\begin{subfigure}[t]{0.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{pol_mgini}
+			\caption{Dynamics of Gini index calculated on wealth after the first few periods}
+			\label{fig:pol_bdist}
+		\end{subfigure}
+	\end{figure}
+\end{frame}
+
+\section*{Conclusion}
+\begin{frame}
+	\frametitle{Conclusion}
+	\begin{itemize}
+		\item Complexity is still an ill-defined word
+		\item A phenomenological approach would shake the foundations of the discipline
+		\item A step-by-step approach makes the development feasible
+		\item Even in such a simple model, an UBI has no clear policy implication and heavily depends on the context
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+    \centering
+    Thanks for your attention!
+
+    Any question?
+\end{frame}
+
+\end{document}

@@ -82,7 +82,7 @@ Finally, firms distributed any resulting money to households as profits (P) (or 
 
 The other equations simply mirror the sum of the rows and columns of the matrices of the model (\ref{tab:bs} and \ref{tab:fof}).
 
-The exact implementation and the values used for the parameters and the initialization are reported in appendix.
+The exact implementation and the values used for the parameters and the initialization are reported in the online materials.
 
 \subsection{A comparison}
 The model presented is close to the SIMEX model proposed by \textcite{godley2012}. This is the only step of our build up in which the two sequences of models are comparable, since their models focus on the financial and monetary side of the economy, while our models on the real side.
@@ -234,7 +234,7 @@ Introducing path dependency and limited consumption allow for some agents to und
 \subsection{Matrix-based vs OOP comparison}
 In this version of the model (and in the next one) the qualitative behaviour of the two implementations (matrix-based in R and OOP-based in Python) is almost identical.
 The OOP version is significantly slower, because the agents are simulated one-by-one, rather than all together as a single row in the matrix.
-This allows for more complex behavioural equations and interactions at the cost, as said, of increased computational time and resources.
+The OOP version allows for more complex behavioural equations and interactions at the cost, as said, of increased computational time and resources.
 
 Another difference to be noted is that the matrix-based approach allows for updating the stocks at the end of the period, while the OOP version updates them continuously.
 This highlights the double and quadruple entries' principle: all the stocks and the flows must be updated in both the agents involved, which results in two lines of code each updating the information for one of the two.
