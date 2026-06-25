@@ -155,6 +155,7 @@ class Government:
         g.UB = dict()
         g.T = dict()
         g.intB = 0
+        g.deficit = 0
 
         # Other
         g.rB = 0
@@ -777,6 +778,8 @@ class Model:
             [f.p * sum(f.I.values()) for f in m.FK]
         )
 
+        m.G.deficit = sum(m.G.T.values()) - sum([m.G.G[f] * f.p for f in m.G.G.keys()]) - sum(m.G.UB.values()) - m.G.intB
+
 
 # %%
 for s in range(1,6):
@@ -808,6 +811,9 @@ for s in range(1, 6):
         rec += [("u", 'WTUB', s, t, data[t].u)]
         rec += [("i", 'WTUB', s, t, data[t].i)]
         rec += [("GDP", 'WTUB', s, t, data[t].GDP)]
+        rec += [("GvtDebt", 'WTUB', s, t, data[t].G.B / data[t].GDP)]
+        rec += [("GvtDeficit", 'WTUB', s, t, data[t].G.deficit / data[t].GDP)]
+
 pandas.DataFrame(rec, columns=('Var', 'Model', 'seed','t', 'Val')).to_pickle("09_res.pkl")
 
 

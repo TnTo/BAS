@@ -7,7 +7,7 @@ from copy import deepcopy
 import pickle
 
 from tqdm import trange
-from matplotlib.pyplot import plot, legend, hist
+from matplotlib.pyplot import plot, legend, hist, savefig
 import numpy as np
 import pandas
 
@@ -15,6 +15,7 @@ import pandas
 # GLOBAL
 seed(8686)
 tol = 1e-4
+
 
 # https://stackoverflow.com/a/39513799
 def gini(x):
@@ -166,7 +167,7 @@ class Government:
 class Model:
     def __init__(m):  # using m rather then self
         # Sim pars
-        m.TMAX = 250
+        m.TMAX = 500
         m.NH = 1000
         m.NFC = 50
         m.NFK = 5
@@ -179,7 +180,8 @@ class Model:
         m.tW = 0.35
         m.tP = 0.2
         m.tC = 0.2
-        m.tM = 0.02
+        m.tM = 0
+        m.tMquantile = 1
         m.phi = 0.7
         m.dK = 0.1
         m.rhoC = 0.05
@@ -193,6 +195,9 @@ class Model:
         m.inn1 = 0.05
         m.inn2 = 0.05
         m.inn3 = 0.5
+        m.rhoL = 8.5
+        m.UBI = False
+        m.Constraints = True
 
         # Others vars
         m.avgp = 1
@@ -363,7 +368,54 @@ class Model:
 
         # Capital Goods orders are based only on desired I
 
-        # Over buy
+        # Labour Market
+
+        for fc in m.FC:
+            try:
+                fc.NT = min(
+                    len(fc.K),
+                    ceil(
+                        (1 + m.rhoC)
+                        * (fc.G + sum(fc.C.values()))
+                        / mean([k.beta for k in fc.K])
+                    ),
+                )
+            except StatisticsError:
+                fc.NT = 0
+        for fk in m.FK:
+            try:
+                fk.NT = min(
+                    len(fk.K),
+                    ceil((sum(fk.Ip.values()) + fk.IT) / mean([k.beta for k in fk.K])),
+                )
+            except StatisticsError:
+                fk.NT = 0
+
+        for f in m.FC:
+            try:
+                expW = f.NT * f.W0 * mean([h.sigma for h in f.employees])
+            except:
+                expW = f.NT * f.W0
+            expI = f.IT * sum([k.p for k in f.K])
+            maxexp = max(
+                0, m.rhoL*sum([max(0, k.p * (1 - m.dK * k.age)) for k in f.K]) - f.L + f.M
+            )
+            if expW + expI > maxexp:
+                f.NT = ceil(f.NT * maxexp / (expW + expI))
+                f.IT = ceil(f.IT * maxexp / (expW + expI))
+
+        for f in m.FK:
+            try:
+                expW = f.NT * f.W0 * mean([h.sigma for h in f.employees])
+            except:
+                expW = f.NT * f.W0
+            maxexp = max(
+                0, m.rhoL*sum([max(0, k.p * (1 - m.dK * k.age)) for k in f.K]) - f.L + f.M
+            )
+            if expW > maxexp:
+                f.NT = ceil(f.NT * maxexp / expW)
+
+            # Over buy
         while any([sum([fc.Ip[fk] * fk.beta for fk in m.FK]) > fc.IT for fc in m.FC]):
             fc = choice(
                 [fc for fc in m.FC if sum([fc.Ip[fk] * fk.beta for fk in m.FK]) > fc.IT]
@@ -412,29 +464,6 @@ class Model:
             fc.Ip[fk] += 1
             fk.Ip[fc] += 1
 
-        # Labour Market
-
-        for fc in m.FC:
-            try:
-                fc.NT = min(
-                    len(fc.K),
-                    ceil(
-                        (1 + m.rhoC)
-                        * (fc.G + sum(fc.C.values()))
-                        / mean([k.beta for k in fc.K])
-                    ),
-                )
-            except StatisticsError:
-                fc.NT = 0
-        for fk in m.FK:
-            try:
-                fk.NT = min(
-                    len(fk.K),
-                    ceil((sum(fk.Ip.values()) + fk.IT) / mean([k.beta for k in fk.K])),
-                )
-            except StatisticsError:
-                fk.NT = 0
-
         while len([f for f in (m.FC + m.FK) if len(f.employees) > f.NT]) > 0:
             f = choice([f for f in (m.FC + m.FK) if len(f.employees) > f.NT])
             h = sorted(f.employees, key=lambda h: h.skill)[0]
@@ -479,6 +508,10 @@ class Model:
                 m.B.M[h] -= m.tW * h.W
                 m.B.B -= m.tW * h.W
                 m.G.B -= m.tW * h.W
+        
+        if m.UBI:
+            for h in m.H:
+                h.UB = m.phi * m.avgw
 
         for h in m.H:
             m.G.UB[h] = h.UB
@@ -738,15 +771,17 @@ class Model:
             m.B.M[h] -= m.tP * sum(h.P.values())
             m.B.B -= m.tP * sum(h.P.values())
             m.G.B -= m.tP * sum(h.P.values())
-        
+
+        WThreshold = np.quantile([h.M for h in m.H], 1-m.tMquantile)
         for h in m.H:
-            WTaxes = max(0, m.tM * h.M)
-            h.T += WTaxes
-            m.G.T[h] += WTaxes
-            h.M -= WTaxes
-            m.B.M[h] -= WTaxes
-            m.B.B -= WTaxes
-            m.G.B -= WTaxes
+            if h.M >= WThreshold:
+                WTaxes = max(0, m.tM * h.M)
+                h.T += WTaxes
+                m.G.T[h] += WTaxes
+                h.M -= WTaxes
+                m.B.M[h] -= WTaxes
+                m.B.B -= WTaxes
+                m.G.B -= WTaxes
 
         # Capital depreciation
         for f in m.FC + m.FK:
@@ -756,7 +791,8 @@ class Model:
 
         try:
             m.i = (
-                fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC]) / m.avgp - 1
+                fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC]) / m.avgp
+                - 1
             )
             m.avgp = fmean([f.p for f in m.FC], [sum(f.C.values()) for f in m.FC])
         except StatisticsError:
@@ -779,47 +815,24 @@ class Model:
             [f.p * sum(f.I.values()) for f in m.FK]
         )
 
-        m.G.deficit = sum(m.G.T.values()) - sum([m.G.G[f] * f.p for f in m.G.G.keys()]) - sum(m.G.UB.values()) - m.G.intB
+        m.G.deficit = (
+            sum(m.G.T.values())
+            - sum([m.G.G[f] * f.p for f in m.G.G.keys()])
+            - sum(m.G.UB.values())
+            - m.G.intB
+        )
 
 
 # %%
-for s in range(1,6):
-    seed(s)
-    m = Model()
-    data = []
-    for _ in trange(m.TMAX):
-        m.step()
-        data += [deepcopy(m)]
-    pickle.dump(data, open(f"07_data_{s}.pkl", "wb"))
+m = Model()
+data = []
+for _ in trange(m.TMAX):
+    m.step()
+    data += [deepcopy(m)]
+pickle.dump(data, open(f"06_data_EC.pkl", "wb"))
 
 # %%
-rec = []
-for s in range(1, 6):
-    data = pickle.load(open(f"07_data_{s}.pkl", "rb"))
-    for t in range(0, 250):
-        rec += [("MGini", 'WT', s, t, gini([h.M for h in data[t].H]))]
-        rec += [("WGini", 'WT', s, t, gini([h.W for h in data[t].H]))]
-        rec += [
-            (
-                "PubExpShare",
-                'WT',
-                s,
-                t,
-                sum([f.G for f in data[t].FC])
-                / (sum([sum(f.C.values()) for f in data[t].FC]) + sum([f.G for f in data[t].FC])),
-            )
-        ]
-        rec += [("u", 'WT', s, t, data[t].u)]
-        rec += [("i", 'WT', s, t, data[t].i)]
-        rec += [("GDP", 'WT', s, t, data[t].GDP)]
-        rec += [("GvtDebt", 'WT', s, t, data[t].G.B / data[t].GDP)]
-        rec += [("GvtDeficit", 'WT', s, t, data[t].G.deficit / data[t].GDP)]
-
-pandas.DataFrame(rec, columns=('Var', 'Model', 'seed','t', 'Val')).to_pickle("07_res.pkl")
-
-
-# %%
-data = pickle.load(open("07_data.pkl", "rb"))
+data = pickle.load(open("06_data_EC.pkl", "rb"))
 
 # %%
 # Consistency check
@@ -1142,7 +1155,6 @@ plot(
 legend()
 # %%
 plot([mean(f.beta for f in m.FK) for m in data], label="beta")
-plot([log(mean(f.beta for f in m.FK)) for m in data], label="logbeta")
 plot([mean(h.skill for h in m.H) for m in data], label="skill")
 legend()
 # %%
@@ -1167,9 +1179,15 @@ plot([sum([len(f.employees) for f in m.FK]) for m in data], label="NK")
 plot([sum([f.Y for f in m.FK]) for m in data], label="YK")
 legend()
 # %%
-hist([f.p for f in data[-1].FC+data[-1].FK])
-#%% 
+hist([f.p for f in data[-1].FC + data[-1].FK])
+# %%
 hist([f.beta for f in data[-1].FK])
-#%%
+# %%
 hist([f.age for f in data[-1].FK])
+# %%
+hist([h.skill for h in data[-1].H])
+# %%
+hist([h.W for h in data[-1].H])
+# %%
+plot([sum([(f.Y) for f in m.FC]) for m in data[100:]], label="Y")
 # %%

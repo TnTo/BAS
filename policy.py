@@ -34,3 +34,7 @@ savefig("plot/pol_wgini.pdf")
 seaborn.lineplot(x="t", y="PubExpShare", hue="Model", data=df)
 savefig("plot/pol_g.pdf")
 # %%
+seaborn.lineplot(x="t", y="GvtDebt", hue="Model", data=df[df.t>50])
+# %%
+seaborn.lineplot(x="t", y="GvtDeficit", hue="Model", data=df[df.t>50])
+# %%
